@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   Bell,
@@ -9,7 +11,6 @@ import {
   Sparkles,
 } from "lucide-react";
 
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,13 +20,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { authClient } from "../../auth-client";
+import { toast } from "sonner";
 
 export function NavUser({
   user,
@@ -37,6 +42,38 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  const handleSignOut = async () => {
+    toast.promise(
+      async () => {
+        setPending(true);
+        try {
+          await authClient.signOut({
+            fetchOptions: {
+              onSuccess: () => {
+                router.push("/sign-in");
+                router.refresh();
+              },
+            },
+          });
+          return { status: 'success' };
+        } catch (error) {
+          console.error("Error signing out:", error);
+          throw error;
+        } finally {
+          setPending(false);
+        }
+      },
+      {
+        loading: 'Signing out...',
+        success: () => 'Successfully signed out!',
+        error: 'Error signing out'
+      }
+    );
+  };
+  
 
   return (
     <SidebarMenu>
@@ -99,9 +136,9 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignOut} disabled={pending}>
               <LogOut />
-              Log out
+              {pending ? "Signing out..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -22,10 +22,13 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "../../auth-client";
 import { ThemeToggle } from "./theme-toggle";
+import Link from "next/link";
+import { motion } from "motion/react";
 
 // Sample navigation items
 const navItems = [
@@ -73,9 +76,36 @@ const navItems = [
     ],
   },
 ];
-
+export const Logo = () => {
+  return (
+    <Link
+      href="#"
+      className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+    >
+      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="font-medium whitespace-pre text-black dark:text-white"
+      >
+        Portflection
+      </motion.span>
+    </Link>
+  );
+};
+export const LogoIcon = () => {
+  return (
+    <Link
+      href="#"
+      className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+    >
+      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" />
+    </Link>
+  );
+};
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data, isPending } = authClient.useSession();
+  const {open } = useSidebar()
 
   // Default user fallback
   const user = data?.user || {
@@ -84,20 +114,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     image: "/avatars/default.png",
   };
 
-  // Logout function
-  const handleLogout = async () => {
-    await authClient.logout();
-    window.location.href = "/login"; // Redirect to login page after logout
-  };
-
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" variant="floating" {...props}>
       <SidebarHeader>
-        {isPending ? (
-          <Skeleton className="h-10 w-full bg-gray-300 rounded" />
-        ) : (
-          <NavUser user={user} />
-        )}
+      {open ? <Logo /> : <LogoIcon />}
+    
       </SidebarHeader>
 
       <SidebarContent>
@@ -107,16 +128,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter className="flex flex-col gap-2 p-2">
         {/* Dark Mode Toggle */}
         <ThemeToggle />
-
+    {isPending ? (
+          <Skeleton className="h-10 w-full bg-gray-300 rounded" />
+        ) : (
+          <NavUser user={user} />
+        )}
         {/* Logout Button */}
-        <Button
-          variant="destructive"
-          className="flex items-center justify-between w-full"
-          onClick={handleLogout}
-        >
-          <LogOut className="mr-2 h-5 w-5" />
-          <span>Logout</span>
-        </Button>
+      
       </SidebarFooter>
 
       <SidebarRail />

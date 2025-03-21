@@ -22,10 +22,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { ErrorContext } from "@better-fetch/fetch";
-import { GithubIcon } from "lucide-react";
-import { authClient } from "../../../../auth-client";
+import { GithubIcon } from "lucide-react"
 import { toast } from "sonner";
 import LoadingButton from "@/components/ui/loading-button";
+import { authClient } from "../../../../../auth-client";
 
 export default function SignIn() {
   const router = useRouter();
@@ -53,6 +53,7 @@ export default function SignIn() {
           setPendingCredentials(true);
         },
         onSuccess: async () => {
+          toast.success("Signed in successfully");
           router.push("/");
           router.refresh();
         },
@@ -81,8 +82,9 @@ export default function SignIn() {
           router.refresh();
         },
         onError: (ctx: ErrorContext) => {
+          console.log("error", ctx);
           toast.error("Something went wrong", {
-            description: ctx.error.message ?? "Something went wrong.",
+            description:(ctx.error.message || ctx.error.statusText) ?? "Something went wrong.",
           });
         },
       }
@@ -93,12 +95,12 @@ export default function SignIn() {
   return (
     <div className="grow flex items-center justify-center p-4">
       <Card
-        className="w-full max-w-md border"
-        style={{
-          backgroundColor: "var(--card)",
-          borderColor: "var(--border)",
-          boxShadow: "0 4px 12px var(--shadow)",
-        }}
+        className="w-full max-w-md"
+        // style={{
+        //   backgroundColor: "var(--card)",
+        //   borderColor: "var(--border)",
+        //   boxShadow: "0 4px 12px var(--shadow)",
+        // }}
       >
         <CardHeader className="pb-4">
           <CardTitle
@@ -132,12 +134,12 @@ export default function SignIn() {
                           autoComplete={
                             field === "password" ? "current-password" : "email"
                           }
-                          className="border-2 focus:border-2 focus-visible:ring-0 transition-colors"
-                          style={{
-                            borderColor: "var(--border)",
-                            color: "var(--foreground)",
-                            backgroundColor: "var(--background)",
-                          }}
+                          // className="border-2 focus:border-2 focus-visible:ring-0 transition-colors"
+                          // style={{
+                          //   borderColor: "var(--border)",
+                          //   color: "var(--foreground)",
+                          //   backgroundColor: "var(--background)",
+                          // }}
                           onFocus={(e) =>
                             (e.target.style.borderColor = "var(--brand)")
                           }
@@ -155,7 +157,7 @@ export default function SignIn() {
                 pending={pendingCredentials}
                 className="w-full transition-colors"
                 style={{
-                  backgroundColor: "var(--brand)",
+                  // backgroundColor: "var(--brand)",
                   color: "white",
                   border: "none",
                   fontWeight: 500,
@@ -171,7 +173,7 @@ export default function SignIn() {
                 style={{
                   height: "1px",
                   width: "100%",
-                  backgroundColor: "var(--border)",
+                  // backgroundColor: "var(--border)",
                 }}
               ></div>
             </div>
@@ -180,7 +182,7 @@ export default function SignIn() {
                 style={{
                   backgroundColor: "var(--card)",
                   padding: "0 8px",
-                  color: "var(--muted-foreground)",
+                  // color: "var(--muted-foreground)",
                 }}
               >
                 Or continue with

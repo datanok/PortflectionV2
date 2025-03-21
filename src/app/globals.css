@@ -55,6 +55,11 @@
   --spacing-container: 1280px;
   --spacing-container-lg: 1536px;
 
+  --shadow-input:
+    0px 2px 3px -1px rgba(0, 0, 0, 0.1),
+    0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+    0px 0px 0px 1px rgba(25, 28, 33, 0.08);
+
   --shadow-md: 0 4px 6px -1px var(--shadow), 0 2px 4px -2px var(--shadow);
   --shadow-xl: 0 20px 25px -5px var(--shadow), 0 8px 10px -6px var(--shadow);
   --shadow-2xl: 0 25px 50px -12px var(--shadow);
