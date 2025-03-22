@@ -45,7 +45,7 @@ const navItems = [
     items: [
       { title: "My Portfolios", url: "/portfolios/my" },
       { title: "Shared Portfolios", url: "/portfolios/shared" },
-      { title: "Create New", url: "/portfolios/new" },
+      { title: "Create New", url: "dashboard/portfolios/new" },
     ],
   },
   {
@@ -105,7 +105,7 @@ export const LogoIcon = () => {
 };
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data, isPending } = authClient.useSession();
-  const {open } = useSidebar()
+  const { open } = useSidebar();
 
   // Default user fallback
   const user = data?.user || {
@@ -116,10 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>
-      <SidebarHeader>
-      {open ? <Logo /> : <LogoIcon />}
-    
-      </SidebarHeader>
+      <SidebarHeader>{open ? <Logo /> : <LogoIcon />}</SidebarHeader>
 
       <SidebarContent>
         <NavMain items={navItems} />
@@ -128,13 +125,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter className="flex flex-col gap-2 p-2">
         {/* Dark Mode Toggle */}
         <ThemeToggle />
-    {isPending ? (
+        {isPending ? (
           <Skeleton className="h-10 w-full bg-gray-300 rounded" />
         ) : (
           <NavUser user={user} />
         )}
         {/* Logout Button */}
-      
       </SidebarFooter>
 
       <SidebarRail />

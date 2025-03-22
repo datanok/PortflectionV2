@@ -1,8 +1,16 @@
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
 import { TabsContent } from "@/components/ui/tabs";
 import { PortfolioFormData } from "./types/portfolio";
+import { Textarea } from "../ui/textarea";
 
 interface PersonalInfoTabProps {
   form: UseFormReturn<PortfolioFormData>;
@@ -10,7 +18,7 @@ interface PersonalInfoTabProps {
 
 const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
   return (
-    <TabsContent value="personal" className="space-y-4">
+    <>
       <FormField
         control={form.control}
         name="name"
@@ -80,7 +88,28 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
           </FormItem>
         )}
       />
-    </TabsContent>
+      <FormField
+        control={form.control}
+        name="about"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>About Me</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Tell potential clients or employers about yourself..."
+                className="min-h-32"
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>
+              Minimum 50 characters. This will be displayed prominently on your
+              portfolio.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </>
   );
 };
 
