@@ -56,12 +56,12 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
       description:
         "Feature your photography, galleries, and professional clients.",
     },
-    {
-      id: "freelancer",
-      title: "Freelancer",
-      description:
-        "Showcase your skills, portfolio, and testimonials for freelance work.",
-    },
+    // {
+    //   id: "freelancer",
+    //   title: "Freelancer",
+    //   description:
+    //     "Showcase your skills, portfolio, and testimonials for freelance work.",
+    // },
   ];
 
   return (

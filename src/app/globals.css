@@ -55,8 +55,7 @@
   --spacing-container: 1280px;
   --spacing-container-lg: 1536px;
 
-  --shadow-input:
-    0px 2px 3px -1px rgba(0, 0, 0, 0.1),
+  --shadow-input: 0px 2px 3px -1px rgba(0, 0, 0, 0.1),
     0px 1px 0px 0px rgba(25, 28, 33, 0.02),
     0px 0px 0px 1px rgba(25, 28, 33, 0.08);
 
@@ -209,6 +208,16 @@
   /* Shadows */
   --shadow: #ff000020;
   --shadow-strong: #ff000088;
+}
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to right, #80808012 1px, transparent 1px),
+    linear-gradient(to bottom, #80808012 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: -10;
 }
 
 @layer base {

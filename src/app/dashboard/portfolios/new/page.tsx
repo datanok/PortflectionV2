@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { z } from "zod";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -21,13 +20,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Card,
   CardContent,
@@ -48,8 +40,8 @@ import CareerTab from "@/components/portfolioForms/CarrerTab";
 import PreviewTab from "@/components/portfolioForms/PreviewTab";
 import VerticalStepper from "@/components/Stepper";
 import PortfolioTypeForm from "@/components/portfolioForms/PortfolioTypeForm";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
-// // Base schema with common fields for all portfolio types
 // const basePortfolioSchema = z.object({
 //   name: z.string().min(2, "Name must be at least 2 characters"),
 //   title: z.string().min(2, "Title must be at least 2 characters"),
@@ -247,15 +239,23 @@ export default function PortfolioBuilder() {
               {step === 2 && (
                 <div className="space-y-6">
                   <Tabs defaultValue="personal">
-                    <TabsList className="grid w-full grid-cols-6">
-                      <TabsTrigger value="personal">Personal Info</TabsTrigger>
-                      <TabsTrigger value="socials">Social Links</TabsTrigger>
-                      <TabsTrigger value="career">Career</TabsTrigger>
-                      <TabsTrigger value="portfolio">
-                        Portfolio Items
-                      </TabsTrigger>
-                    </TabsList>
-
+                    <ScrollArea>
+                      <div className="w-full relative h-10">
+                        <TabsList className="absolute flex flex-row justify-stretch w-full">
+                          <TabsTrigger value="personal">
+                            Personal Info
+                          </TabsTrigger>
+                          <TabsTrigger value="socials">
+                            Social Links
+                          </TabsTrigger>
+                          <TabsTrigger value="career">Career</TabsTrigger>
+                          <TabsTrigger value="portfolio">
+                            Portfolio Items
+                          </TabsTrigger>
+                        </TabsList>
+                      </div>
+                      <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
                     <TabsContent value="personal" className="space-y-4">
                       <PersonalInfoTab form={form} />
                     </TabsContent>
