@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { TabsContent } from "@/components/ui/tabs";
 import { PortfolioFormData } from "./types/portfolio";
-import { X, Plus } from "lucide-react";
+import { X, Plus, CirclePlus, PlusCircle } from "lucide-react";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -24,13 +24,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 interface CareerTabProps {
   form: UseFormReturn<PortfolioFormData>;
 }
 
 const CareerTab: React.FC<CareerTabProps> = ({ form }) => {
-  const { control } = form;
+  const { control,trigger } = form;
 
   const {
     fields: experienceFields,
@@ -50,24 +51,70 @@ const CareerTab: React.FC<CareerTabProps> = ({ form }) => {
     name: "education",
   });
 
-  const {
-    fields: achievementFields,
-    append: addAchievement,
-    remove: removeAchievement,
-  } = useFieldArray({
-    name: "achievements",
-    control,
-  });
+
+  const handleAddWorkExperience = async () => {
+    const isValid = await trigger("experience"); // Validate all experience entries
+    
+    if (!isValid) {
+      toast.error("Please fill in all required fields correctly");
+      return;
+    }
+    
+    addExperience({
+      company: "",
+      position: "",
+      startDate: "",
+      endDate: "",
+      current: false,
+      description: "",
+      achievements: [],
+    });
+  };
+
+  const handleAddEducation = async () => {
+    // Validate entire form
+    const isValid = await trigger("education");
+    
+    if (!isValid) {
+      toast.error("Please fill in all required fields correctly");
+      return;
+    }
+    
+    // Additional check before adding
+   
+    // Add a new education entry only if the last one is valid
+    addEducation({
+      institution: "",
+      degree: "",
+      field: "",
+      startDate: "",
+      endDate: "",
+      current: false,
+      description: "",
+    });
+  };
 
   return (
     <TabsContent value="career" className="space-y-8">
       {/* Experience Section */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold border-b pb-2">Work Experience</h2>
+        <div className="flex items-center justify-between  pb-2">
+
+          <h2 className="text-xl font-semibold ">Work Experience</h2>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddWorkExperience}
+            className="flex items-center gap-2"
+          >
+            Add Work Experience
+            <PlusCircle className="h-4 w-4" />
+          </Button>
+        </div>
         {experienceFields.map((field, index) => (
           <div
             key={field.id}
-            className="space-y-4 border p-5 rounded-md bg-gray-50"
+            className="space-y-4 border p-5 rounded-md"
           >
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Experience #{index + 1}</h3>
@@ -312,32 +359,28 @@ const CareerTab: React.FC<CareerTabProps> = ({ form }) => {
             </div>
           </div>
         ))}
-        <Button
-          type="button"
-          onClick={() =>
-            addExperience({
-              company: "",
-              position: "",
-              startDate: "",
-              endDate: "",
-              current: false,
-              description: "",
-              achievements: [],
-            })
-          }
-          className="mt-2"
-        >
-          <Plus className="h-4 w-4 mr-2" /> Add Work Experience
-        </Button>
+
       </div>
 
       {/* Education Section */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold border-b pb-2">Education</h2>
+        <div className="flex items-center justify-between pb-2">
+
+          <h2 className="text-xl font-semibold ">Education</h2>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddEducation}
+            className="flex items-center gap-2"
+          >
+            Add Education
+            <PlusCircle className="h-4 w-4" />
+          </Button>
+        </div>
         {educationFields.map((field, index) => (
           <div
             key={field.id}
-            className="space-y-4 border p-5 rounded-md bg-gray-50"
+            className="space-y-4 border p-5 rounded-md"
           >
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">Education #{index + 1}</h3>
@@ -530,23 +573,6 @@ const CareerTab: React.FC<CareerTabProps> = ({ form }) => {
             />
           </div>
         ))}
-        <Button
-          type="button"
-          onClick={() =>
-            addEducation({
-              institution: "",
-              degree: "",
-              field: "",
-              startDate: "",
-              endDate: "",
-              current: false,
-              description: "",
-            })
-          }
-          className="mt-2"
-        >
-          <Plus className="h-4 w-4 mr-2" /> Add Education
-        </Button>
       </div>
     </TabsContent>
   );

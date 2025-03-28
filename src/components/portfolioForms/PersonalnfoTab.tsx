@@ -61,19 +61,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="phone"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Phone Number</FormLabel>
-            <FormControl>
-              <Input placeholder="123-456-7890" {...field} maxLength={10} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+     
 
       <FormField
         control={form.control}

@@ -1,6 +1,17 @@
 
 import { z } from 'zod';
 
+export const PROJECT_TYPES = [
+  "Web Application", 
+  "Mobile App", 
+  "Desktop Application", 
+  "CLI Tool", 
+  "Full Stack", 
+  "Frontend", 
+  "Backend", 
+  "Other"
+] as const;
+
 const getPasswordSchema = (type: "password" | "confirmPassword") =>
   z.string({ required_error: `${type} is required` })
     .min(8, `${type} must be atleast 8 characters`)
@@ -76,31 +87,48 @@ const basePortfolioSchema = z.object({
   }).optional(),
 
   // Experience
-  experience: z.array(
-    z.object({
-      company: z.string(),
-      position: z.string(),
-      startDate: z.string(),
-      endDate: z.string().optional(),
-      current: z.boolean().optional().default(false),
-      description: z.string().optional(),
-      achievements: z.array(z.string()).optional(),
-    })
-  ).optional(),
-
+  experience: z
+    .array(
+      z.object({
+        company: z.string().min(1, "Company name is required"),
+        position: z.string().min(1, "Position is required"),
+        startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+        endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)").optional(),
+        current: z.boolean().optional().default(false),
+        description: z.string().optional(),
+        achievements: z.array(z.string()).optional(),
+      })
+    )
+    .optional()
+    .refine(
+      (experiences) =>
+        !experiences || experiences.length === 0 || experiences.some((exp) => exp.company && exp.position && exp.startDate),
+      {
+        message: "Experience cannot be completely empty",
+        path: ["experience"],
+      }
+    )
+,
   // Education
-  education: z.array(
+  education: z
+  .array(
     z.object({
-      institution: z.string(),
-      degree: z.string(),
-      field: z.string().optional(),
-      startDate: z.string(),
-      endDate: z.string().optional(),
+      institution: z.string().trim().min(1, "Institution name is required"),
+      degree: z.string().trim().min(1, "Degree is required"),
+      field: z.string().trim().optional(),
+      startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+      endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)")
+        .optional(),
       current: z.boolean().optional().default(false),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
     })
-  ).optional(),
-
+  ).optional().refine((educations)=>!educations || educations.length===0||educations.some(edu=>edu.institution.length>0&&edu.degree.length>0&&edu.startDate.length>0),
+  {
+    message: "Education cannot be completely empty",
+    path: ["education"],
+  }),
+  
+  
   // Services offered
   services: z.array(
     z.object({
@@ -133,85 +161,82 @@ const basePortfolioSchema = z.object({
   ).optional(),
 });
 const developerPortfolioSchema = basePortfolioSchema.extend({
-  // Developer-specific skills
-  skills: z.array(
-    z.object({
-      name: z.string(),
-      level: z.number().min(1).max(5).optional(),
-      category: z.string().optional(), // e.g., "Frontend", "Backend", "DevOps"
-    })
-  ),
 
-  // Code repositories and projects
+  // Social Links
+  githubLink: z.string().url("Invalid GitHub URL"),
+  linkedinLink: z.string().url("Invalid LinkedIn URL").optional(),
+  personalWebsite: z.string().url("Invalid website URL").optional(),
+
+  skills: z.object({
+    languages: z.array(z.string()).min(1, "At least one programming language is required"),
+    frameworks: z.array(z.string()).optional(),
+    tools: z.array(z.string()).optional(),
+  }),
+
+  // Projects Section
   projects: z.array(
     z.object({
-      title: z.string(),
-      description: z.string(),
-      longDescription: z.string().optional(),
-      repoLink: z.string().url("Please provide a valid repository URL"),
-      liveDemo: z.string().url("Please provide a valid demo URL").optional(),
-      image: z.string().url("Please provide a valid image URL").optional(),
-      technologies: z.array(z.string()).optional(),
-      featuredProject: z.boolean().default(false).optional(),
-      startDate: z.string().optional(),
-      endDate: z.string().optional(),
-      company: z.string().optional(), // If it was a professional project
-      role: z.string().optional(),
+      title: z.string().min(1, "Project title is required"),
+      description: z.string().min(10, "Description must be at least 10 characters"),
+      technologies: z.string()
+  .min(1, "At least one technology is required")
+  .transform(val => val.split(',').map(tech => tech.trim()).filter(tech => tech !== "")),
+      // Optional project details
+      githubLink: z.string().url("Invalid GitHub repository URL").optional(),
+      liveDemo: z.string().url("Invalid live demo URL").optional(),
+      
+      // Project specifics
+      type: z.enum(PROJECT_TYPES),
+      
+      // Optional additional context
+      roles: z.array(z.string()).optional(),
+      challenges: z.string().optional(),
+      learnings: z.string().optional(),
     })
-  ),
+  ).min(1, "At least one project is required").max(10, "Maximum 10 projects allowed"),
 
-  // GitHub activity and contributions
-  githubUsername: z.string().optional(),
-  showGithubStats: z.boolean().default(true).optional(),
-
-  // Coding-related certifications
-  certifications: z.array(
-    z.object({
-      name: z.string(),
-      issuer: z.string(),
-      date: z.string(),
-      url: z.string().url("Please provide a valid certificate URL").optional(),
-      image: z.string().url("Please provide a valid image URL").optional(),
-    })
-  ).optional(),
 });
 
-// Designer-specific schema
 const designerPortfolioSchema = basePortfolioSchema.extend({
-  // Design-specific skills
-  designSkills: z.array(
+  // Skills section with robust validation
+  skills: z.array(
     z.object({
-      name: z.string(),
-      level: z.number().min(1).max(5).optional(),
-      category: z.string().optional(), // e.g., "UI", "UX", "Graphic Design"
+      name: z.string(), // Requires a skill name
+      level: z.number().min(1).max(5).optional(), // Optional skill proficiency from 1-5
+      category: z.string().optional(), // Optional skill category
     })
   ),
 
-  // Design software proficiency
-  designTools: z.array(
+  // Optional tools section
+  tools: z.array(
     z.object({
-      name: z.string(),
+      name: z.string(), 
       level: z.number().min(1).max(5).optional(),
     })
   ).optional(),
 
-  // Case studies
-  caseStudies: z.array(
+  // Projects section with detailed project information
+  projects: z.array(
     z.object({
-      title: z.string(),
-      client: z.string().optional(),
-      description: z.string(),
+      title: z.string(), // Required project title
+      client: z.string().optional(), // Optional client name
+      description: z.string(), // Required project description
+      
+      // Optional detailed project sections
       problem: z.string().optional(),
       solution: z.string().optional(),
       process: z.string().optional(),
       outcome: z.string().optional(),
+
+      // Optional images with additional metadata
       images: z.array(
         z.object({
-          url: z.string().url("Please provide a valid image URL"),
+          url: z.string().url(), // Validated URL
           caption: z.string().optional(),
           type: z.enum(["before", "after", "process", "final"]).optional(),
         })
       ).optional(),
+
       testimonial: z.object({
         name: z.string(),
         position: z.string().optional(),
@@ -221,187 +246,138 @@ const designerPortfolioSchema = basePortfolioSchema.extend({
     })
   ),
 
-  // Design specialties
-  specialties: z.array(z.string()).optional(),
-
-  // Testimonials from clients
+  // Optional global testimonials section
   testimonials: z.array(
     z.object({
       client: z.string(),
       position: z.string().optional(),
       company: z.string().optional(),
       feedback: z.string(),
-      image: z.string().url("Please provide a valid image URL").optional(),
+      image: z.string().url().optional(),
       date: z.string().optional(),
     })
   ).optional(),
 
-  // Design awards
+  // Optional awards section
   awards: z.array(
     z.object({
       title: z.string(),
       issuer: z.string(),
       date: z.string(),
       description: z.string().optional(),
-      image: z.string().url("Please provide a valid image URL").optional(),
-      url: z.string().url("Please provide a valid URL").optional(),
+      image: z.string().url().optional(),
+      url: z.string().url().optional(),
     })
   ).optional(),
 });
 
-// Photographer-specific schema
-const photographerPortfolioSchema = basePortfolioSchema.extend({
-  // Photography specialties
+const contentCreatorPortfolioSchema = basePortfolioSchema.extend({
+  // Specialties allows flexible tagging of content creator's focus areas
   specialties: z.array(z.string()),
 
-  // Equipment
-  equipment: z.array(
+  // Comprehensive portfolio items across multiple content types
+  portfolioItems: z.array(
     z.object({
-      type: z.string(), // e.g., "Camera", "Lens", "Lighting"
-      name: z.string(),
-      details: z.string().optional(),
-    })
-  ).optional(),
+      title: z.string(), // Required title for the content piece
+      type: z.enum(["Photography", "Video", "Writing", "Podcast"]), // Strict content type
+      description: z.string(), // Required description of the content
 
-  // Photo gallery organized by categories
-  galleries: z.array(
-    z.object({
-      name: z.string(),
-      description: z.string().optional(),
-      coverImage: z.string().url("Please provide a valid image URL").optional(),
-      photos: z.array(
-        z.object({
-          image: z.string().url("Please provide a valid image URL"),
-          caption: z.string().optional(),
-          location: z.string().optional(),
-          date: z.string().optional(),
-          featured: z.boolean().default(false).optional(),
-          tags: z.array(z.string()).optional(),
-          metadata: z.object({
-            camera: z.string().optional(),
-            lens: z.string().optional(),
-            aperture: z.string().optional(),
-            shutterSpeed: z.string().optional(),
-            iso: z.string().optional(),
-            dimensions: z.string().optional(),
-          }).optional(),
-        })
-      ),
+      // Optional links and preview image
+      url: z.string().url().optional(),
+      image: z.string().url().optional(),
+      tags: z.array(z.string()).optional(), // Flexible tagging system
+
+      // Flexible metadata for different content types
+      metadata: z.object({
+        // Photography-specific metadata
+        camera: z.string().optional(),
+        lens: z.string().optional(),
+        aperture: z.string().optional(),
+        shutterSpeed: z.string().optional(),
+        iso: z.string().optional(),
+
+        // Video/Podcast-specific metadata
+        duration: z.string().optional(),
+
+        // Writing-specific metadata
+        publisher: z.string().optional(),
+      }).optional(),
     })
   ),
 
-  // Client list
-  clients: z.array(
+  // Optional testimonials section
+  testimonials: z.array(
     z.object({
-      name: z.string(),
-      logo: z.string().url("Please provide a valid logo URL").optional(),
-      website: z.string().url("Please provide a valid website URL").optional(),
+      client: z.string(),
+      feedback: z.string(),
+      image: z.string().url().optional(),
+      date: z.string().optional(),
     })
   ).optional(),
 
-  // Photography awards and publications
+  // Optional accolades section with broader recognition types
   accolades: z.array(
     z.object({
-      type: z.enum(["award", "publication", "feature"]),
+      type: z.enum(["Award", "Publication", "Feature"]),
       title: z.string(),
       issuer: z.string(),
       date: z.string(),
       description: z.string().optional(),
-      url: z.string().url("Please provide a valid URL").optional(),
-      image: z.string().url("Please provide a valid image URL").optional(),
+      url: z.string().url().optional(),
+      image: z.string().url().optional(),
     })
   ).optional(),
 
-  // Pricing and packages
+  // Optional pricing packages for services
   pricingPackages: z.array(
     z.object({
       name: z.string(),
-      price: z.string(), // Using string to allow for currency symbols and formatting
+      price: z.string(), // Flexible for different currency formats
       description: z.string(),
       features: z.array(z.string()),
       popular: z.boolean().default(false).optional(),
     })
   ).optional(),
 });
+const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
+  expertiseAreas: z.array(z.string()),
 
-// Writer-specific schema
-const writerPortfolioSchema = basePortfolioSchema.extend({
-  // Writing samples
-  writings: z.array(
-    z.object({
-      title: z.string(),
-      type: z.string(), // e.g., "Blog Post", "Article", "Fiction", "Technical Writing"
-      excerpt: z.string().optional(),
-      content: z.string().optional(),
-      publishedUrl: z.string().url("Please provide a valid URL").optional(),
-      publishedDate: z.string().optional(),
-      publisher: z.string().optional(),
-      image: z.string().url("Please provide a valid image URL").optional(),
-      featured: z.boolean().default(false).optional(),
-    })
-  ),
-
-  // Publications
-  publications: z.array(
-    z.object({
-      name: z.string(),
-      role: z.string().optional(), // e.g., "Contributor", "Editor"
-      url: z.string().url("Please provide a valid URL").optional(),
-      logo: z.string().url("Please provide a valid logo URL").optional(),
-    })
-  ).optional(),
-
-  genres: z.array(z.string()).optional(),
-
-  writingServices: z.array(
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      priceRange: z.string().optional(),
-    })
-  ).optional(),
-});
-
-// Project/Product Manager specific schema
-const managerPortfolioSchema = basePortfolioSchema.extend({
-  // Management methodology expertise
-  methodologies: z.array(
-    z.object({
-      name: z.string(), // e.g., "Agile", "Scrum", "Kanban", "Waterfall", "Lean", "SAFe"
-      level: z.number().min(1).max(5).optional(),
-      yearsOfExperience: z.number().optional(),
-      certifications: z.array(z.string()).optional(),
-    })
-  ),
-
-  // Project/Product showcase
-  managedProjects: z.array(
+  // Comprehensive Case Studies Section
+  caseStudies: z.array(
     z.object({
       title: z.string(),
       organization: z.string(),
-      role: z.string(), // "Product Manager", "Project Manager", "Program Manager", etc.
+      role: z.string(),
       startDate: z.string(),
       endDate: z.string().optional(),
       ongoing: z.boolean().default(false).optional(),
       description: z.string(),
+      
+      // Optional detailed project breakdown
       challenges: z.string().optional(),
       solutions: z.string().optional(),
       outcomes: z.string().optional(),
+      
+      // Additional project context
       teamSize: z.number().optional(),
-      technologies: z.array(z.string()).optional(),
-      metrics: z.array(
+      
+      // Quantifiable Impact
+      keyMetrics: z.array(
         z.object({
-          name: z.string(), // e.g., "ROI", "Time to Market", "Customer Satisfaction"
-          value: z.string(), // Using string to allow for formatted values
-          description: z.string().optional(),
+          name: z.string(), // Metric name
+          value: z.string(), // Metric value
         })
       ).optional(),
+      
+      // Visual Documentation
       images: z.array(
         z.object({
-          url: z.string().url("Please provide a valid image URL"),
+          url: z.string().url(),
           caption: z.string().optional(),
         })
       ).optional(),
+      
+      // Project-Specific Testimonials
       testimonials: z.array(
         z.object({
           name: z.string(),
@@ -410,83 +386,76 @@ const managerPortfolioSchema = basePortfolioSchema.extend({
           content: z.string(),
         })
       ).optional(),
+      
+      // Highlighting Significance
       featured: z.boolean().default(false).optional(),
     })
   ),
 
-  // Management skills
-  managementSkills: z.array(
+  // Skills Categorization
+  skills: z.array(
     z.object({
-      category: z.string(), // e.g., "Leadership", "Communication", "Technical", "Strategic"
+      category: z.string(), // Skill category
       skills: z.array(
         z.object({
           name: z.string(),
-          level: z.number().min(1).max(5).optional(),
+          level: z.number().min(1).max(5).optional(), // Proficiency rating
         })
       ),
     })
   ),
 
-  // Tools expertise
-  toolsExpertise: z.array(
+  // Optional Tools Categorization
+  tools: z.array(
     z.object({
-      category: z.string(), // e.g., "Project Management", "Product Management", "Collaboration"
+      category: z.string(),
       tools: z.array(
         z.object({
-          name: z.string(), // e.g., "JIRA", "Asana", "Trello", "Figma", "Slack"
-          level: z.number().min(1).max(5).optional(),
+          name: z.string(),
+          level: z.number().min(1).max(5).optional(), // Proficiency rating
         })
       ),
     })
   ).optional(),
 
-  // Certifications specific to management
-  managerCertifications: z.array(
+  // Optional Certifications
+  certifications: z.array(
     z.object({
-      name: z.string(), // e.g., "PMP", "CSM", "CSPO", "PMI-ACP"
-      issuingOrganization: z.string(), // e.g., "PMI", "Scrum Alliance"
+      name: z.string(),
+      issuingOrganization: z.string(),
       issueDate: z.string(),
       expiryDate: z.string().optional(),
       credentialID: z.string().optional(),
-      credentialURL: z.string().url("Please provide a valid credential URL").optional(),
+      credentialURL: z.string().url().optional(),
     })
   ).optional(),
 
-  // Key achievements
+  // Optional Key Achievements
   keyAchievements: z.array(
     z.object({
       title: z.string(),
       description: z.string(),
-      impact: z.string().optional(), // Quantifiable outcomes
+      impact: z.string().optional(),
       date: z.string().optional(),
     })
   ).optional(),
 
-  // Professional philosophy/approach
-  managementPhilosophy: z.string().optional(),
-
-  // Leadership style
-  leadershipStyle: z.string().optional(),
-
-  // Industries expertise
   industries: z.array(z.string()).optional(),
 });
 
-// Export all schemas
 export type PortfolioFormData = z.infer<typeof basePortfolioSchema>;
 export type DeveloperPortfolioFormData = z.infer<typeof developerPortfolioSchema>;
 export type DesignerPortfolioFormData = z.infer<typeof designerPortfolioSchema>;
-export type PhotographerPortfolioFormData = z.infer<typeof photographerPortfolioSchema>;
-export type WriterPortfolioFormData = z.infer<typeof writerPortfolioSchema>;
-export type ManagerPortfolioFormData = z.infer<typeof managerPortfolioSchema>;
+export type BusinessConsultingPortfolioFormData = z.infer<typeof businessConsultingPortfolioSchema>;
+export type ContentCreatorPortfolioFormData = z.infer<typeof contentCreatorPortfolioSchema>;
+
 
 export {
   basePortfolioSchema,
   developerPortfolioSchema,
   designerPortfolioSchema,
-  photographerPortfolioSchema,
-  writerPortfolioSchema,
-  managerPortfolioSchema
+  businessConsultingPortfolioSchema,
+  contentCreatorPortfolioSchema,
 };
 
 // Note: The previous developer, designer, photographer, and writer schemas are assumed to be defined here

@@ -32,7 +32,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   designerPortfolioSchema,
   developerPortfolioSchema,
-  photographerPortfolioSchema,
 } from "@/lib/zod";
 import DeveloperPortfolio from "@/components/portfolioForms/DeveloperPortfolio";
 import PersonalInfoTab from "@/components/portfolioForms/PersonalnfoTab";
@@ -41,57 +40,7 @@ import PreviewTab from "@/components/portfolioForms/PreviewTab";
 import VerticalStepper from "@/components/Stepper";
 import PortfolioTypeForm from "@/components/portfolioForms/PortfolioTypeForm";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
-// const basePortfolioSchema = z.object({
-//   name: z.string().min(2, "Name must be at least 2 characters"),
-//   title: z.string().min(2, "Title must be at least 2 characters"),
-//   email: z.string().email("Please enter a valid email address"),
-//   about: z.string().min(50, "Please write at least 50 characters about yourself"),
-//   theme: z.object({
-//     primary: z.string().default('#3490dc'),
-//     secondary: z.string().default('#ffed4a'),
-//     mode: z.enum(["light", "dark"]).default("light"),
-//   }),
-// });
-
-// // Portfolio type-specific schemas
-// const developerPortfolioSchema = basePortfolioSchema.extend({
-//   projects: z.array(
-//     z.object({
-//       title: z.string(),
-//       description: z.string().optional(),
-//       repoLink: z.string().url(),
-//       liveDemo: z.string().url().optional(),
-//     })
-//   ),
-//   skills: z.array(z.string()),
-// });
-
-// const designerPortfolioSchema = basePortfolioSchema.extend({
-//   caseStudies: z.array(
-//     z.object({
-//       title: z.string(),
-//       description: z.string(),
-//       images: z.array(z.string().url()).optional(),
-//     })
-//   ),
-//   testimonials: z.array(
-//     z.object({
-//       client: z.string(),
-//       feedback: z.string(),
-//     })
-//   ).optional(),
-// });
-
-// const photographerPortfolioSchema = basePortfolioSchema.extend({
-//   gallery: z.array(
-//     z.object({
-//       image: z.string().url(),
-//       caption: z.string().optional(),
-//     })
-//   ),
-//   clients: z.array(z.string()).optional(),
-// });
+import ContactInfoTab from "@/components/portfolioForms/ContactForm";
 
 // Define the color schemes available
 const colorSchemes = [
@@ -110,7 +59,6 @@ const getSchemaForType = (type: string) => {
     case "designer":
       return designerPortfolioSchema;
     case "photographer":
-      return photographerPortfolioSchema;
     default:
       return developerPortfolioSchema;
   }
@@ -123,6 +71,10 @@ export default function PortfolioBuilder() {
   const [portfolioType, setPortfolioType] = useState("developer");
   // Update form when portfolio type changes
 
+  const stepFields = [
+    ["name","title","location","about","email"],
+
+  ]
   // Initialize form with the appropriate schema
   const form = useForm({
     resolver: zodResolver(getSchemaForType(portfolioType)),
@@ -192,25 +144,15 @@ export default function PortfolioBuilder() {
     );
   };
 
-  // Add new item to array fields
-  const addItemToArray = (fieldName: string, defaultValue: any) => {
-    const currentItems = form.getValues(fieldName) || [];
-    form.setValue(fieldName, [...currentItems, defaultValue]);
-  };
-
-  // Remove item from array fields
-  const removeItemFromArray = (fieldName: string, index: number) => {
-    const currentItems = form.getValues(fieldName);
-    form.setValue(
-      fieldName,
-      currentItems.filter((_: any, i: number) => i !== index)
-    );
-  };
 
   // Navigation between steps
-  const nextStep = () => setStep(step + 1);
+  const nextStep = async () => {
+    // const isValid = await trigger("portfolio");
+    setStep(step+1)
+
+  };
   const prevStep = () => setStep(step - 1);
-  console.log(form.getValues(), "form");
+  console.log(form, "form");
 
   return (
     <div className="flex flex-col md:flex-row w-full gap-2">
@@ -245,10 +187,10 @@ export default function PortfolioBuilder() {
                           <TabsTrigger value="personal">
                             Personal Info
                           </TabsTrigger>
-                          <TabsTrigger value="socials">
-                            Social Links
-                          </TabsTrigger>
                           <TabsTrigger value="career">Career</TabsTrigger>
+                          <TabsTrigger value="contact">
+                            Contact
+                          </TabsTrigger>
                           <TabsTrigger value="portfolio">
                             Portfolio Items
                           </TabsTrigger>
@@ -263,6 +205,7 @@ export default function PortfolioBuilder() {
                     <TabsContent value="career">
                       <CareerTab form={form} />
                     </TabsContent>
+                    <TabsContent value="contact"><ContactInfoTab form={form} /></TabsContent>
 
                     {/* Portfolio Items Tab - Conditional based on portfolio type */}
                     <TabsContent value="portfolio">
@@ -271,219 +214,11 @@ export default function PortfolioBuilder() {
                       )}
 
                       {portfolioType === "designer" && (
-                        <div className="space-y-6">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-medium">
-                              Case Studies
-                            </h3>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() =>
-                                addItemToArray("caseStudies", {
-                                  title: "",
-                                  description: "",
-                                  images: [],
-                                })
-                              }
-                            >
-                              Add Case Study
-                            </Button>
-                          </div>
-
-                          {form.watch("caseStudies")?.map((_, index) => (
-                            <Card key={index} className="p-4">
-                              <div className="flex justify-between items-center mb-4">
-                                <h4 className="font-medium">
-                                  Case Study {index + 1}
-                                </h4>
-                                {index > 0 && (
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() =>
-                                      removeItemFromArray("caseStudies", index)
-                                    }
-                                  >
-                                    Remove
-                                  </Button>
-                                )}
-                              </div>
-
-                              <div className="space-y-4">
-                                <FormField
-                                  control={form.control}
-                                  name={`caseStudies.${index}.title`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Case Study Title</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Brand Redesign for XYZ"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-
-                                <FormField
-                                  control={form.control}
-                                  name={`caseStudies.${index}.description`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Description</FormLabel>
-                                      <FormControl>
-                                        <Textarea
-                                          placeholder="Describe the challenge, process, and outcome..."
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-
-                                <FormField
-                                  control={form.control}
-                                  name={`caseStudies.${index}.images`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>
-                                        Image URLs (one per line)
-                                      </FormLabel>
-                                      <FormControl>
-                                        <Textarea
-                                          placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                                          value={field.value?.join("\n") || ""}
-                                          onChange={(e) => {
-                                            const imagesArray = e.target.value
-                                              .split("\n")
-                                              .map((url) => url.trim())
-                                              .filter((url) => url);
-                                            field.onChange(imagesArray);
-                                          }}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
+                        <div className="space-y-6"></div>
                       )}
 
                       {portfolioType === "photographer" && (
-                        <div className="space-y-6">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-medium">Gallery</h3>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              onClick={() =>
-                                addItemToArray("gallery", {
-                                  image: "",
-                                  caption: "",
-                                })
-                              }
-                            >
-                              Add Photo
-                            </Button>
-                          </div>
-
-                          {form.watch("gallery")?.map((_, index) => (
-                            <Card key={index} className="p-4">
-                              <div className="flex justify-between items-center mb-4">
-                                <h4 className="font-medium">
-                                  Photo {index + 1}
-                                </h4>
-                                {index > 0 && (
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() =>
-                                      removeItemFromArray("gallery", index)
-                                    }
-                                  >
-                                    Remove
-                                  </Button>
-                                )}
-                              </div>
-
-                              <div className="space-y-4">
-                                <FormField
-                                  control={form.control}
-                                  name={`gallery.${index}.image`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Image URL</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="https://example.com/photo.jpg"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-
-                                <FormField
-                                  control={form.control}
-                                  name={`gallery.${index}.caption`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>Caption (Optional)</FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          placeholder="Sunset over the mountains"
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </Card>
-                          ))}
-
-                          <div className="mt-6">
-                            <FormLabel className="text-lg font-medium">
-                              Clients (Optional)
-                            </FormLabel>
-                            <FormDescription className="mb-2">
-                              Enter client names separated by commas
-                            </FormDescription>
-                            <FormField
-                              control={form.control}
-                              name="clients"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="ABC Magazine, XYZ Agency, The Local Gallery"
-                                      value={field.value?.join(", ") || ""}
-                                      onChange={(e) => {
-                                        const clientsArray = e.target.value
-                                          .split(",")
-                                          .map((client) => client.trim())
-                                          .filter((client) => client);
-                                        field.onChange(clientsArray);
-                                      }}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </div>
+                        <div className="space-y-6"></div>
                       )}
                     </TabsContent>
                   </Tabs>

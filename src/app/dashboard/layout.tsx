@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import DynamicBreadcrumb from "@/components/DynamicBreadCrumb";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function DashboardLayout({
   children,
@@ -12,7 +12,8 @@ export default function DashboardLayout({
       <SidebarProvider>
         <AppSidebar className="" />
         <SidebarInset className="flex-1 p-3 sm:p-4 md:p-6 mx-2 sm:mx-3 md:mx-4 my-2 sm:my-3">
-          <div className="sticky top-2 z-10 w-full">
+          <div className="sticky flex items-center top-2 z-10 w-full">
+             <SidebarTrigger className="-ml-1 cursor-pointer" />
             <DynamicBreadcrumb />
           </div>
           {children}

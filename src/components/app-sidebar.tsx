@@ -30,13 +30,20 @@ import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import { motion } from "motion/react";
 
-// Sample navigation items
-const navItems = [
+const mainItems = [
   {
     title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
     isActive: true,
+  },
+  
+]
+const navItems = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
     title: "Portfolios",
@@ -48,15 +55,7 @@ const navItems = [
       { title: "Create New", url: "dashboard/portfolios/new" },
     ],
   },
-  {
-    title: "Templates",
-    url: "/templates",
-    icon: FileText,
-    items: [
-      { title: "Browse Templates", url: "/templates" },
-      { title: "Create Template", url: "/templates/new" },
-    ],
-  },
+ 
   {
     title: "Analytics",
     url: "/analytics",
@@ -115,7 +114,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="icon" variant="floating" {...props}>
+    <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>{open ? <Logo /> : <LogoIcon />}</SidebarHeader>
 
       <SidebarContent>

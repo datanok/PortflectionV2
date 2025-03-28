@@ -1,6 +1,8 @@
 import { PortfolioFormData } from "@/lib/zod";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface PortfolioTypeFormProps {
   form: UseFormReturn<PortfolioFormData>;
@@ -41,68 +43,56 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
     {
       id: "developer",
       title: "Developer",
-      description:
-        "Showcase your coding projects, technical skills, and GitHub repositories.",
+      description: "Showcase your coding projects, technical skills, and GitHub repositories.",
     },
     {
       id: "designer",
       title: "Designer",
-      description:
-        "Display your design work, case studies, and client testimonials.",
+      description: "Display your design work, case studies, and client testimonials.",
     },
     {
-      id: "photographer",
-      title: "Photographer",
-      description:
-        "Feature your photography, galleries, and professional clients.",
+      id: "contentCreator",
+      title: "Content Creator",
+      description: "Highlight your multimedia content, writing, photography, and creative work.",
     },
-    // {
-    //   id: "freelancer",
-    //   title: "Freelancer",
-    //   description:
-    //     "Showcase your skills, portfolio, and testimonials for freelance work.",
-    // },
+    {
+      id: "businessConsulting",
+      title: "Business Consulting",
+      description: "Showcase your professional expertise, case studies, and industry impact.",
+    }
   ];
+  
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {portfolioTypes.map((type) => (
-          <div
-            key={type.id}
-            onClick={() => handlePortfolioTypeChange(type.id)}
-            className={`relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-lg cursor-pointer${
-              portfolioType === type.id
-                ? "ring-2 ring-blue-500 bg-blue-50"
-                : "bg-white hover:bg-gray-50"
-            }`}
-          >
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">{type.title}</h3>
-                {portfolioType === type.id && (
-                  <span className="text-blue-500">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                  </span>
-                )}
-              </div>
-              <p className="text-gray-600 text-sm">{type.description}</p>
+       
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {portfolioTypes.map((type) => (
+        <div
+          key={type.id}
+          onClick={() => handlePortfolioTypeChange(type.id)}
+          className={cn(
+            "relative overflow-hidden rounded-lg ring-1 transition-all duration-300 hover:shadow-lg cursor-pointer",
+            portfolioType === type.id
+              ? "ring-2 ring-primary bg-primary/10 dark:bg-primary/10"
+              : "bg-card hover:bg-muted dark:bg-card dark:hover:bg-muted"
+          )}
+        >
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-foreground">{type.title}</h3>
+              {portfolioType === type.id && (
+                <span className="text-primary">
+                  <Check />
+                </span>
+              )}
             </div>
+            <p className="text-muted-foreground text-sm">{type.description}</p>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
+    </div>
+
 
       <div className="mt-8 flex justify-center">
         <Button
