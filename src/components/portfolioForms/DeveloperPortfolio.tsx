@@ -1,14 +1,12 @@
 import React from "react";
-import { UseFormReturn, useFieldArray } from "react-hook-form";
+import { useFieldArray, Control, FieldValues, FieldErrors, UseFormTrigger } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,30 +21,45 @@ import {
 } from "@/components/ui/select";
 import { Trash2, PlusCircle } from "lucide-react";
 
-import { DeveloperPortfolioFormData } from "./types/portfolio";
 import { PROJECT_TYPES } from "@/lib/zod";
 
+// Define proper form interface
+interface FormProps<T extends FieldValues> {
+  control: Control<T>;
+  formState: {
+    errors: FieldErrors<T>;
+  };
+  setValue?: any;
+  watch?: any;
+}
 
+interface DeveloperPortfolioProps<T extends FieldValues> {
+  form: FormProps<T>;
+  trigger: UseFormTrigger<T>;
+}
 
-const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFormData> }) => {
-  const { control, register, trigger, formState: { errors } } = form;
+const DeveloperPortfolio = <T extends FieldValues>({ form, trigger }: DeveloperPortfolioProps<T>) => {
+  const { control, formState } = form;
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "projects"
+    name: "projects" as any
   });
 
   const handleAddProject = async () => {
-    const isValid = await trigger("projects");
+    const isValid = await trigger("projects" as any);
     if (!isValid) return;
 
     append({
       title: "",
       description: "",
-      technologies: [],
+      technologies: "",
       githubLink: "",
       liveDemo: "",
-      type: ""
+      type: "WEB",
+      roles: [],
+      challenges: "",
+      learnings: ""
     });
   };
 
@@ -83,7 +96,7 @@ const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFo
           <CardContent className="space-y-4">
             <FormField
               control={control}
-              name={`projects.${index}.title`}
+              name={`projects.${index}.title` as any}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Project Title</FormLabel>
@@ -101,7 +114,7 @@ const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFo
 
             <FormField
               control={control}
-              name={`projects.${index}.description`}
+              name={`projects.${index}.description` as any}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
@@ -119,22 +132,18 @@ const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFo
 
             <FormField
               control={control}
-              name={`projects.${index}.technologies`}
-              render={({ field: { value, onChange, ...field } }) => (
+              name={`projects.${index}.technologies` as any}
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Technologies Used</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="React, Node.js, TypeScript"
-                      value={value || ""} // Ensure value is always a string
-                      onChange={(e) => onChange(e.target.value)}
                       {...field}
+                      value={field.value || ""}
                       className="focus:ring-2 focus:ring-blue-500"
                     />
                   </FormControl>
-                  <FormDescription>
-                    Enter technologies separated by commas
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -142,7 +151,7 @@ const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFo
 
             <FormField
               control={control}
-              name={`projects.${index}.type`}
+              name={`projects.${index}.type` as any}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Project Type</FormLabel>
@@ -170,7 +179,7 @@ const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFo
 
             <FormField
               control={control}
-              name={`projects.${index}.githubLink`}
+              name={`projects.${index}.githubLink` as any}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>GitHub Repository</FormLabel>
@@ -189,7 +198,7 @@ const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFo
 
             <FormField
               control={control}
-              name={`projects.${index}.liveDemo`}
+              name={`projects.${index}.liveDemo` as any}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Live Demo (Optional)</FormLabel>
@@ -205,9 +214,62 @@ const DeveloperPortfolio = ({ form }: { form: UseFormReturn<DeveloperPortfolioFo
                 </FormItem>
               )}
             />
+            
+            <FormField
+              control={control}
+              name={`projects.${index}.challenges` as any}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Challenges Faced</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="What challenges did you overcome during this project?"
+                      {...field}
+                      value={field.value || ""}
+                      className="min-h-[80px] focus:ring-2 focus:ring-blue-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name={`projects.${index}.learnings` as any}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Key Learnings</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="What did you learn from this project?"
+                      {...field}
+                      value={field.value || ""}
+                      className="min-h-[80px] focus:ring-2 focus:ring-blue-500"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
       ))}
+
+      {fields.length === 0 && (
+        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg">
+          <p className="mb-4 text-gray-500">No projects added yet</p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddProject}
+            className="flex items-center gap-2"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Add Your First Project
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

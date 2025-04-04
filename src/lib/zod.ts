@@ -93,13 +93,17 @@ const basePortfolioSchema = z.object({
         company: z.string().min(1, "Company name is required"),
         position: z.string().min(1, "Position is required"),
         startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-        endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)").optional(),
+        endDate: z.string().optional(),
         current: z.boolean().optional().default(false),
         description: z.string().optional(),
         achievements: z.array(z.string()).optional(),
-      })
+      }).refine((exp) => {
+        if (!exp.current && !exp.endDate) {
+          return false;
+        }
+        return true;
+      }, "Valid End date is required if not marked as current")
     )
-    .optional()
     .refine(
       (experiences) =>
         !experiences || experiences.length === 0 || experiences.some((exp) => exp.company && exp.position && exp.startDate),
@@ -163,23 +167,22 @@ const basePortfolioSchema = z.object({
 const developerPortfolioSchema = basePortfolioSchema.extend({
 
   // Social Links
-  githubLink: z.string().url("Invalid GitHub URL"),
+  githubLink: z.string().url("Invalid GitHub URL").optional(),
   linkedinLink: z.string().url("Invalid LinkedIn URL").optional(),
   personalWebsite: z.string().url("Invalid website URL").optional(),
 
-  skills: z.object({
-    languages: z.array(z.string()).min(1, "At least one programming language is required"),
-    frameworks: z.array(z.string()).optional(),
-    tools: z.array(z.string()).optional(),
-  }),
+  // skills: z.object({
+  //   languages: z.array(z.string()).min(1, "At least one programming language is required"),
+  //   frameworks: z.array(z.string()).optional(),
+  //   tools: z.array(z.string()).optional(),
+  // }),
 
   // Projects Section
   projects: z.array(
     z.object({
       title: z.string().min(1, "Project title is required"),
       description: z.string().min(10, "Description must be at least 10 characters"),
-      technologies: z.string()
-  .min(1, "At least one technology is required")
+      technologies: z.string().min(1, "At least one technology is required")
   .transform(val => val.split(',').map(tech => tech.trim()).filter(tech => tech !== "")),
       // Optional project details
       githubLink: z.string().url("Invalid GitHub repository URL").optional(),

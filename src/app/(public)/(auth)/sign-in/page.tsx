@@ -54,7 +54,7 @@ export default function SignIn() {
         },
         onSuccess: async () => {
           toast.success("Signed in successfully");
-          router.push("/");
+          router.push("/dashboard");
           router.refresh();
         },
         onError: (ctx: ErrorContext) => {
@@ -78,7 +78,8 @@ export default function SignIn() {
           setPendingGithub(true);
         },
         onSuccess: async () => {
-          router.push("/");
+          toast.success("Signed in successfully");
+          router.push("/dashboard");
           router.refresh();
         },
         onError: (ctx: ErrorContext) => {

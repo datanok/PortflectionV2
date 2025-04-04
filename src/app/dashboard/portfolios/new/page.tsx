@@ -1,7 +1,7 @@
 // pages/portfolio-builder.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -12,14 +12,11 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -30,6 +27,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  basePortfolioSchema,
+  businessConsultingPortfolioSchema,
+  contentCreatorPortfolioSchema,
   designerPortfolioSchema,
   developerPortfolioSchema,
 } from "@/lib/zod";
@@ -41,86 +41,249 @@ import VerticalStepper from "@/components/Stepper";
 import PortfolioTypeForm from "@/components/portfolioForms/PortfolioTypeForm";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ContactInfoTab from "@/components/portfolioForms/ContactForm";
+import ErrorAlertDialog from "@/components/portfolioForms/ErrorDialog";
+import ColorSchemeForm, { COLOR_SCHEMES } from "@/components/portfolioForms/ColorSchemeForm";
 
-// Define the color schemes available
-const colorSchemes = [
-  { name: "Professional Blue", primary: "#3490dc", secondary: "#4fd1c5" },
-  { name: "Creative Purple", primary: "#9f7aea", secondary: "#f687b3" },
-  { name: "Modern Green", primary: "#38a169", secondary: "#ecc94b" },
-  { name: "Bold Red", primary: "#e53e3e", secondary: "#ed8936" },
-  { name: "Elegant Grey", primary: "#718096", secondary: "#f56565" },
-];
 
-// Select the right schema based on portfolio type
-const getSchemaForType = (type: string) => {
+// Type definitions for better type safety
+type PortfolioType = "developer" | "designer" | "contentCreator" | "businessConsulting";
+type TabType = "personal" | "career" | "contact" | "portfolio";
+
+// Utility functions moved outside the component
+const getSchemaForType = (type: PortfolioType) => {
   switch (type) {
     case "developer":
       return developerPortfolioSchema;
     case "designer":
       return designerPortfolioSchema;
-    case "photographer":
+    case "contentCreator":
+      return contentCreatorPortfolioSchema;
+    case "businessConsulting":
+      return businessConsultingPortfolioSchema;
     default:
-      return developerPortfolioSchema;
+      return basePortfolioSchema;
   }
+};
+
+// Generate default values based on portfolio type
+const getDefaultValues = (portfolioType: PortfolioType, colorScheme = COLOR_SCHEMES[0]) => {
+  const baseDefaults = {
+    name: "",
+    title: "",
+    email: "",
+    about: "",
+    phone: "",
+    location: "",
+    theme: {
+      primary: colorScheme.primary,
+      secondary: colorScheme.secondary,
+      mode: "light",
+    },
+  };
+
+  // Type-specific defaults
+  const typeDefaults = {
+    developer: {
+      githubLink: "",
+      linkedinLink: "",
+      personalWebsite: "",
+      skills: {
+        languages: [],
+        frameworks: [],
+        tools: []
+      },
+      projects: [{
+        title: "",
+        description: "",
+        technologies: "",
+        githubLink: "",
+        liveDemo: "",
+        type: "WEB",
+        roles: [],
+        challenges: "",
+        learnings: ""
+      }]
+    },
+    designer: {
+      skills: [],
+      tools: [],
+      projects: [{
+        title: "",
+        description: "",
+        client: "",
+        problem: "",
+        solution: "",
+        process: "",
+        outcome: "",
+        images: [],
+        testimonial: {
+          name: "",
+          position: "",
+          company: "",
+          content: ""
+        }
+      }],
+      testimonials: [],
+      awards: []
+    },
+    contentCreator: {
+      specialties: [],
+      portfolioItems: [{
+        title: "",
+        type: "Photography",
+        description: "",
+        url: "",
+        image: "",
+        tags: [],
+        metadata: {}
+      }],
+      testimonials: [],
+      accolades: [],
+      pricingPackages: []
+    },
+    businessConsulting: {
+      expertiseAreas: [],
+      caseStudies: [{
+        title: "",
+        organization: "",
+        role: "",
+        startDate: "",
+        endDate: "",
+        ongoing: false,
+        description: "",
+        challenges: "",
+        solutions: "",
+        outcomes: "",
+        teamSize: 1,
+        keyMetrics: [],
+        images: [],
+        testimonials: [],
+        featured: false
+      }],
+      skills: [{
+        category: "",
+        skills: []
+      }],
+      tools: [],
+      certifications: [],
+      keyAchievements: [],
+      industries: []
+    }
+  };
+
+  return {
+    ...baseDefaults,
+    ...(typeDefaults[portfolioType] || {})
+  };
+};
+
+// Define validation rules for each step and tab
+const VALIDATION_RULES = {
+  personal: ["name", "title", "about"],
+  contact: ["email", "phone", "location"],
+  career: ["experience", "education"],
+  developer: ["skills", "projects", "githubLink"],
+  designer: ["skills", "tools", "projects"],
+  contentCreator: ["specialties", "portfolioItems"],
+  businessConsulting: ["expertiseAreas", "caseStudies", "skills"],
+  theme: ["theme"]
 };
 
 export default function PortfolioBuilder() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [selectedColorScheme, setSelectedColorScheme] = useState(0);
-  const [portfolioType, setPortfolioType] = useState("developer");
-  // Update form when portfolio type changes
+  const [portfolioType, setPortfolioType] = useState<PortfolioType>("developer");
+  const [currentTab, setCurrentTab] = useState<TabType>("personal");
+  const [disableNext, setDisableNext] = useState(false);
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+  
+  // Function to open the dialog programmatically
+  const openErrorDialog = () => {
+    setIsErrorDialogOpen(true);
+  };
 
-  const stepFields = [
-    ["name","title","location","about","email"],
-
-  ]
-  // Initialize form with the appropriate schema
+  // Create form with proper typing
   const form = useForm({
     resolver: zodResolver(getSchemaForType(portfolioType)),
-    defaultValues: {
-      name: "",
-      title: "",
-      email: "",
-      about: "",
-      phone: "", // Default to an empty string
-      location: "", // Default to an empty string
-      theme: {
-        primary: colorSchemes[0].primary,
-        secondary: colorSchemes[0].secondary,
-        mode: "light",
-      },
-      ...(portfolioType === "developer" && {
-        projects: [{ title: "", description: "", repoLink: "" }],
-        skills: [],
-      }),
-      ...(portfolioType === "designer" && {
-        caseStudies: [{ title: "", description: "" }],
-        testimonials: [],
-      }),
-      ...(portfolioType === "photographer" && {
-        gallery: [{ image: "", caption: "" }],
-        clients: [],
-      }),
-    },
+    defaultValues: getDefaultValues(portfolioType),
     mode: "onChange",
   });
 
-  // Handle color scheme selection
-  const handleColorSchemeChange = (index: number) => {
-    setSelectedColorScheme(index);
-    form.setValue("theme.primary", colorSchemes[index].primary);
-    form.setValue("theme.secondary", colorSchemes[index].secondary);
-  };
+  console.log(form)
+  const { control, handleSubmit, setValue, trigger, formState, reset, getValues } = form;
 
-  // Handle form submission
-  const onSubmit = async (data: any) => {
+  // Handle portfolio type change with proper form reset
+  const handlePortfolioTypeChange = useCallback((newType: PortfolioType) => {
+    setPortfolioType(newType);
+    // Get current theme values before reset
+    const currentTheme = getValues("theme");
+
+    // Reset with new schema and defaults while preserving theme
+    reset(
+      {
+        ...getDefaultValues(newType),
+        theme: currentTheme || {
+          primary: COLOR_SCHEMES[0].primary,
+          secondary: COLOR_SCHEMES[0].secondary,
+          mode: "light"
+        }
+      },
+      {
+        resolver: zodResolver(getSchemaForType(newType))
+      }
+    );
+  }, [getValues, reset]);
+
+  // Memoize the validation fields for the current portfolio type and tab
+  const portfolioValidationFields = useMemo(() => {
+    return VALIDATION_RULES[portfolioType] || [];
+  }, [portfolioType]);
+
+  // Handle color scheme selection
+ 
+  console.log(form)
+  // Navigation functions with validation
+  const nextStep = useCallback(async () => {
+    let isValid = true;
+
+    // Step-specific validation
+    if (step === 2) {
+      // In step 2, validate only the current tab's fields
+      const fieldsToValidate =
+        currentTab === "portfolio"
+          ? portfolioValidationFields
+          : VALIDATION_RULES[currentTab];
+      console.log("fieldsToValidate:", fieldsToValidate);
+      console.log(form.formState.errors)
+      if (fieldsToValidate && fieldsToValidate.length > 0) {
+        isValid = await trigger(fieldsToValidate as any);
+      }
+    } else if (step === 3) {
+      console.log(form.formState.isValid)
+      if (!form.formState.isValid) {
+        setDisableNext(true);
+      }
+      isValid = await trigger("theme" as any);
+    }
+
+    if (isValid) {
+      setStep(prev => prev + 1);
+    }
+  }, [step, currentTab, portfolioValidationFields, trigger]);
+
+  const prevStep = useCallback(() => {
+    setStep(prev => prev - 1);
+  }, []);
+
+  const handleTabChange = useCallback((newTab: string) => {
+    setCurrentTab(newTab as TabType);
+  }, []);
+
+  // Handle form submission with toast feedback
+  const onSubmit = useCallback(async (data: any) => {
     toast.promise(
-      // This would be your API call in a real application
       new Promise((resolve) => {
-        // Simulate API call
         setTimeout(() => {
-          // Save to localStorage for demo purposes
           localStorage.setItem(
             "portfolio",
             JSON.stringify({
@@ -135,168 +298,106 @@ export default function PortfolioBuilder() {
       {
         loading: "Creating your portfolio...",
         success: () => {
-          // Navigate to preview page
           router.push("/portfolio-preview");
           return "Portfolio created successfully!";
         },
         error: "Failed to create portfolio. Please try again.",
       }
     );
+  }, [portfolioType, router]);
+
+  // Render each step content
+  const renderStepContent = () => {
+    switch (step) {
+      case 1:
+        return (
+          <PortfolioTypeForm
+            form={form}
+            portfolioType={portfolioType}
+            setPortfolioType={handlePortfolioTypeChange}
+            nextStep={nextStep}
+            reset={reset}
+          />
+        );
+      case 2:
+        return (
+          <div className="space-y-6">
+            <Tabs defaultValue="personal" onValueChange={handleTabChange}>
+              <ScrollArea>
+                <div className="w-full relative h-10">
+                  <TabsList className="absolute flex flex-row justify-stretch w-full">
+                    <TabsTrigger value="personal">Personal Info</TabsTrigger>
+                    <TabsTrigger value="career">Career</TabsTrigger>
+                    <TabsTrigger value="contact">Contact</TabsTrigger>
+                    <TabsTrigger value="portfolio">Portfolio Items</TabsTrigger>
+                  </TabsList>
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
+
+              <TabsContent value="personal" className="space-y-4">
+                <PersonalInfoTab form={form} />
+              </TabsContent>
+
+              <TabsContent value="career">
+                <CareerTab form={form} trigger={trigger} />
+              </TabsContent>
+
+              <TabsContent value="contact">
+                <ContactInfoTab form={form} />
+              </TabsContent>
+
+              <TabsContent value="portfolio">
+                {portfolioType === "developer" && (
+                  <DeveloperPortfolio form={form} trigger={trigger} />
+                )}
+                {portfolioType === "designer" && (
+                  <div className="space-y-6">
+                    {/* Designer portfolio form would go here */}
+                  </div>
+                )}
+                {portfolioType === "contentCreator" && (
+                  <div className="space-y-6">
+                    {/* Content creator portfolio form would go here */}
+                  </div>
+                )}
+                {portfolioType === "businessConsulting" && (
+                  <div className="space-y-6">
+                    {/* Business consulting portfolio form would go here */}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+        );
+      case 3:
+        return (
+        <ColorSchemeForm getValues={getValues} setValue={setValue} control={control} />
+        );
+      case 4:
+        return <PreviewTab form={form} portfolioType={portfolioType} />;
+      default:
+        return null;
+    }
   };
-
-
-  // Navigation between steps
-  const nextStep = async () => {
-    // const isValid = await trigger("portfolio");
-    setStep(step+1)
-
-  };
-  const prevStep = () => setStep(step - 1);
-  console.log(form, "form");
 
   return (
-    <div className="flex flex-col md:flex-row w-full gap-2">
+    <div className="flex flex-col lg:flex-row w-full gap-2">
       {/* Vertical Stepper */}
       <VerticalStepper currentStep={step} />
-
+      <ErrorAlertDialog  errors={formState.errors} 
+        open={isErrorDialogOpen} 
+        onOpenChange={setIsErrorDialogOpen} />
       <Card className="flex-1 w-full max-w-5xl mx-auto">
+  
         <CardHeader className="sticky top-0 z-10">
           <CardTitle className="text-2xl">Build Your Portfolio</CardTitle>
         </CardHeader>
 
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              {/* Step 1: Portfolio Type Selection */}
-              {step === 1 && (
-                <PortfolioTypeForm
-                  form={form}
-                  portfolioType={portfolioType}
-                  setPortfolioType={setPortfolioType}
-                  nextStep={nextStep}
-                />
-              )}
-
-              {/* Step 2: Portfolio Details */}
-              {step === 2 && (
-                <div className="space-y-6">
-                  <Tabs defaultValue="personal">
-                    <ScrollArea>
-                      <div className="w-full relative h-10">
-                        <TabsList className="absolute flex flex-row justify-stretch w-full">
-                          <TabsTrigger value="personal">
-                            Personal Info
-                          </TabsTrigger>
-                          <TabsTrigger value="career">Career</TabsTrigger>
-                          <TabsTrigger value="contact">
-                            Contact
-                          </TabsTrigger>
-                          <TabsTrigger value="portfolio">
-                            Portfolio Items
-                          </TabsTrigger>
-                        </TabsList>
-                      </div>
-                      <ScrollBar orientation="horizontal" />
-                    </ScrollArea>
-                    <TabsContent value="personal" className="space-y-4">
-                      <PersonalInfoTab form={form} />
-                    </TabsContent>
-
-                    <TabsContent value="career">
-                      <CareerTab form={form} />
-                    </TabsContent>
-                    <TabsContent value="contact"><ContactInfoTab form={form} /></TabsContent>
-
-                    {/* Portfolio Items Tab - Conditional based on portfolio type */}
-                    <TabsContent value="portfolio">
-                      {portfolioType === "developer" && (
-                        <DeveloperPortfolio form={form} />
-                      )}
-
-                      {portfolioType === "designer" && (
-                        <div className="space-y-6"></div>
-                      )}
-
-                      {portfolioType === "photographer" && (
-                        <div className="space-y-6"></div>
-                      )}
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              )}
-
-              {step === 3 && (
-                <div className="space-y-6">
-                  <h3 className="text-lg font-medium">
-                    Choose Your Color Scheme
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {colorSchemes.map((scheme, index) => (
-                      <Card
-                        key={index}
-                        className={`cursor-pointer border-2 ${
-                          selectedColorScheme === index
-                            ? "border-primary"
-                            : "border-transparent"
-                        }`}
-                        onClick={() => handleColorSchemeChange(index)}
-                      >
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-sm">
-                            {scheme.name}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex space-x-2">
-                            <div
-                              className="w-10 h-10 rounded-full"
-                              style={{ backgroundColor: scheme.primary }}
-                            ></div>
-                            <div
-                              className="w-10 h-10 rounded-full"
-                              style={{ backgroundColor: scheme.secondary }}
-                            ></div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-
-                  <div className="mt-6">
-                    <h3 className="text-lg font-medium mb-4">
-                      Light or Dark Mode
-                    </h3>
-                    <FormField
-                      control={form.control}
-                      name="theme.mode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="flex space-x-4"
-                            >
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="light" id="light" />
-                                <label htmlFor="light">Light Mode</label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="dark" id="dark" />
-                                <label htmlFor="dark">Dark Mode</label>
-                              </div>
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-              )}
-              {step === 4 && (
-                <PreviewTab form={form} portfolioType={portfolioType} />
-              )}
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {renderStepContent()}
             </form>
           </Form>
         </CardContent>
@@ -309,11 +410,11 @@ export default function PortfolioBuilder() {
           )}
 
           {step < 4 ? (
-            <Button type="button" onClick={nextStep}>
+            <Button type="button" onClick={nextStep} >
               Next Step
             </Button>
           ) : (
-            <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+            <Button type="submit" onClick={handleSubmit(onSubmit)}>
               Create Portfolio
             </Button>
           )}

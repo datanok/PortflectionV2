@@ -25,7 +25,7 @@ const VerticalStepper = ({
   ],
 }) => {
   return (
-    <Card className="md:sticky md:top-24 md:self-start w-full md:w-72 p-4">
+    <Card className="lg:sticky lg:top-24 lg:self-start w-full lg:w-72 p-4">
       <div className="flex flex-col md:block overflow-x-auto pb-4 md:pb-0">
         <div className="flex md:flex-col gap-4 md:gap-6">
           {steps.map((step, index) => (

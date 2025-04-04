@@ -1,6 +1,6 @@
 import { betterFetch } from "@better-fetch/fetch";
-import { Session } from "inspector/promises";
 import { NextResponse, type NextRequest } from "next/server";
+import { Session } from "../auth";
 
 const authRoutes = ["/sign-in", "/sign-up"];
 const passwordRoutes = ["/reset-password", "/forgot-password"];
@@ -11,7 +11,6 @@ export default async function authMiddleware(request: NextRequest) {
   const isAuthRoute = authRoutes.includes(pathName);
   const isPasswordRoute = passwordRoutes.includes(pathName);
   const isAdminRoute = adminRoutes.includes(pathName);
-
   const { data: session } = await betterFetch<Session>(
     "/api/auth/get-session",
     {
@@ -20,7 +19,7 @@ export default async function authMiddleware(request: NextRequest) {
         //get the cookie from the request
         cookie: request.headers.get("cookie") || "",
       },
-    }
+    },
   );
 
   if (!session) {
@@ -31,7 +30,7 @@ export default async function authMiddleware(request: NextRequest) {
   }
 
   if (isAuthRoute || isPasswordRoute) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   if (isAdminRoute && session.user.role !== "admin") {
@@ -42,5 +41,5 @@ export default async function authMiddleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
+  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
 };

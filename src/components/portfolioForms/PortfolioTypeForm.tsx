@@ -1,42 +1,25 @@
 import { PortfolioFormData } from "@/lib/zod";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
-import { Check } from "lucide-react";
+import { CircleCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PortfolioTypeFormProps {
   form: UseFormReturn<PortfolioFormData>;
   portfolioType: string;
+  reset: () => void;
   setPortfolioType: React.Dispatch<React.SetStateAction<string>>;
   nextStep: () => void;
 }
 const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
-  form,
   portfolioType,
+  reset,
   setPortfolioType,
   nextStep,
 }) => {
   const handlePortfolioTypeChange = (type: string) => {
     setPortfolioType(type);
-    form.reset({
-      name: form.getValues("name"),
-      title: form.getValues("title"),
-      email: form.getValues("email"),
-      about: form.getValues("about"),
-      theme: form.getValues("theme"),
-      ...(type === "developer" && {
-        projects: [{ title: "", description: "", repoLink: "" }],
-        skills: [],
-      }),
-      ...(type === "designer" && {
-        caseStudies: [{ title: "", description: "" }],
-        testimonials: [],
-      }),
-      ...(type === "photographer" && {
-        gallery: [{ image: "", caption: "" }],
-        clients: [],
-      }),
-    });
+    reset();
   };
 
   const portfolioTypes = [
@@ -66,7 +49,7 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
   return (
     <div className="space-y-6">
        
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
       {portfolioTypes.map((type) => (
         <div
           key={type.id}
@@ -80,10 +63,10 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-foreground">{type.title}</h3>
+              <h3 className="text-lg font-medium text-foreground text-balance">{type.title}</h3>
               {portfolioType === type.id && (
-                <span className="text-primary">
-                  <Check />
+                <span className="text-primary absolute right-1 top-1">
+                  <CircleCheckIcon />
                 </span>
               )}
             </div>

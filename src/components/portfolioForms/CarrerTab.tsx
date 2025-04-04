@@ -30,8 +30,8 @@ interface CareerTabProps {
   form: UseFormReturn<PortfolioFormData>;
 }
 
-const CareerTab: React.FC<CareerTabProps> = ({ form }) => {
-  const { control,trigger } = form;
+const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
+  const { control} = form;
 
   const {
     fields: experienceFields,
