@@ -1,41 +1,46 @@
-
-import { z } from 'zod';
+import { z } from "zod";
 
 export const PROJECT_TYPES = [
-  "Web Application", 
-  "Mobile App", 
-  "Desktop Application", 
-  "CLI Tool", 
-  "Full Stack", 
-  "Frontend", 
-  "Backend", 
-  "Other"
+  "web-app",
+  "mobile-app",
+  "desktop-app",
+  "api",
+  "library",
+  "game",
+  "data-science",
+  "machine-learning",
+  "other",
 ] as const;
 
 const getPasswordSchema = (type: "password" | "confirmPassword") =>
-  z.string({ required_error: `${type} is required` })
+  z
+    .string({ required_error: `${type} is required` })
     .min(8, `${type} must be atleast 8 characters`)
     .max(32, `${type} can not exceed 32 characters`);
 
 const getEmailSchema = () =>
-  z.string({ required_error: "Email is required" })
+  z
+    .string({ required_error: "Email is required" })
     .min(1, "Email is required")
     .email("Invalid email");
 
 const getNameSchema = () =>
-  z.string({ required_error: "Name is required" })
+  z
+    .string({ required_error: "Name is required" })
     .min(1, "Name is required")
     .max(50, "Name must be less than 50 characters");
 
-export const signUpSchema = z.object({
-  name: getNameSchema(),
-  email: getEmailSchema(),
-  password: getPasswordSchema("password"),
-  confirmPassword: getPasswordSchema("confirmPassword"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+export const signUpSchema = z
+  .object({
+    name: getNameSchema(),
+    email: getEmailSchema(),
+    password: getPasswordSchema("password"),
+    confirmPassword: getPasswordSchema("confirmPassword"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export const signInSchema = z.object({
   email: getEmailSchema(),
@@ -46,14 +51,15 @@ export const forgotPasswordSchema = z.object({
   email: getEmailSchema(),
 });
 
-export const resetPasswordSchema = z.object({
-  password: getPasswordSchema("password"),
-  confirmPassword: getPasswordSchema("confirmPassword"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
+export const resetPasswordSchema = z
+  .object({
+    password: getPasswordSchema("password"),
+    confirmPassword: getPasswordSchema("confirmPassword"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 const basePortfolioSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -64,108 +70,134 @@ const basePortfolioSchema = z.object({
     .min(10, "Phone number must be at least 10 digits")
     .max(15, "Phone number must be at most 15 digits")
     .optional()
-    .refine((value) => !value || /^(\+?\d{1,3})?[-.\s]?(\(?\d{2,4}\)?)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}$/.test(value), {
-      message: "Please enter a valid phone number",
-    }),
+    .refine(
+      (value) =>
+        !value ||
+        /^(\+?\d{1,3})?[-.\s]?(\(?\d{2,4}\)?)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}$/.test(
+          value
+        ),
+      {
+        message: "Please enter a valid phone number",
+      }
+    ),
   location: z.string().max(50).optional(),
 
   // About section
-  about: z.string().min(50, "Please write at least 50 characters about yourself"),
-  profileImage: z.string().url("Please provide a valid URL for your profile image").optional(),
+  about: z
+    .string()
+    .min(50, "Please write at least 50 characters about yourself"),
+  profileImage: z
+    .string()
+    .url("Please provide a valid URL for your profile image")
+    .optional(),
 
   // Social media links
-  socials: z.object({
-    github: z.string().url("Please provide a valid GitHub URL").optional(),
-    linkedin: z.string().url("Please provide a valid LinkedIn URL").optional(),
-    twitter: z.string().url("Please provide a valid Twitter URL").optional(),
-    instagram: z.string().url("Please provide a valid Instagram URL").optional(),
-    dribbble: z.string().url("Please provide a valid Dribbble URL").optional(),
-    behance: z.string().url("Please provide a valid Behance URL").optional(),
-    youtube: z.string().url("Please provide a valid YouTube URL").optional(),
-    medium: z.string().url("Please provide a valid Medium URL").optional(),
-    website: z.string().url("Please provide a valid website URL").optional(),
-  }).optional(),
+  socials: z
+    .object({
+      github: z.string().url("Please provide a valid GitHub URL").optional(),
+      linkedin: z
+        .string()
+        .url("Please provide a valid LinkedIn URL")
+        .optional(),
+      twitter: z.string().url("Please provide a valid Twitter URL").optional(),
+      instagram: z
+        .string()
+        .url("Please provide a valid Instagram URL")
+        .optional(),
+      dribbble: z
+        .string()
+        .url("Please provide a valid Dribbble URL")
+        .optional(),
+      behance: z.string().url("Please provide a valid Behance URL").optional(),
+      youtube: z.string().url("Please provide a valid YouTube URL").optional(),
+      medium: z.string().url("Please provide a valid Medium URL").optional(),
+      website: z.string().url("Please provide a valid website URL").optional(),
+    })
+    .optional(),
 
   // Experience
-  experience: z
-    .array(
-      z.object({
+  experience: z.array(
+    z
+      .object({
         company: z.string().min(1, "Company name is required"),
         position: z.string().min(1, "Position is required"),
-        startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-        endDate: z.string().optional(),
+        startDate: z
+          .string()
+          .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+        endDate: z
+          .union([
+            z
+              .string()
+              .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+            z.literal("").transform(() => undefined), // Convert empty string to undefined
+          ])
+          .optional(),
         current: z.boolean().optional().default(false),
         description: z.string().optional(),
         achievements: z.array(z.string()).optional(),
-      }).refine((exp) => {
-        if (!exp.current && !exp.endDate) {
-          return false;
-        }
-        return true;
-      }, "Valid End date is required if not marked as current")
-    )
-    .refine(
-      (experiences) =>
-        !experiences || experiences.length === 0 || experiences.some((exp) => exp.company && exp.position && exp.startDate),
-      {
-        message: "Experience cannot be completely empty",
-        path: ["experience"],
-      }
-    )
-,
+      })
+      .refine((data) => data.current || data.endDate, {
+        message: "End date is required if not currently working",
+        path: ["endDate"],
+      })
+  ),
+
   // Education
-  education: z
-  .array(
+  education: z.array(
     z.object({
       institution: z.string().trim().min(1, "Institution name is required"),
       degree: z.string().trim().min(1, "Degree is required"),
       field: z.string().trim().optional(),
-      startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-      endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)")
+      startDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+      endDate: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)")
         .optional(),
       current: z.boolean().optional().default(false),
       description: z.string().trim().optional(),
     })
-  ).optional().refine((educations)=>!educations || educations.length===0||educations.some(edu=>edu.institution.length>0&&edu.degree.length>0&&edu.startDate.length>0),
-  {
-    message: "Education cannot be completely empty",
-    path: ["education"],
-  }),
-  
-  
+  ),
+
   // Services offered
-  services: z.array(
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      icon: z.string().optional(), // For icon name or URL
-    })
-  ).optional(),
+  services: z
+    .array(
+      z.object({
+        title: z.string(),
+        description: z.string(),
+        icon: z.string().optional(), // For icon name or URL
+      })
+    )
+    .optional(),
 
   // Contact form preferences
   contactForm: z.boolean().default(true),
 
   // Theme and styling preferences
-  theme: z.object({
-    primary: z.string().default('#3490dc'),
-    secondary: z.string().default('#ffed4a'),
-    dark: z.string().default('#2d3748'),
-    light: z.string().default('#f8fafc'),
-    fontHeading: z.string().default('Montserrat'),
-    fontBody: z.string().default('Open Sans'),
-  }).optional(),
+  theme: z
+    .object({
+      primary: z.string().default("#3490dc"),
+      secondary: z.string().default("#ffed4a"),
+      dark: z.string().default("#2d3748"),
+      light: z.string().default("#f8fafc"),
+      fontHeading: z.string().default("Montserrat"),
+      fontBody: z.string().default("Open Sans"),
+    })
+    .optional(),
 
   // Custom sections
-  customSections: z.array(
-    z.object({
-      title: z.string(),
-      content: z.string(),
-      order: z.number().optional(),
-    })
-  ).optional(),
+  customSections: z
+    .array(
+      z.object({
+        title: z.string(),
+        content: z.string(),
+        order: z.number().optional(),
+      })
+    )
+    .optional(),
 });
 const developerPortfolioSchema = basePortfolioSchema.extend({
-
   // Social Links
   githubLink: z.string().url("Invalid GitHub URL").optional(),
   linkedinLink: z.string().url("Invalid LinkedIn URL").optional(),
@@ -178,280 +210,320 @@ const developerPortfolioSchema = basePortfolioSchema.extend({
   // }),
 
   // Projects Section
-  projects: z.array(
-    z.object({
-      title: z.string().min(1, "Project title is required"),
-      description: z.string().min(10, "Description must be at least 10 characters"),
-      technologies: z.string().min(1, "At least one technology is required")
-  .transform(val => val.split(',').map(tech => tech.trim()).filter(tech => tech !== "")),
-      // Optional project details
-      githubLink: z.string().url("Invalid GitHub repository URL").optional(),
-      liveDemo: z.string().url("Invalid live demo URL").optional(),
-      
-      // Project specifics
-      type: z.enum(PROJECT_TYPES),
-      
-      // Optional additional context
-      roles: z.array(z.string()).optional(),
-      challenges: z.string().optional(),
-      learnings: z.string().optional(),
-    })
-  ).min(1, "At least one project is required").max(10, "Maximum 10 projects allowed"),
+  projects: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Project title is required"),
+        description: z
+          .string()
+          .min(10, "Description must be at least 10 characters"),
+        technologies: z
+          .string()
+          .min(1, "At least one technology is required")
+          .transform((val) =>
+            val
+              .split(",")
+              .map((tech) => tech.trim())
+              .filter((tech) => tech !== "")
+          ),
+        // Optional project details
+        githubLink: z
+          .union([
+            z.string().url("Invalid GitHub repository URL"),
+            z.literal("").transform(() => undefined), // Convert empty string to undefined
+            z.undefined(),
+          ])
+          .optional(),
+        liveDemo: z
+          .union([
+            z.string().url("Invalid live demo URL"),
+            z.literal("").transform(() => undefined),
+            z.undefined(),
+          ])
+          .optional(),
 
+        // Project specifics
+        type: z.enum(PROJECT_TYPES).default("web-app"),
+
+        // Optional additional context
+        roles: z.array(z.string()).max(5, "Maximum 5 roles allowed").optional(),
+        challenges: z.string().optional(),
+        learnings: z.string().optional(),
+      })
+    )
+    .min(1, "At least one project is required")
+    .max(10, "Maximum 10 projects allowed"),
 });
 
 const designerPortfolioSchema = basePortfolioSchema.extend({
-  // Skills section with robust validation
-  skills: z.array(
-    z.object({
-      name: z.string(), // Requires a skill name
-      level: z.number().min(1).max(5).optional(), // Optional skill proficiency from 1-5
-      category: z.string().optional(), // Optional skill category
-    })
-  ),
+  skills: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Skill name is required"),
+        level: z.number().min(1).max(5).optional(),
+        category: z.string().optional(),
+      })
+    )
+    .min(1, "At least one skill is required"),
 
-  // Optional tools section
-  tools: z.array(
-    z.object({
-      name: z.string(), 
-      level: z.number().min(1).max(5).optional(),
-    })
-  ).optional(),
+  tools: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Tool name is required"),
+        level: z.number().min(1).max(5).optional(),
+      })
+    )
+    .optional(),
 
-  // Projects section with detailed project information
-  projects: z.array(
-    z.object({
-      title: z.string(), // Required project title
-      client: z.string().optional(), // Optional client name
-      description: z.string(), // Required project description
-      
-      // Optional detailed project sections
-      problem: z.string().optional(),
-      solution: z.string().optional(),
-      process: z.string().optional(),
-      outcome: z.string().optional(),
+  projects: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Title is required"),
+        client: z.string().optional(),
+        description: z.string().min(1, "Description is required"),
+        problem: z.string().optional(),
+        solution: z.string().optional(),
+        process: z.string().optional(),
+        outcome: z.string().optional(),
+        images: z
+          .array(
+            z.object({
+              url: z.string().url("Must be a valid URL"),
+              caption: z.string().optional(),
+              type: z.enum(["before", "after", "process", "final"]).optional(),
+            })
+          )
+          .optional(),
+        testimonial: z
+          .object({
+            name: z.string().min(1, "Name is required"),
+            position: z.string().optional(),
+            company: z.string().optional(),
+            content: z.string().min(1, "Content is required"),
+          })
+          .optional(),
+      })
+    )
+    .min(1, "At least one project is required"),
 
-      // Optional images with additional metadata
-      images: z.array(
-        z.object({
-          url: z.string().url(), // Validated URL
-          caption: z.string().optional(),
-          type: z.enum(["before", "after", "process", "final"]).optional(),
-        })
-      ).optional(),
-
-      testimonial: z.object({
-        name: z.string(),
+  testimonials: z
+    .array(
+      z.object({
+        client: z.string().min(1, "Client name is required"),
         position: z.string().optional(),
         company: z.string().optional(),
-        content: z.string(),
-      }).optional(),
-    })
-  ),
+        feedback: z.string().min(1, "Feedback is required"),
+        image: z.string().url().optional(),
+        date: z.string().optional(),
+      })
+    )
+    .optional(),
 
-  // Optional global testimonials section
-  testimonials: z.array(
-    z.object({
-      client: z.string(),
-      position: z.string().optional(),
-      company: z.string().optional(),
-      feedback: z.string(),
-      image: z.string().url().optional(),
-      date: z.string().optional(),
-    })
-  ).optional(),
-
-  // Optional awards section
-  awards: z.array(
-    z.object({
-      title: z.string(),
-      issuer: z.string(),
-      date: z.string(),
-      description: z.string().optional(),
-      image: z.string().url().optional(),
-      url: z.string().url().optional(),
-    })
-  ).optional(),
+  awards: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Title is required"),
+        issuer: z.string().min(1, "Issuer is required"),
+        date: z.string().min(1, "Date is required"),
+        description: z.string().optional(),
+        image: z.string().url().optional(),
+        url: z.string().url().optional(),
+      })
+    )
+    .optional(),
 });
 
 const contentCreatorPortfolioSchema = basePortfolioSchema.extend({
-  // Specialties allows flexible tagging of content creator's focus areas
-  specialties: z.array(z.string()),
+  specialties: z
+    .array(z.string().min(1, "Specialty cannot be empty"))
+    .min(1, "At least one specialty is required"),
 
-  // Comprehensive portfolio items across multiple content types
-  portfolioItems: z.array(
-    z.object({
-      title: z.string(), // Required title for the content piece
-      type: z.enum(["Photography", "Video", "Writing", "Podcast"]), // Strict content type
-      description: z.string(), // Required description of the content
+  portfolioItems: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Title is required"),
+        type: z.enum(["Photography", "Video", "Writing", "Podcast"]),
+        description: z.string().min(1, "Description is required"),
+        url: z.string().url("Must be a valid URL").optional(),
+        image: z.string().url("Must be a valid image URL").optional(),
+        tags: z.array(z.string().min(1)).optional(),
+        metadata: z
+          .object({
+            camera: z.string().optional(),
+            lens: z.string().optional(),
+            aperture: z.string().optional(),
+            shutterSpeed: z.string().optional(),
+            iso: z.string().optional(),
+            duration: z.string().optional(),
+            publisher: z.string().optional(),
+          })
+          .optional(),
+      })
+    )
+    .min(1, "At least one portfolio item is required"),
 
-      // Optional links and preview image
-      url: z.string().url().optional(),
-      image: z.string().url().optional(),
-      tags: z.array(z.string()).optional(), // Flexible tagging system
+  testimonials: z
+    .array(
+      z.object({
+        client: z.string().min(1, "Client is required"),
+        feedback: z.string().min(1, "Feedback is required"),
+        image: z.string().url().optional(),
+        date: z.string().optional(),
+      })
+    )
+    .optional(),
 
-      // Flexible metadata for different content types
-      metadata: z.object({
-        // Photography-specific metadata
-        camera: z.string().optional(),
-        lens: z.string().optional(),
-        aperture: z.string().optional(),
-        shutterSpeed: z.string().optional(),
-        iso: z.string().optional(),
+  accolades: z
+    .array(
+      z.object({
+        type: z.enum(["Award", "Publication", "Feature"]),
+        title: z.string().min(1, "Title is required"),
+        issuer: z.string().min(1, "Issuer is required"),
+        date: z.string().min(1, "Date is required"),
+        description: z.string().optional(),
+        url: z.string().url().optional(),
+        image: z.string().url().optional(),
+      })
+    )
+    .optional(),
 
-        // Video/Podcast-specific metadata
-        duration: z.string().optional(),
-
-        // Writing-specific metadata
-        publisher: z.string().optional(),
-      }).optional(),
-    })
-  ),
-
-  // Optional testimonials section
-  testimonials: z.array(
-    z.object({
-      client: z.string(),
-      feedback: z.string(),
-      image: z.string().url().optional(),
-      date: z.string().optional(),
-    })
-  ).optional(),
-
-  // Optional accolades section with broader recognition types
-  accolades: z.array(
-    z.object({
-      type: z.enum(["Award", "Publication", "Feature"]),
-      title: z.string(),
-      issuer: z.string(),
-      date: z.string(),
-      description: z.string().optional(),
-      url: z.string().url().optional(),
-      image: z.string().url().optional(),
-    })
-  ).optional(),
-
-  // Optional pricing packages for services
-  pricingPackages: z.array(
-    z.object({
-      name: z.string(),
-      price: z.string(), // Flexible for different currency formats
-      description: z.string(),
-      features: z.array(z.string()),
-      popular: z.boolean().default(false).optional(),
-    })
-  ).optional(),
+  pricingPackages: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Name is required"),
+        price: z.string().min(1, "Price is required"),
+        description: z.string().min(1, "Description is required"),
+        features: z
+          .array(z.string().min(1))
+          .min(1, "At least one feature is required"),
+        popular: z.boolean().default(false).optional(),
+      })
+    )
+    .optional(),
 });
+
 const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
-  expertiseAreas: z.array(z.string()),
+  expertiseAreas: z
+    .array(z.string().min(1, "Expertise area cannot be empty"))
+    .min(1, "At least one expertise area is required"),
 
-  // Comprehensive Case Studies Section
-  caseStudies: z.array(
-    z.object({
-      title: z.string(),
-      organization: z.string(),
-      role: z.string(),
-      startDate: z.string(),
-      endDate: z.string().optional(),
-      ongoing: z.boolean().default(false).optional(),
-      description: z.string(),
-      
-      // Optional detailed project breakdown
-      challenges: z.string().optional(),
-      solutions: z.string().optional(),
-      outcomes: z.string().optional(),
-      
-      // Additional project context
-      teamSize: z.number().optional(),
-      
-      // Quantifiable Impact
-      keyMetrics: z.array(
-        z.object({
-          name: z.string(), // Metric name
-          value: z.string(), // Metric value
-        })
-      ).optional(),
-      
-      // Visual Documentation
-      images: z.array(
-        z.object({
-          url: z.string().url(),
-          caption: z.string().optional(),
-        })
-      ).optional(),
-      
-      // Project-Specific Testimonials
-      testimonials: z.array(
-        z.object({
-          name: z.string(),
-          position: z.string(),
-          company: z.string().optional(),
-          content: z.string(),
-        })
-      ).optional(),
-      
-      // Highlighting Significance
-      featured: z.boolean().default(false).optional(),
-    })
-  ),
+  caseStudies: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Title is required"),
+        organization: z.string().min(1, "Organization is required"),
+        role: z.string().min(1, "Role is required"),
+        startDate: z.string().min(1, "Start date is required"),
+        endDate: z.string().optional(),
+        ongoing: z.boolean().default(false).optional(),
+        description: z.string().min(1, "Description is required"),
+        challenges: z.string().optional(),
+        solutions: z.string().optional(),
+        outcomes: z.string().optional(),
+        teamSize: z.number().optional(),
+        keyMetrics: z
+          .array(
+            z.object({
+              name: z.string().min(1, "Metric name is required"),
+              value: z.string().min(1, "Metric value is required"),
+            })
+          )
+          .optional(),
+        images: z
+          .array(
+            z.object({
+              url: z.string().url("Must be a valid URL"),
+              caption: z.string().optional(),
+            })
+          )
+          .optional(),
+        testimonials: z
+          .array(
+            z.object({
+              name: z.string().min(1, "Name is required"),
+              position: z.string().min(1, "Position is required"),
+              company: z.string().optional(),
+              content: z.string().min(1, "Content is required"),
+            })
+          )
+          .optional(),
+        featured: z.boolean().default(false).optional(),
+      })
+    )
+    .min(1, "At least one case study is required"),
 
-  // Skills Categorization
-  skills: z.array(
-    z.object({
-      category: z.string(), // Skill category
-      skills: z.array(
-        z.object({
-          name: z.string(),
-          level: z.number().min(1).max(5).optional(), // Proficiency rating
-        })
-      ),
-    })
-  ),
+  skills: z
+    .array(
+      z.object({
+        category: z.string().min(1, "Category is required"),
+        skills: z
+          .array(
+            z.object({
+              name: z.string().min(1, "Skill name is required"),
+              level: z.number().min(1).max(5).optional(),
+            })
+          )
+          .min(1, "At least one skill is required"),
+      })
+    )
+    .min(1, "At least one skill category is required"),
 
-  // Optional Tools Categorization
-  tools: z.array(
-    z.object({
-      category: z.string(),
-      tools: z.array(
-        z.object({
-          name: z.string(),
-          level: z.number().min(1).max(5).optional(), // Proficiency rating
-        })
-      ),
-    })
-  ).optional(),
+  tools: z
+    .array(
+      z.object({
+        category: z.string().min(1, "Category is required"),
+        tools: z
+          .array(
+            z.object({
+              name: z.string().min(1, "Tool name is required"),
+              level: z.number().min(1).max(5).optional(),
+            })
+          )
+          .min(1, "At least one tool is required"),
+      })
+    )
+    .optional(),
 
-  // Optional Certifications
-  certifications: z.array(
-    z.object({
-      name: z.string(),
-      issuingOrganization: z.string(),
-      issueDate: z.string(),
-      expiryDate: z.string().optional(),
-      credentialID: z.string().optional(),
-      credentialURL: z.string().url().optional(),
-    })
-  ).optional(),
+  certifications: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Certification name is required"),
+        issuingOrganization: z
+          .string()
+          .min(1, "Issuing organization is required"),
+        issueDate: z.string().min(1, "Issue date is required"),
+        expiryDate: z.string().optional(),
+        credentialID: z.string().optional(),
+        credentialURL: z.string().url().optional(),
+      })
+    )
+    .optional(),
 
-  // Optional Key Achievements
-  keyAchievements: z.array(
-    z.object({
-      title: z.string(),
-      description: z.string(),
-      impact: z.string().optional(),
-      date: z.string().optional(),
-    })
-  ).optional(),
+  keyAchievements: z
+    .array(
+      z.object({
+        title: z.string().min(1, "Title is required"),
+        description: z.string().min(1, "Description is required"),
+        impact: z.string().optional(),
+        date: z.string().optional(),
+      })
+    )
+    .optional(),
 
-  industries: z.array(z.string()).optional(),
+  industries: z.array(z.string().min(1)).optional(),
 });
 
 export type PortfolioFormData = z.infer<typeof basePortfolioSchema>;
-export type DeveloperPortfolioFormData = z.infer<typeof developerPortfolioSchema>;
+export type DeveloperPortfolioFormData = z.infer<
+  typeof developerPortfolioSchema
+>;
 export type DesignerPortfolioFormData = z.infer<typeof designerPortfolioSchema>;
-export type BusinessConsultingPortfolioFormData = z.infer<typeof businessConsultingPortfolioSchema>;
-export type ContentCreatorPortfolioFormData = z.infer<typeof contentCreatorPortfolioSchema>;
-
+export type BusinessConsultingPortfolioFormData = z.infer<
+  typeof businessConsultingPortfolioSchema
+>;
+export type ContentCreatorPortfolioFormData = z.infer<
+  typeof contentCreatorPortfolioSchema
+>;
 
 export {
   basePortfolioSchema,

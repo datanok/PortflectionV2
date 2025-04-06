@@ -42,11 +42,22 @@ import PortfolioTypeForm from "@/components/portfolioForms/PortfolioTypeForm";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ContactInfoTab from "@/components/portfolioForms/ContactForm";
 import ErrorAlertDialog from "@/components/portfolioForms/ErrorDialog";
-import ColorSchemeForm, { COLOR_SCHEMES } from "@/components/portfolioForms/ColorSchemeForm";
-
+import ColorSchemeForm, {
+  COLOR_SCHEMES,
+} from "@/components/portfolioForms/ColorSchemeForm";
+import DesignerPortfolio from "@/components/portfolioForms/DesignerPortfolio";
+import ContentCreatorPortfolio from "@/components/portfolioForms/ContentCreatorPortfolio";
+import BusinessConsultingPortfolio from "@/components/portfolioForms/ConsultingPortfolio";
+import { populateFormWithDummyData } from "@/lib/dummyPortfolioData";
+import { Code } from "lucide-react";
+import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
 
 // Type definitions for better type safety
-type PortfolioType = "developer" | "designer" | "contentCreator" | "businessConsulting";
+type PortfolioType =
+  | "developer"
+  | "designer"
+  | "contentCreator"
+  | "businessConsulting";
 type TabType = "personal" | "career" | "contact" | "portfolio";
 
 // Utility functions moved outside the component
@@ -66,7 +77,10 @@ const getSchemaForType = (type: PortfolioType) => {
 };
 
 // Generate default values based on portfolio type
-const getDefaultValues = (portfolioType: PortfolioType, colorScheme = COLOR_SCHEMES[0]) => {
+const getDefaultValues = (
+  portfolioType: PortfolioType,
+  colorScheme = COLOR_SCHEMES[0]
+) => {
   const baseDefaults = {
     name: "",
     title: "",
@@ -90,117 +104,111 @@ const getDefaultValues = (portfolioType: PortfolioType, colorScheme = COLOR_SCHE
       skills: {
         languages: [],
         frameworks: [],
-        tools: []
+        tools: [],
       },
-      projects: [{
-        title: "",
-        description: "",
-        technologies: "",
-        githubLink: "",
-        liveDemo: "",
-        type: "WEB",
-        roles: [],
-        challenges: "",
-        learnings: ""
-      }]
+      projects: [],
     },
     designer: {
       skills: [],
       tools: [],
-      projects: [{
-        title: "",
-        description: "",
-        client: "",
-        problem: "",
-        solution: "",
-        process: "",
-        outcome: "",
-        images: [],
-        testimonial: {
-          name: "",
-          position: "",
-          company: "",
-          content: ""
-        }
-      }],
+      projects: [
+        {
+          title: "",
+          description: "",
+          client: "",
+          problem: "",
+          solution: "",
+          process: "",
+          outcome: "",
+          images: [],
+          testimonial: {
+            name: "",
+            position: "",
+            company: "",
+            content: "",
+          },
+        },
+      ],
       testimonials: [],
-      awards: []
+      awards: [],
     },
     contentCreator: {
       specialties: [],
-      portfolioItems: [{
-        title: "",
-        type: "Photography",
-        description: "",
-        url: "",
-        image: "",
-        tags: [],
-        metadata: {}
-      }],
+      portfolioItems: [
+        {
+          title: "",
+          type: "Photography",
+          description: "",
+          url: "",
+          image: "",
+          tags: [],
+          metadata: {},
+        },
+      ],
       testimonials: [],
       accolades: [],
-      pricingPackages: []
+      pricingPackages: [],
     },
     businessConsulting: {
       expertiseAreas: [],
-      caseStudies: [{
-        title: "",
-        organization: "",
-        role: "",
-        startDate: "",
-        endDate: "",
-        ongoing: false,
-        description: "",
-        challenges: "",
-        solutions: "",
-        outcomes: "",
-        teamSize: 1,
-        keyMetrics: [],
-        images: [],
-        testimonials: [],
-        featured: false
-      }],
-      skills: [{
-        category: "",
-        skills: []
-      }],
+      caseStudies: [
+        {
+          title: "",
+          organization: "",
+          role: "",
+          startDate: "",
+          endDate: "",
+          ongoing: false,
+          description: "",
+          challenges: "",
+          solutions: "",
+          outcomes: "",
+          teamSize: 1,
+          keyMetrics: [],
+          images: [],
+          testimonials: [],
+          featured: false,
+        },
+      ],
+      skills: [
+        {
+          category: "",
+          skills: [],
+        },
+      ],
       tools: [],
       certifications: [],
       keyAchievements: [],
-      industries: []
-    }
+      industries: [],
+    },
   };
 
   return {
     ...baseDefaults,
-    ...(typeDefaults[portfolioType] || {})
+    ...(typeDefaults[portfolioType] || {}),
   };
 };
 
 // Define validation rules for each step and tab
 const VALIDATION_RULES = {
-  personal: ["name", "title", "about"],
-  contact: ["email", "phone", "location"],
+  personal: ["name", "title", "about", "email", "location"],
+  contact: ["phone"],
   career: ["experience", "education"],
   developer: ["skills", "projects", "githubLink"],
   designer: ["skills", "tools", "projects"],
   contentCreator: ["specialties", "portfolioItems"],
   businessConsulting: ["expertiseAreas", "caseStudies", "skills"],
-  theme: ["theme"]
+  theme: ["theme"],
 };
 
 export default function PortfolioBuilder() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [portfolioType, setPortfolioType] = useState<PortfolioType>("developer");
+  const [portfolioType, setPortfolioType] =
+    useState<PortfolioType>("developer");
   const [currentTab, setCurrentTab] = useState<TabType>("personal");
-  const [disableNext, setDisableNext] = useState(false);
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
-  
-  // Function to open the dialog programmatically
-  const openErrorDialog = () => {
-    setIsErrorDialogOpen(true);
-  };
+  const [isDummyDataAlertOpen, setIsDummyDataAlertOpen] = useState(false);
 
   // Create form with proper typing
   const form = useForm({
@@ -209,30 +217,41 @@ export default function PortfolioBuilder() {
     mode: "onChange",
   });
 
-  console.log(form)
-  const { control, handleSubmit, setValue, trigger, formState, reset, getValues } = form;
+  console.log(form);
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    trigger,
+    formState,
+    reset,
+    getValues,
+  } = form;
 
   // Handle portfolio type change with proper form reset
-  const handlePortfolioTypeChange = useCallback((newType: PortfolioType) => {
-    setPortfolioType(newType);
-    // Get current theme values before reset
-    const currentTheme = getValues("theme");
+  const handlePortfolioTypeChange = useCallback(
+    (newType: PortfolioType) => {
+      setPortfolioType(newType);
+      // Get current theme values before reset
+      const currentTheme = getValues("theme");
 
-    // Reset with new schema and defaults while preserving theme
-    reset(
-      {
-        ...getDefaultValues(newType),
-        theme: currentTheme || {
-          primary: COLOR_SCHEMES[0].primary,
-          secondary: COLOR_SCHEMES[0].secondary,
-          mode: "light"
+      // Reset with new schema and defaults while preserving theme
+      reset(
+        {
+          ...getDefaultValues(newType),
+          theme: currentTheme || {
+            primary: COLOR_SCHEMES[0].primary,
+            secondary: COLOR_SCHEMES[0].secondary,
+            mode: "light",
+          },
+        },
+        {
+          resolver: zodResolver(getSchemaForType(newType)),
         }
-      },
-      {
-        resolver: zodResolver(getSchemaForType(newType))
-      }
-    );
-  }, [getValues, reset]);
+      );
+    },
+    [getValues, reset]
+  );
 
   // Memoize the validation fields for the current portfolio type and tab
   const portfolioValidationFields = useMemo(() => {
@@ -240,8 +259,8 @@ export default function PortfolioBuilder() {
   }, [portfolioType]);
 
   // Handle color scheme selection
- 
-  console.log(form)
+
+  console.log(form);
   // Navigation functions with validation
   const nextStep = useCallback(async () => {
     let isValid = true;
@@ -254,25 +273,25 @@ export default function PortfolioBuilder() {
           ? portfolioValidationFields
           : VALIDATION_RULES[currentTab];
       console.log("fieldsToValidate:", fieldsToValidate);
-      console.log(form.formState.errors)
+      console.log(form.formState.errors);
       if (fieldsToValidate && fieldsToValidate.length > 0) {
         isValid = await trigger(fieldsToValidate as any);
       }
     } else if (step === 3) {
-      console.log(form.formState.isValid)
-      if (!form.formState.isValid) {
-        setDisableNext(true);
-      }
       isValid = await trigger("theme" as any);
     }
 
     if (isValid) {
-      setStep(prev => prev + 1);
+      setStep((prev) => prev + 1);
     }
   }, [step, currentTab, portfolioValidationFields, trigger]);
 
+  const handleLoadDummyData = () => {
+    populateFormWithDummyData(form, portfolioType);
+  };
+
   const prevStep = useCallback(() => {
-    setStep(prev => prev - 1);
+    setStep((prev) => prev - 1);
   }, []);
 
   const handleTabChange = useCallback((newTab: string) => {
@@ -280,31 +299,34 @@ export default function PortfolioBuilder() {
   }, []);
 
   // Handle form submission with toast feedback
-  const onSubmit = useCallback(async (data: any) => {
-    toast.promise(
-      new Promise((resolve) => {
-        setTimeout(() => {
-          localStorage.setItem(
-            "portfolio",
-            JSON.stringify({
-              ...data,
-              type: portfolioType,
-              createdAt: new Date().toISOString(),
-            })
-          );
-          resolve(data);
-        }, 1500);
-      }),
-      {
-        loading: "Creating your portfolio...",
-        success: () => {
-          router.push("/portfolio-preview");
-          return "Portfolio created successfully!";
-        },
-        error: "Failed to create portfolio. Please try again.",
-      }
-    );
-  }, [portfolioType, router]);
+  const onSubmit = useCallback(
+    async (data: any) => {
+      toast.promise(
+        new Promise((resolve) => {
+          setTimeout(() => {
+            localStorage.setItem(
+              "portfolio",
+              JSON.stringify({
+                ...data,
+                type: portfolioType,
+                createdAt: new Date().toISOString(),
+              })
+            );
+            resolve(data);
+          }, 1500);
+        }),
+        {
+          loading: "Creating your portfolio...",
+          success: () => {
+            router.push("/portfolio-preview");
+            return "Portfolio created successfully!";
+          },
+          error: "Failed to create portfolio. Please try again.",
+        }
+      );
+    },
+    [portfolioType, router]
+  );
 
   // Render each step content
   const renderStepContent = () => {
@@ -353,17 +375,20 @@ export default function PortfolioBuilder() {
                 )}
                 {portfolioType === "designer" && (
                   <div className="space-y-6">
-                    {/* Designer portfolio form would go here */}
+                    <DesignerPortfolio form={form} trigger={trigger} />
                   </div>
                 )}
                 {portfolioType === "contentCreator" && (
                   <div className="space-y-6">
-                    {/* Content creator portfolio form would go here */}
+                    <ContentCreatorPortfolio form={form} trigger={trigger} />
                   </div>
                 )}
                 {portfolioType === "businessConsulting" && (
                   <div className="space-y-6">
-                    {/* Business consulting portfolio form would go here */}
+                    <BusinessConsultingPortfolio
+                      form={form}
+                      trigger={trigger}
+                    />
                   </div>
                 )}
               </TabsContent>
@@ -372,7 +397,11 @@ export default function PortfolioBuilder() {
         );
       case 3:
         return (
-        <ColorSchemeForm getValues={getValues} setValue={setValue} control={control} />
+          <ColorSchemeForm
+            getValues={getValues}
+            setValue={setValue}
+            control={control}
+          />
         );
       case 4:
         return <PreviewTab form={form} portfolioType={portfolioType} />;
@@ -384,21 +413,36 @@ export default function PortfolioBuilder() {
   return (
     <div className="flex flex-col lg:flex-row w-full gap-2">
       {/* Vertical Stepper */}
+      <DummyDataAlert
+        open={isDummyDataAlertOpen}
+        setOpen={setIsDummyDataAlertOpen}
+        onConfirm={handleLoadDummyData}
+      />
       <VerticalStepper currentStep={step} />
-      <ErrorAlertDialog  errors={formState.errors} 
-        open={isErrorDialogOpen} 
-        onOpenChange={setIsErrorDialogOpen} />
+      <ErrorAlertDialog
+        errors={formState.errors}
+        open={isErrorDialogOpen}
+        onOpenChange={setIsErrorDialogOpen}
+      />
       <Card className="flex-1 w-full max-w-5xl mx-auto">
-  
-        <CardHeader className="sticky top-0 z-10">
+        <CardHeader className="sticky top-0 z-10 flex items-center flex-row justify-between">
           <CardTitle className="text-2xl">Build Your Portfolio</CardTitle>
+          {step > 1 && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDummyDataAlertOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Code className="h-4 w-4" />
+              Load Sample Data
+            </Button>
+          )}
         </CardHeader>
 
         <CardContent>
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              {renderStepContent()}
-            </form>
+            <form onSubmit={handleSubmit(onSubmit)}>{renderStepContent()}</form>
           </Form>
         </CardContent>
 
@@ -410,7 +454,7 @@ export default function PortfolioBuilder() {
           )}
 
           {step < 4 ? (
-            <Button type="button" onClick={nextStep} >
+            <Button type="button" onClick={nextStep}>
               Next Step
             </Button>
           ) : (
