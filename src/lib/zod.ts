@@ -203,11 +203,8 @@ const developerPortfolioSchema = basePortfolioSchema.extend({
   linkedinLink: z.string().url("Invalid LinkedIn URL").optional(),
   personalWebsite: z.string().url("Invalid website URL").optional(),
 
-  // skills: z.object({
-  //   languages: z.array(z.string()).min(1, "At least one programming language is required"),
-  //   frameworks: z.array(z.string()).optional(),
-  //   tools: z.array(z.string()).optional(),
-  // }),
+  skills: z.array(z.string().min(1)).min(1, "Please enter at least one skill"),
+
 
   // Projects Section
   projects: z
@@ -260,7 +257,7 @@ const designerPortfolioSchema = basePortfolioSchema.extend({
     .array(
       z.object({
         name: z.string().min(1, "Skill name is required"),
-        level: z.number().min(1).max(5).optional(),
+        level: z.number().min(1).max(10).optional(),
         category: z.string().optional(),
       })
     )
@@ -403,9 +400,6 @@ const contentCreatorPortfolioSchema = basePortfolioSchema.extend({
 });
 
 const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
-  expertiseAreas: z
-    .array(z.string().min(1, "Expertise area cannot be empty"))
-    .min(1, "At least one expertise area is required"),
 
   caseStudies: z
     .array(
@@ -468,22 +462,6 @@ const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
     )
     .min(1, "At least one skill category is required"),
 
-  tools: z
-    .array(
-      z.object({
-        category: z.string().min(1, "Category is required"),
-        tools: z
-          .array(
-            z.object({
-              name: z.string().min(1, "Tool name is required"),
-              level: z.number().min(1).max(5).optional(),
-            })
-          )
-          .min(1, "At least one tool is required"),
-      })
-    )
-    .optional(),
-
   certifications: z
     .array(
       z.object({
@@ -498,7 +476,6 @@ const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
       })
     )
     .optional(),
-
   keyAchievements: z
     .array(
       z.object({
@@ -509,8 +486,6 @@ const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
       })
     )
     .optional(),
-
-  industries: z.array(z.string().min(1)).optional(),
 });
 
 export type PortfolioFormData = z.infer<typeof basePortfolioSchema>;

@@ -8,16 +8,22 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="min-h-screen bg-white dark:bg-gray-950">
       <SidebarProvider>
-        <AppSidebar className="" />
-        <SidebarInset className="flex-1 p-3 sm:p-4 md:p-6 mx-2 sm:mx-3 md:mx-4 my-2 sm:my-3">
-          <div className="sticky flex items-center top-2 z-10 w-full">
-             <SidebarTrigger className="-ml-1 cursor-pointer" />
-            <DynamicBreadcrumb />
-          </div>
-          {children}
-        </SidebarInset>
+        <div className="flex h-screen">
+          <AppSidebar />
+          <SidebarInset className="flex flex-col">
+            <header className="sticky top-0 z-20 bg-white/80 dark:bg-gray-950/80 backdrop-blur border-b border-gray-100 dark:border-gray-800">
+              <div className="flex items-center h-16 px-4 md:px-6">
+                <SidebarTrigger className="mr-4 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200" />
+                <DynamicBreadcrumb />
+              </div>
+            </header>
+            <main className="overflow-auto">
+              {children}
+            </main>
+          </SidebarInset>
+        </div>
       </SidebarProvider>
     </div>
   );

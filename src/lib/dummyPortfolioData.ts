@@ -1,19 +1,26 @@
 import { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
-import { PortfolioFormData } from "@/components/portfolioForms/types/portfolio";
+import { BusinessConsultingPortfolioFormData, ContentCreatorPortfolioFormData, DesignerPortfolioFormData, DeveloperPortfolioFormData, PortfolioFormData } from "@/components/portfolioForms/types/portfolio";
 
 type PortfolioType =
   | "developer"
   | "designer"
-  | "content-creator"
-  | "business-consulting";
+  | "contentCreator"
+  | "businessConsulting";
 
-export const generateDummyPortfolioData = (type: PortfolioType) => {
-  const baseData = {
+  type ExtendedPortfolioFormData =
+  | PortfolioFormData
+  | DeveloperPortfolioFormData
+  | DesignerPortfolioFormData
+  | BusinessConsultingPortfolioFormData
+  | ContentCreatorPortfolioFormData;
+
+export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfolioFormData=> {
+  const baseData: Partial<PortfolioFormData> = {
     name: "Alex Johnson",
     title: "",
     email: "alex.johnson@example.com",
-    phone: "+1 (555) 123-4567",
+    phone: "+15551234567",
     location: "San Francisco, CA",
     about:
       "Experienced professional with a passion for creating impactful work. Specializing in delivering high-quality solutions to complex problems.",
@@ -82,7 +89,7 @@ export const generateDummyPortfolioData = (type: PortfolioType) => {
             title: "Task Management App",
             description:
               "Developed a productivity application with real-time collaboration features",
-            technologies: "TypeScript, React, Firebase",
+            technologies: ["TypeScript, React, Firebase"],
             githubLink: "https://github.com/alexjohnson/task-manager",
             liveDemo: "https://tasks.alexjohnson.dev",
             type: "web-app",
@@ -157,7 +164,7 @@ export const generateDummyPortfolioData = (type: PortfolioType) => {
         ],
       };
 
-    case "content-creator":
+    case "contentCreator":
       return {
         ...baseData,
         title: "Digital Content Creator",
@@ -216,7 +223,7 @@ export const generateDummyPortfolioData = (type: PortfolioType) => {
         ],
       };
 
-    case "business-consulting":
+    case "businessConsulting":
       return {
         ...baseData,
         title: "Business Strategy Consultant",
@@ -269,121 +276,63 @@ export const generateDummyPortfolioData = (type: PortfolioType) => {
             impact: "Improved client's bottom line by 15%",
           },
         ],
-        industries: ["Retail", "Technology", "Healthcare"],
       };
 
     default:
       return baseData;
   }
 };
-
 export const populateFormWithDummyData = (
-  form: UseFormReturn<PortfolioFormData>,
+  form: UseFormReturn<
+    | DeveloperPortfolioFormData
+    | DesignerPortfolioFormData
+    | BusinessConsultingPortfolioFormData
+    | ContentCreatorPortfolioFormData
+  >,
   portfolioType: PortfolioType
 ) => {
   const dummyData = generateDummyPortfolioData(portfolioType);
 
-  // Reset form first to clear existing data
-  form.reset();
+  form.reset(); // Clear existing form state
 
-  // Set all base values
+  // Set non-array fields
   Object.entries(dummyData).forEach(([key, value]) => {
-    if (
-      key === "projects" ||
-      key === "skills" ||
-      key === "experience" ||
-      key === "education"
-    ) {
-      return; // Handle arrays separately
-    }
-    form.setValue(key as keyof PortfolioFormData, value as any);
+    if (Array.isArray(value)) return;
+    form.setValue(key as any, value);
   });
 
-  // Handle array fields with proper type checking
-  if (dummyData.projects) {
-    form.setValue("projects", []);
-    dummyData.projects.forEach((project: any) => {
-      form.setValue("projects", [...form.getValues().projects, project]);
-    });
-  }
+  // Helper to safely set array fields
+  const setArrayField = (key: string, items?: any[]) => {
+    if (!items) return;
+    form.setValue(key as any, items);
+  };
 
-  if (dummyData.skills) {
-    form.setValue("skills", []);
-    dummyData.skills.forEach((skill: any) => {
-      form.setValue("skills", [...form.getValues().skills, skill]);
-    });
-  }
+  // Common array fields
+  setArrayField("experience", dummyData.experience);
+  setArrayField("education", dummyData.education);
+  setArrayField("skills", (dummyData as any).skills);
 
-  if (dummyData.experience) {
-    form.setValue("experience", []);
-    dummyData.experience.forEach((exp: any) => {
-      form.setValue("experience", [...form.getValues().experience, exp]);
-    });
-  }
+  // Type-specific fields
+  switch (portfolioType) {
+    case "developer":
+      setArrayField("projects", (dummyData as any).projects);
+      break;
 
-  if (dummyData.education) {
-    form.setValue("education", []);
-    dummyData.education.forEach((edu: any) => {
-      form.setValue("education", [...form.getValues().education, edu]);
-    });
-  }
+    case "designer":
+      setArrayField("projects", (dummyData as any).projects);
+      setArrayField("testimonials", (dummyData as any).testimonials);
+      setArrayField("awards", (dummyData as any).awards);
+      break;
 
-  // Portfolio-specific fields
-  if (portfolioType === "designer") {
-    if (dummyData.testimonials) {
-      form.setValue("testimonials", []);
-      dummyData.testimonials.forEach((testimonial: any) => {
-        form.setValue("testimonials", [
-          ...form.getValues().testimonials,
-          testimonial,
-        ]);
-      });
-    }
-    if (dummyData.awards) {
-      form.setValue("awards", []);
-      dummyData.awards.forEach((award: any) => {
-        form.setValue("awards", [...form.getValues().awards, award]);
-      });
-    }
-  }
+    case "contentCreator":
+      setArrayField("portfolioItems", (dummyData as any).portfolioItems);
+      setArrayField("pricingPackages", (dummyData as any).pricingPackages);
+      break;
 
-  if (portfolioType === "content-creator") {
-    if (dummyData.portfolioItems) {
-      form.setValue("portfolioItems", []);
-      dummyData.portfolioItems.forEach((item: any) => {
-        form.setValue("portfolioItems", [
-          ...form.getValues().portfolioItems,
-          item,
-        ]);
-      });
-    }
-    if (dummyData.pricingPackages) {
-      form.setValue("pricingPackages", []);
-      dummyData.pricingPackages.forEach((pkg: any) => {
-        form.setValue("pricingPackages", [
-          ...form.getValues().pricingPackages,
-          pkg,
-        ]);
-      });
-    }
-  }
-
-  if (portfolioType === "business-consulting") {
-    if (dummyData.caseStudies) {
-      form.setValue("caseStudies", []);
-      dummyData.caseStudies.forEach((study: any) => {
-        form.setValue("caseStudies", [...form.getValues().caseStudies, study]);
-      });
-    }
-    if (dummyData.certifications) {
-      form.setValue("certifications", []);
-      dummyData.certifications.forEach((cert: any) => {
-        form.setValue("certifications", [
-          ...form.getValues().certifications,
-          cert,
-        ]);
-      });
-    }
+    case "businessConsulting":
+      setArrayField("caseStudies", (dummyData as any).caseStudies);
+      setArrayField("certifications", (dummyData as any).certifications);
+      break;
   }
 
   toast.success(`Sample ${portfolioType} portfolio loaded!`, {

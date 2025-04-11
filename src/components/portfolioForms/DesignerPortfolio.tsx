@@ -77,7 +77,7 @@ const SkillsSection = <T extends FieldValues>({
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex items-center gap-4 p-3 bg-slate-50 rounded-md"
+              className="flex items-center gap-4 p-3 rounded-md"
             >
               <div className="flex-1">
                 <FormField
@@ -139,14 +139,14 @@ const SkillsSection = <T extends FieldValues>({
                           <Slider
                             defaultValue={[field.value || 3]}
                             min={1}
-                            max={5}
+                            max={10}
                             step={1}
                             onValueChange={(value) => field.onChange(value[0])}
                             className="w-32"
                           />
                         </FormControl>
                         <span className="text-sm font-medium min-w-8 text-center">
-                          {field.value || 3}/5
+                          {field.value || 3}/10 
                         </span>
                       </div>
                       <FormMessage />

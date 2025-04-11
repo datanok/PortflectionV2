@@ -1,7 +1,7 @@
 // pages/portfolio-builder.tsx
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -10,12 +10,7 @@ import { toast } from "sonner";
 // UI Components
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+  Form
 } from "@/components/ui/form";
 import {
   Card,
@@ -25,7 +20,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   basePortfolioSchema,
   businessConsultingPortfolioSchema,
@@ -51,6 +45,7 @@ import BusinessConsultingPortfolio from "@/components/portfolioForms/ConsultingP
 import { populateFormWithDummyData } from "@/lib/dummyPortfolioData";
 import { Code } from "lucide-react";
 import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
+import { z, ZodType } from "zod";
 
 // Type definitions for better type safety
 type PortfolioType =
@@ -60,8 +55,14 @@ type PortfolioType =
   | "businessConsulting";
 type TabType = "personal" | "career" | "contact" | "portfolio";
 
+type PortfolioDefaultValueMap = {
+  developer: z.infer<typeof developerPortfolioSchema>;
+  designer: z.infer<typeof designerPortfolioSchema>;
+  "contentCreator": z.infer<typeof contentCreatorPortfolioSchema>;
+  businessConsulting: z.infer<typeof businessConsultingPortfolioSchema>;
+};
 // Utility functions moved outside the component
-const getSchemaForType = (type: PortfolioType) => {
+const getSchemaForType  = (type: PortfolioType):ZodType => {
   switch (type) {
     case "developer":
       return developerPortfolioSchema;
@@ -76,11 +77,10 @@ const getSchemaForType = (type: PortfolioType) => {
   }
 };
 
-// Generate default values based on portfolio type
-const getDefaultValues = (
-  portfolioType: PortfolioType,
+const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
+  portfolioType: T,
   colorScheme = COLOR_SCHEMES[0]
-) => {
+): PortfolioDefaultValueMap[T] => {
   const baseDefaults = {
     name: "",
     title: "",
@@ -95,99 +95,49 @@ const getDefaultValues = (
     },
   };
 
-  // Type-specific defaults
-  const typeDefaults = {
+  const typeDefaults: PortfolioDefaultValueMap = {
     developer: {
       githubLink: "",
       linkedinLink: "",
       personalWebsite: "",
-      skills: {
-        languages: [],
-        frameworks: [],
-        tools: [],
-      },
+     
       projects: [],
+      ...baseDefaults,
     },
     designer: {
       skills: [],
       tools: [],
-      projects: [
-        {
-          title: "",
-          description: "",
-          client: "",
-          problem: "",
-          solution: "",
-          process: "",
-          outcome: "",
-          images: [],
-          testimonial: {
-            name: "",
-            position: "",
-            company: "",
-            content: "",
-          },
-        },
-      ],
+      projects: [],
       testimonials: [],
       awards: [],
+      ...baseDefaults,
     },
-    contentCreator: {
+    "contentCreator": {
       specialties: [],
-      portfolioItems: [
-        {
-          title: "",
-          type: "Photography",
-          description: "",
-          url: "",
-          image: "",
-          tags: [],
-          metadata: {},
-        },
-      ],
+      portfolioItems: [],
       testimonials: [],
       accolades: [],
       pricingPackages: [],
+      ...baseDefaults,
     },
     businessConsulting: {
       expertiseAreas: [],
-      caseStudies: [
-        {
-          title: "",
-          organization: "",
-          role: "",
-          startDate: "",
-          endDate: "",
-          ongoing: false,
-          description: "",
-          challenges: "",
-          solutions: "",
-          outcomes: "",
-          teamSize: 1,
-          keyMetrics: [],
-          images: [],
-          testimonials: [],
-          featured: false,
-        },
-      ],
+      caseStudies: [],
       skills: [
         {
           category: "",
           skills: [],
         },
       ],
-      tools: [],
       certifications: [],
       keyAchievements: [],
-      industries: [],
+      ...baseDefaults,
     },
   };
 
-  return {
-    ...baseDefaults,
-    ...(typeDefaults[portfolioType] || {}),
-  };
+  return typeDefaults[portfolioType];
 };
+
 
 // Define validation rules for each step and tab
 const VALIDATION_RULES = {
@@ -211,13 +161,13 @@ export default function PortfolioBuilder() {
   const [isDummyDataAlertOpen, setIsDummyDataAlertOpen] = useState(false);
 
   // Create form with proper typing
-  const form = useForm({
+  const form = useForm<PortfolioDefaultValueMap[typeof portfolioType]>({
     resolver: zodResolver(getSchemaForType(portfolioType)),
     defaultValues: getDefaultValues(portfolioType),
     mode: "onChange",
   });
-
-  console.log(form);
+  
+  
   const {
     control,
     handleSubmit,
@@ -411,59 +361,85 @@ export default function PortfolioBuilder() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row w-full gap-2">
-      {/* Vertical Stepper */}
-      <DummyDataAlert
-        open={isDummyDataAlertOpen}
-        setOpen={setIsDummyDataAlertOpen}
-        onConfirm={handleLoadDummyData}
-      />
-      <VerticalStepper currentStep={step} />
-      <ErrorAlertDialog
-        errors={formState.errors}
-        open={isErrorDialogOpen}
-        onOpenChange={setIsErrorDialogOpen}
-      />
-      <Card className="flex-1 w-full max-w-5xl mx-auto">
-        <CardHeader className="sticky top-0 z-10 flex items-center flex-row justify-between">
-          <CardTitle className="text-2xl">Build Your Portfolio</CardTitle>
-          {step > 1 && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsDummyDataAlertOpen(true)}
-              className="flex items-center gap-2"
-            >
-              <Code className="h-4 w-4" />
-              Load Sample Data
-            </Button>
-          )}
+    <div className="container p-4 md:p-6 max-w-7xl mx-auto">
+    <DummyDataAlert
+      open={isDummyDataAlertOpen}
+      setOpen={setIsDummyDataAlertOpen}
+      onConfirm={handleLoadDummyData}
+    />
+    
+    <ErrorAlertDialog
+      errors={formState.errors}
+      open={isErrorDialogOpen}
+      onOpenChange={setIsErrorDialogOpen}
+    />
+    
+    <div className="grid lg:grid-cols-[280px_1fr] gap-6">
+      <div className="hidden lg:block">
+        <div className="sticky top-20">
+          <VerticalStepper currentStep={step} />
+        </div>
+      </div>
+      
+      <Card className="shadow-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+        <CardHeader className="sticky top-0 z-10 bg-white/90 dark:bg-gray-950/90 backdrop-blur px-6 pb-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-medium">Build Your Portfolio</CardTitle>
+            
+            {step > 1 && (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsDummyDataAlertOpen(true)}
+                size="sm"
+                className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <Code className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Load Sample Data</span>
+                <span className="sm:hidden">Sample</span>
+              </Button>
+            )}
+          </div>
+          
+          <div className="lg:hidden mt-4">
+            <VerticalStepper currentStep={step} variant="compact" />
+          </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="p-6">
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)}>{renderStepContent()}</form>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {renderStepContent()}
+            </form>
           </Form>
         </CardContent>
 
-        <CardFooter className="flex justify-between">
-          {step > 1 && (
-            <Button type="button" variant="outline" onClick={prevStep}>
-              Previous
+        <CardFooter className="sticky bottom-0 z-10 bg-white/90 dark:bg-gray-950/90 backdrop-blur px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex justify-between w-full">
+            <div>
+              {step > 1 && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={prevStep}
+                  size="sm"
+                >
+                  Previous
+                </Button>
+              )}
+            </div>
+            
+            <Button 
+              type={step < 4 ? "button" : "submit"}
+              onClick={step < 4 ? nextStep : handleSubmit(onSubmit)}
+              size="sm"
+            >
+              {step < 4 ? "Next Step" : "Create Portfolio"}
             </Button>
-          )}
-
-          {step < 4 ? (
-            <Button type="button" onClick={nextStep}>
-              Next Step
-            </Button>
-          ) : (
-            <Button type="submit" onClick={handleSubmit(onSubmit)}>
-              Create Portfolio
-            </Button>
-          )}
+          </div>
         </CardFooter>
       </Card>
     </div>
+  </div>
   );
 }
