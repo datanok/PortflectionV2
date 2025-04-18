@@ -96,7 +96,7 @@ const PreviewTab = ({ form, portfolioType }: PreviewTabProps) => {
                     }}
                   ></div>
                 </div>
-                <Badge variant="outline" className="capitalize">{form.getValues("theme.mode")} mode</Badge>
+                {/* <Badge variant="outline" className="capitalize">{form.getValues("theme.mode")} mode</Badge> */}
               </div>
             </div>
           </div>

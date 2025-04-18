@@ -4,6 +4,24 @@
 @plugin "tailwindcss-animate";
 
 @custom-variant dark (&:where(.dark, .dark *));
+/* globals.css */
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e7eb;          /* Tailwind gray-200 */
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;          /* Tailwind gray-300 */
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;          /* Tailwind slate-700 */
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;          /* Tailwind slate-600 */
+}
 
 @theme inline {
   --color-brand: var(--brand);

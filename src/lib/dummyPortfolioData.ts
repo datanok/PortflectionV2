@@ -72,12 +72,13 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
         title: "Senior Full Stack Developer",
         about:
           "Full stack developer with 5+ years of experience building scalable web applications. Specialized in JavaScript, React, Node.js, and cloud technologies.",
-        projects: [
+        skills:["JavaScript", "React", "Node.js", "Cloud"],
+          projects: [
           {
             title: "E-commerce Platform",
             description:
               "Built a full-stack e-commerce solution with React frontend and Node.js backend",
-            technologies: "React, Node.js, MongoDB, Stripe API",
+            technologies: ["React", "Node.js", "MongoDB", "Stripe API"],
             githubLink: "https://github.com/alexjohnson/ecommerce-platform",
             liveDemo: "https://ecommerce.alexjohnson.dev",
             type: "web-app",
@@ -89,7 +90,7 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
             title: "Task Management App",
             description:
               "Developed a productivity application with real-time collaboration features",
-            technologies: ["TypeScript, React, Firebase"],
+            technologies: ["TypeScript", "React", "Firebase"],
             githubLink: "https://github.com/alexjohnson/task-manager",
             liveDemo: "https://tasks.alexjohnson.dev",
             type: "web-app",
@@ -229,11 +230,6 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
         title: "Business Strategy Consultant",
         about:
           "Helping businesses optimize operations and develop growth strategies through data-driven insights.",
-        expertiseAreas: [
-          "Digital Transformation",
-          "Process Optimization",
-          "Market Expansion",
-        ],
         caseStudies: [
           {
             title: "Retail Chain Digital Transformation",

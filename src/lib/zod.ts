@@ -203,7 +203,7 @@ const developerPortfolioSchema = basePortfolioSchema.extend({
   linkedinLink: z.string().url("Invalid LinkedIn URL").optional(),
   personalWebsite: z.string().url("Invalid website URL").optional(),
 
-  skills: z.array(z.string().min(1)).min(1, "Please enter at least one skill"),
+  skills: z.array(z.string().min(1, "Please enter at least one skill")),
 
 
   // Projects Section
@@ -215,14 +215,8 @@ const developerPortfolioSchema = basePortfolioSchema.extend({
           .string()
           .min(10, "Description must be at least 10 characters"),
         technologies: z
-          .string()
-          .min(1, "At least one technology is required")
-          .transform((val) =>
-            val
-              .split(",")
-              .map((tech) => tech.trim())
-              .filter((tech) => tech !== "")
-          ),
+          .array(z.string().min(1, "Technology is required"))
+          .min(1, "At least one technology is required"),
         // Optional project details
         githubLink: z
           .union([
@@ -488,7 +482,11 @@ const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
     .optional(),
 });
 
-export type PortfolioFormData = z.infer<typeof basePortfolioSchema>;
+export type PortfolioFormData =
+  | z.infer<typeof developerPortfolioSchema>
+  | z.infer<typeof designerPortfolioSchema>
+  | z.infer<typeof businessConsultingPortfolioSchema>
+  | z.infer<typeof contentCreatorPortfolioSchema>;
 export type DeveloperPortfolioFormData = z.infer<
   typeof developerPortfolioSchema
 >;

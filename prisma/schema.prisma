@@ -28,6 +28,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  portfolio     Portfolio[]
 }
 
 model Session {
@@ -68,4 +69,51 @@ model Verification {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+model Portfolio {
+  id               String   @id @default(cuid()) @map("_id")
+  userId           String
+  type             String   // e.g. 'developer', 'designer', etc.
+  name             String
+  title            String
+  email            String
+  phone            String?
+  location         String?
+  about            String?
+  profileImage     String?
+  contactForm      Boolean  @default(true)
+
+  // Optional individual links
+  githubLink       String?
+  linkedinLink     String?
+  personalWebsite  String?
+
+  // Socials as structured array (not object) for better front-end mapping
+  socials          Json?     // Array of { type: string; url: string; username: string }
+
+  // Theme settings like colors, fonts, etc.
+  theme            Json?
+
+  // Type-specific fields (e.g. projects, skills, services)
+  extraData        Json?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  views            Int      @default(0)
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  viewsLog         PortfolioView[]
+}
+
+model PortfolioView {
+  id            String   @id @default(cuid()) @map("_id")
+  portfolioId   String
+  timestamp     DateTime @default(now())
+  ip            String?
+  country       String?
+  referrer      String?
+  userAgent     String?
+  isBot         Boolean  @default(false)
+
+  portfolio     Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 }

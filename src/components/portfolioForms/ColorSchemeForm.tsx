@@ -42,7 +42,6 @@ const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ control }) => {
                 onClick={() => field.onChange({
                   primary: scheme.primary,
                   secondary: scheme.secondary,
-                  mode: field.value?.mode || 'light' // Preserve existing mode
                 })}
               >
                 <CardHeader className="pb-2">
@@ -67,7 +66,7 @@ const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ control }) => {
       />
 
       {/* Dark/Light Mode Selection */}
-      <div className="mt-6">
+      {/* <div className="mt-6">
         <h3 className="text-lg font-medium mb-4">Light or Dark Mode</h3>
         <FormField
           control={control}
@@ -94,7 +93,7 @@ const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ control }) => {
             </FormItem>
           )}
         />
-      </div>
+      </div> */}
     </div>
   );
 };

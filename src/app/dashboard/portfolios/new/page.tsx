@@ -46,7 +46,13 @@ import { populateFormWithDummyData } from "@/lib/dummyPortfolioData";
 import { Code } from "lucide-react";
 import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
 import { z, ZodType } from "zod";
+import { PortfolioFormData } from "@/components/portfolioForms/types/portfolio";
 
+interface PortfolioBuilderProps {
+  editMode?: boolean;
+  defaultValues?: any; // Consider using a more specific type if possible
+  portfolioId?: string | null;
+}
 // Type definitions for better type safety
 type PortfolioType =
   | "developer"
@@ -91,7 +97,6 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
     theme: {
       primary: colorScheme.primary,
       secondary: colorScheme.secondary,
-      mode: "light",
     },
   };
 
@@ -121,7 +126,6 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
       ...baseDefaults,
     },
     businessConsulting: {
-      expertiseAreas: [],
       caseStudies: [],
       skills: [
         {
@@ -147,24 +151,24 @@ const VALIDATION_RULES = {
   developer: ["skills", "projects", "githubLink"],
   designer: ["skills", "tools", "projects"],
   contentCreator: ["specialties", "portfolioItems"],
-  businessConsulting: ["expertiseAreas", "caseStudies", "skills"],
+  businessConsulting: ["caseStudies", "skills"],
   theme: ["theme"],
 };
 
-export default function PortfolioBuilder() {
+export default function PortfolioBuilder({ editMode = false, defaultValues = null, portfolioId = null }:PortfolioBuilderProps = {}) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [portfolioType, setPortfolioType] =
-    useState<PortfolioType>("developer");
+  const [portfolioType, setPortfolioType] = useState<PortfolioType>(defaultValues?.type || "developer");
   const [currentTab, setCurrentTab] = useState<TabType>("personal");
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [isDummyDataAlertOpen, setIsDummyDataAlertOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Create form with proper typing
   const form = useForm<PortfolioDefaultValueMap[typeof portfolioType]>({
     resolver: zodResolver(getSchemaForType(portfolioType)),
-    defaultValues: getDefaultValues(portfolioType),
-    mode: "onChange",
+    defaultValues: defaultValues || getDefaultValues(portfolioType),
+    mode: "onBlur",
   });
   
   
@@ -192,7 +196,6 @@ export default function PortfolioBuilder() {
           theme: currentTheme || {
             primary: COLOR_SCHEMES[0].primary,
             secondary: COLOR_SCHEMES[0].secondary,
-            mode: "light",
           },
         },
         {
@@ -210,8 +213,6 @@ export default function PortfolioBuilder() {
 
   // Handle color scheme selection
 
-  console.log(form);
-  // Navigation functions with validation
   const nextStep = useCallback(async () => {
     let isValid = true;
 
@@ -222,8 +223,6 @@ export default function PortfolioBuilder() {
         currentTab === "portfolio"
           ? portfolioValidationFields
           : VALIDATION_RULES[currentTab];
-      console.log("fieldsToValidate:", fieldsToValidate);
-      console.log(form.formState.errors);
       if (fieldsToValidate && fieldsToValidate.length > 0) {
         isValid = await trigger(fieldsToValidate as any);
       }
@@ -250,32 +249,33 @@ export default function PortfolioBuilder() {
 
   // Handle form submission with toast feedback
   const onSubmit = useCallback(
-    async (data: any) => {
-      toast.promise(
-        new Promise((resolve) => {
-          setTimeout(() => {
-            localStorage.setItem(
-              "portfolio",
-              JSON.stringify({
-                ...data,
-                type: portfolioType,
-                createdAt: new Date().toISOString(),
-              })
-            );
-            resolve(data);
-          }, 1500);
-        }),
-        {
-          loading: "Creating your portfolio...",
-          success: () => {
-            router.push("/portfolio-preview");
-            return "Portfolio created successfully!";
-          },
-          error: "Failed to create portfolio. Please try again.",
+    async (data: PortfolioDefaultValueMap[typeof portfolioType]) => {
+      setIsSubmitting(true);
+      try {
+        let response, result;
+        if (editMode && portfolioId) {
+          response = await fetch(`/api/portfolio/update`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...data, id: portfolioId }),
+          });
+        } else {
+          response = await fetch(`/api/portfolio/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
         }
-      );
+        result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Error");
+        toast.success(editMode ? "Portfolio updated successfully!" : "Portfolio created successfully!");
+        router.push("/dashboard/portfolios");
+      } catch (error: any) {
+        setIsSubmitting(false);
+        toast.error(error.message || (editMode ? "Failed to update portfolio." : "Failed to create portfolio."));
+      }
     },
-    [portfolioType, router]
+    [portfolioType, router, editMode, portfolioId]
   );
 
   // Render each step content
@@ -348,8 +348,6 @@ export default function PortfolioBuilder() {
       case 3:
         return (
           <ColorSchemeForm
-            getValues={getValues}
-            setValue={setValue}
             control={control}
           />
         );
@@ -361,7 +359,7 @@ export default function PortfolioBuilder() {
   };
 
   return (
-    <div className="container p-4 md:p-6 max-w-7xl mx-auto">
+    <div className="container max-w-7xl mx-auto overflow-hidden">
     <DummyDataAlert
       open={isDummyDataAlertOpen}
       setOpen={setIsDummyDataAlertOpen}
@@ -375,46 +373,45 @@ export default function PortfolioBuilder() {
     />
     
     <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-      <div className="hidden lg:block">
-        <div className="sticky top-20">
+      <div className="">
+        <div className="sticky">
           <VerticalStepper currentStep={step} />
         </div>
       </div>
-      
-      <Card className="shadow-none border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
-        <CardHeader className="sticky top-0 z-10 bg-white/90 dark:bg-gray-950/90 backdrop-blur px-6 pb-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-medium">Build Your Portfolio</CardTitle>
-            
-            {step > 1 && (
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setIsDummyDataAlertOpen(true)}
-                size="sm"
-                className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <Code className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Load Sample Data</span>
-                <span className="sm:hidden">Sample</span>
-              </Button>
-            )}
-          </div>
-          
-          <div className="lg:hidden mt-4">
-            <VerticalStepper currentStep={step} variant="compact" />
-          </div>
+
+        <Card className="w-full max-w-7xl mx-auto shadow-none overflow-hidden h-[80vh] flex flex-col">
+          <CardHeader className="sticky top-0 z-10">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-medium">{editMode ? "Edit Portfolio" : "Build Your Portfolio"}</CardTitle>
+
+              {step > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsDummyDataAlertOpen(true)}
+                  size="sm"
+                  className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  <Code className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Load Sample Data</span>
+                  <span className="sm:hidden">Sample</span>
+                </Button>
+              )}
+            </div>
+
+         
         </CardHeader>
 
-        <CardContent className="p-6">
-          <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {renderStepContent()}
-            </form>
-          </Form>
-        </CardContent>
+        <CardContent className="flex-1 overflow-auto">
+    <Form {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {renderStepContent()}
+      </form>
+    </Form>
+  </CardContent>
 
-        <CardFooter className="sticky bottom-0 z-10 bg-white/90 dark:bg-gray-950/90 backdrop-blur px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+
+  <CardFooter className="">
           <div className="flex justify-between w-full">
             <div>
               {step > 1 && (
@@ -433,8 +430,9 @@ export default function PortfolioBuilder() {
               type={step < 4 ? "button" : "submit"}
               onClick={step < 4 ? nextStep : handleSubmit(onSubmit)}
               size="sm"
+              disabled={isSubmitting}
             >
-              {step < 4 ? "Next Step" : "Create Portfolio"}
+              {step < 4 ? "Next Step" : (editMode ? "Update Portfolio" : "Create Portfolio")}
             </Button>
           </div>
         </CardFooter>

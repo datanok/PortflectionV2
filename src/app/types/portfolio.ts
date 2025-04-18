@@ -11,7 +11,6 @@ export interface ColorScheme {
 export interface Theme {
   primary: string;
   secondary: string;
-  mode?: "light" | "dark";
 }
 
 export interface BasePortfolio {
@@ -140,7 +139,6 @@ export interface SkillCategory {
 }
 
 export interface BusinessConsultingPortfolio extends BasePortfolio {
-  expertiseAreas: string[];
   caseStudies: CaseStudy[];
   skills: SkillCategory[];
   tools?: string[];

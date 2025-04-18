@@ -38,7 +38,6 @@ import { Badge } from "@/components/ui/badge";
 import { PROJECT_TYPES } from "@/lib/zod";
 import { toast } from "sonner";
 import { addDummyDeveloperPortfolioData } from "@/lib/formscripts";
-import { Slider } from "../ui/slider";
 
 interface FormProps<T extends FieldValues> {
   control: Control<T>;
@@ -122,22 +121,26 @@ const SocialLinks = <T extends FieldValues>({
 
 // Technology Tags Input Component
 const TechnologyTagsInput = ({
-  value = "",
+  value = [],
   onChange,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  value: string[] | string;
+  onChange: (value: string[] | string) => void;
 }) => {
-  const [tags, setTags] = React.useState<string[]>(
-    value ? value.split(",").map((tag) => tag.trim()) : []
-  );
+  // Support both array and CSV string as value
+  const initialTags = Array.isArray(value)
+    ? value
+    : value
+    ? value.split(",").map((tag) => tag.trim()).filter(Boolean)
+    : [];
+  const [tags, setTags] = React.useState<string[]>(initialTags);
   const [inputValue, setInputValue] = React.useState("");
 
   const addTag = () => {
     if (inputValue.trim() !== "" && !tags.includes(inputValue.trim())) {
       const newTags = [...tags, inputValue.trim()];
       setTags(newTags);
-      onChange(newTags.join(", "));
+      onChange(newTags); // Always emit as array
       setInputValue("");
     }
   };
@@ -145,7 +148,7 @@ const TechnologyTagsInput = ({
   const removeTag = (tagToRemove: string) => {
     const newTags = tags.filter((tag) => tag !== tagToRemove);
     setTags(newTags);
-    onChange(newTags.join(", "));
+    onChange(newTags); // Always emit as array
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -156,15 +159,13 @@ const TechnologyTagsInput = ({
   };
 
   React.useEffect(() => {
-    if (value !== tags.join(", ")) {
-      setTags(
-        value
-          ? value
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter(Boolean)
-          : []
-      );
+    const newTags = Array.isArray(value)
+      ? value
+      : value
+      ? value.split(",").map((tag) => tag.trim()).filter(Boolean)
+      : [];
+    if (tags.join(",") !== newTags.join(",")) {
+      setTags(newTags);
     }
   }, [value]);
 
@@ -203,6 +204,7 @@ const TechnologyTagsInput = ({
     </div>
   );
 };
+
 const SkillsInput = ({
   value = [],
   onChange,
