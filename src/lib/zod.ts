@@ -181,6 +181,10 @@ const basePortfolioSchema = z.object({
       secondary: z.string().default("#ffed4a"),
       dark: z.string().default("#2d3748"),
       light: z.string().default("#f8fafc"),
+      background: z.string().default("#ffffff"),
+      card: z.string().default("#f4f4f4"),
+      muted: z.string().default("#f1f5f9"),
+      accent: z.string().default("#e0e7ff"),
       fontHeading: z.string().default("Montserrat"),
       fontBody: z.string().default("Open Sans"),
     })

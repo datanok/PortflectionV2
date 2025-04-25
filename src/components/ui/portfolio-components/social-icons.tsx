@@ -11,9 +11,10 @@ interface SocialIconsProps {
     username: string;
   }[];
   className?: string;
+  theme?: any;
 }
 
-export function SocialIcons({ socials, className }: SocialIconsProps) {
+export function SocialIcons({ socials, className, theme }: SocialIconsProps) {
   const getIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'github':
@@ -47,7 +48,10 @@ export function SocialIcons({ socials, className }: SocialIconsProps) {
           href={social.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          style={{
+            color: theme?.accent || theme?.secondary || '#4fd1c5',
+          }}
+          className="hover:text-foreground transition-colors"
           title={`${social.type}: ${social.username}`}
         >
           {getIcon(social.type)}

@@ -49,7 +49,7 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
   return (
     <div className="space-y-6">
        
-    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-3 gap-4">
       {portfolioTypes.map((type) => (
         <div
           key={type.id}

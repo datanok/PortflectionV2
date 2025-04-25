@@ -8,6 +8,7 @@ import { Github, Mail, MapPin } from 'lucide-react';
 import { usePortfolioData } from '@/components/PortfolioProvider';
 import { SectionHeader } from '@/components/ui/portfolio-components/section-header';
 import { SocialIcons } from '@/components/ui/portfolio-components/social-icons';
+import { ExperienceTimeline } from '@/components/ui/portfolio-components/Experience-card';
 
 export default function Developer() {
   const portfolio = usePortfolioData();
@@ -21,6 +22,7 @@ export default function Developer() {
     email,
     githubLink,
     socials,
+    theme,
     extraData = {}
   } = portfolio;
 
@@ -35,12 +37,24 @@ export default function Developer() {
     url,
     username: url.split('/').pop() ?? '',
   }));
-  
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div
+      style={{
+        backgroundColor: theme?.background || theme?.light || '#f8fafc',
+        color: theme?.dark || '#2d3748',
+        fontFamily: theme?.fontBody || 'Open Sans',
+        minHeight: '100vh',
+        padding: '2rem',
+      }}
+    >
       {/* Hero Section */}
-      <section className="bg-primary/5 py-16">
+      <section
+        style={{
+          backgroundColor: theme?.card || theme?.light || '#f7fafc',
+          padding: '2rem',
+        }}
+      >
         <div className="container max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <div className="md:order-2 w-full md:w-1/3 flex justify-center">
@@ -50,8 +64,11 @@ export default function Developer() {
               </Avatar>
             </div>
             <div className="md:order-1 w-full md:w-2/3">
-              <h1 className="text-4xl md:text-5xl font-bold mb-2">{name}</h1>
-              <h2 className="text-2xl text-primary font-medium mb-4">{title}</h2>
+              <SectionHeader
+                title={name}
+                subtitle={title}
+                theme={theme}
+              />
               <p className="text-lg mb-6">{about}</p>
               <div className="flex flex-wrap items-center gap-4">
                 {email && (
@@ -80,24 +97,30 @@ export default function Developer() {
                 {location}
               </div>
             )}
-            <SocialIcons socials={modifiedSocials} />
+            <SocialIcons socials={modifiedSocials} theme={theme} />
           </div>
         </div>
       </section>
 
       {/* Projects Section */}
-      <section className="py-16">
+      <section
+        style={{
+          backgroundColor: theme?.background || theme?.light || '#f8fafc',
+          padding: '2rem',
+        }}
+      >
         <div className="container max-w-6xl mx-auto px-4">
-          <SectionHeader title="Projects" subtitle="Check out some of my recent work" />
+          <SectionHeader
+            title="Projects"
+            subtitle="Check out some of my recent work"
+            theme={theme}
+          />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {projects.map((project, index) => (
               <ProjectCard
                 key={index}
-                title={project.title}
-                description={project.description}
-                url={project.liveDemo}
-                tags={project.technologies}
-                githubLink={project.githubLink}
+                {...project}
+                theme={theme}
               />
             ))}
           </div>
@@ -105,12 +128,27 @@ export default function Developer() {
       </section>
 
       {/* Skills Section */}
-      <section className="py-16 bg-muted/50">
+      <section
+        style={{
+          backgroundColor: theme?.muted || theme?.light || '#f7fafc',
+          padding: '2rem',
+        }}
+      >
         <div className="container max-w-6xl mx-auto px-4">
-          <SectionHeader title="Skills & Expertise" subtitle="Technologies and tools I specialize in" />
+          <SectionHeader
+            title="Skills & Expertise"
+            subtitle="Technologies and tools I specialize in"
+            theme={theme}
+          />
           <div className="flex flex-wrap gap-3">
             {skills.map((skill, i) => (
-              <div key={i} className="px-3 py-1 bg-muted rounded-full text-sm font-medium">
+              <div key={i} className="px-3 py-1 rounded-full text-sm font-medium"
+              style={{
+                backgroundColor: theme?.card || theme?.light || '#f7fafc',
+                color: theme?.dark || '#2d3748',
+                fontFamily: theme?.fontBody || 'Open Sans',
+              }}
+              >
                 {skill}
               </div>
             ))}
@@ -119,13 +157,35 @@ export default function Developer() {
       </section>
 
       {/* Experience Section */}
-      <section className="py-16">
+      {/* <section
+        style={{
+          backgroundColor: theme?.background || theme?.light || '#f8fafc',
+          padding: '2rem',
+        }}
+      >
         <div className="container max-w-6xl mx-auto px-4">
-          <SectionHeader title="Experience" subtitle="My work history and roles" />
+          <SectionHeader
+            title="Experience"
+            subtitle="My work history and roles"
+            theme={theme}
+          />
           <div className="space-y-8">
             {experience.length > 0 ? experience.map((job, idx) => (
-              <div key={idx} className="p-6 bg-card rounded-lg shadow">
-                <h3 className="text-xl font-semibold">{job.position} @ {job.company}</h3>
+              <div key={idx} className="p-6 rounded-lg shadow"
+              style={{
+                backgroundColor: theme?.card || theme?.light || '#f7fafc',
+                color: theme?.dark || '#2d3748',
+              }}
+              >
+                <h3
+                  style={{
+                    color: theme?.primary || '#4fd1c5',
+                    fontFamily: theme?.fontHeading || 'Montserrat',
+                  }}
+                  className="text-xl font-semibold"
+                >
+                  {job.position} @ {job.company}
+                </h3>
                 <div className="text-muted-foreground text-sm mb-1">
                   {job.startDate} - {job.endDate || "Present"}
                 </div>
@@ -141,17 +201,44 @@ export default function Developer() {
             )) : <div className="text-muted-foreground">No experience added yet.</div>}
           </div>
         </div>
-      </section>
+      </section> */}
+      <ExperienceTimeline theme={theme} experience={experience} />
 
       {/* Education Section */}
-      <section className="py-16 bg-muted/50">
+      <section
+        style={{
+          backgroundColor: theme?.muted || theme?.light || '#f7fafc',
+          padding: '2rem',
+        }}
+      >
         <div className="container max-w-6xl mx-auto px-4">
-          <SectionHeader title="Education" subtitle="My academic background" />
+          <SectionHeader
+            title="Education"
+            subtitle="My academic background"
+            theme={theme}
+          />
           <div className="space-y-6">
             {education.length > 0 ? education.map((edu, idx) => (
-              <div key={idx} className="p-6 bg-card rounded-lg shadow">
-                <h3 className="text-lg font-semibold">{edu.degree} @ {edu.institution}</h3>
-                <div className="text-muted-foreground text-sm mb-1">
+              <div key={idx} className="p-6 rounded-lg shadow"
+              style={{backgroundColor: theme?.card || theme?.light || '#f7fafc',
+                color: theme?.dark || '#2d3748',
+              }}
+              >
+                <h3
+                  style={{
+                    color: theme?.primary || '#4fd1c5',
+                    fontFamily: theme?.fontHeading || 'Montserrat',
+                  }}
+                  className="text-lg font-semibold"
+                >
+                  {edu.degree} @ {edu.institution}
+                </h3>
+                <div
+                style={{
+                  color: theme?.accent || '#4fd1c5',
+                  fontFamily: theme?.fontBody || 'Open Sans',
+                }}
+                 className="text-sm mb-1">
                   {edu.startDate} - {edu.endDate || "Present"}
                 </div>
                 <p>{edu.description}</p>

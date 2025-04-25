@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { deletePortfolioAction, createPortfolioAction, updatePortfolioAction } from "../actions";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,6 @@ import { populateFormWithDummyData } from "@/lib/dummyPortfolioData";
 import { Code } from "lucide-react";
 import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
 import { z, ZodType } from "zod";
-import { PortfolioFormData } from "@/components/portfolioForms/types/portfolio";
 
 interface PortfolioBuilderProps {
   editMode?: boolean;
@@ -252,23 +252,14 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
     async (data: PortfolioDefaultValueMap[typeof portfolioType]) => {
       setIsSubmitting(true);
       try {
-        let response, result;
+        let result;
         if (editMode && portfolioId) {
-          response = await fetch(`/api/portfolio/update`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...data, id: portfolioId }),
-          });
+          result = await updatePortfolioAction({ ...data, id: portfolioId });
+          toast.success("Portfolio updated successfully!");
         } else {
-          response = await fetch(`/api/portfolio/create`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data),
-          });
+          result = await createPortfolioAction(data);
+          toast.success("Portfolio created successfully!");
         }
-        result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Error");
-        toast.success(editMode ? "Portfolio updated successfully!" : "Portfolio created successfully!");
         router.push("/dashboard/portfolios");
       } catch (error: any) {
         setIsSubmitting(false);
@@ -277,6 +268,19 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
     },
     [portfolioType, router, editMode, portfolioId]
   );
+
+  const handleDeletePortfolio = useCallback(async (id: string) => {
+    setIsSubmitting(true);
+    try {
+      await deletePortfolioAction(id);
+      toast.success("Portfolio deleted successfully!");
+      router.push("/dashboard/portfolios");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete portfolio.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [router]);
 
   // Render each step content
   const renderStepContent = () => {
@@ -402,7 +406,7 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
          
         </CardHeader>
 
-        <CardContent className="flex-1 overflow-auto">
+        <CardContent className="flex-1 overflow-auto p-2">
     <Form {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {renderStepContent()}
