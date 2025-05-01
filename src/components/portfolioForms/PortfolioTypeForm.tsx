@@ -3,6 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/button";
 import { CircleCheckIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 interface PortfolioTypeFormProps {
   form: UseFormReturn<PortfolioFormData>;
@@ -11,16 +12,22 @@ interface PortfolioTypeFormProps {
   setPortfolioType: React.Dispatch<React.SetStateAction<string>>;
   nextStep: () => void;
 }
+
 const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
   portfolioType,
   reset,
   setPortfolioType,
   nextStep,
+  form
 }) => {
   const handlePortfolioTypeChange = (type: string) => {
     setPortfolioType(type);
-    reset();
+    reset({ portfolioType: type }); // This resets and sets portfolioType in one go
+    console.log(type, "type");
   };
+  useEffect(() => {
+    form.setValue("portfolioType", portfolioType);
+  }, [portfolioType, form]);
 
   const portfolioTypes = [
     {

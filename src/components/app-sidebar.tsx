@@ -12,6 +12,14 @@ import {
   Settings,
   Sun,
   User,
+  Lock,
+  Bell,
+  Plug,
+  CreditCard,
+  Shield,
+  Globe,
+  Download,
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavMain } from "@/components/nav-main";
@@ -44,34 +52,34 @@ const navItems = [
     title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
+    items: [
+      { title: "Dashboard", url: "/dashboard" },
+    ],
   },
   {
     title: "Portfolios",
-    url: "/portfolios",
+    url: "/dashboard/portfolios",
     icon: Folder,
     items: [
-      { title: "My Portfolios", url: "/portfolios/my" },
-      { title: "Shared Portfolios", url: "/portfolios/shared" },
-      { title: "Create New", url: "dashboard/portfolios/new" },
+      { title: "My Portfolios", url: "/dashboard/portfolios" },
+      { title: "Create New", url: "/dashboard/portfolios/new" },
     ],
   },
- 
   {
     title: "Analytics",
-    url: "/analytics",
+    url: "/dashboard/analytics",
     icon: BarChart3,
     items: [
-      { title: "Performance", url: "/analytics/performance" },
-      { title: "Trends", url: "/analytics/trends" },
+      { title: "Performance", url: "/dashboard/analytics/performance" },
+      { title: "Trends", url: "/dashboard/analytics/trends" },
     ],
   },
   {
     title: "Settings",
-    url: "/settings",
+    url: "/dashboard/settings",
     icon: Settings,
     items: [
-      { title: "Account", url: "/settings/account" },
-      { title: "Billing", url: "/settings/billing" },
+      { title: "Settings", url: "/dashboard/settings", icon: Settings },
     ],
   },
 ];

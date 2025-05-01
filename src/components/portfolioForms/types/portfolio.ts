@@ -2,6 +2,7 @@ import { basePortfolioSchema, developerPortfolioSchema, designerPortfolioSchema,
 import { z } from "zod";
 
 export type PortfolioFormData =
+  z.infer<typeof basePortfolioSchema>
   | z.infer<typeof developerPortfolioSchema>
   | z.infer<typeof designerPortfolioSchema>
   | z.infer<typeof businessConsultingPortfolioSchema>

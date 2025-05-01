@@ -38,7 +38,6 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ContactInfoTab from "@/components/portfolioForms/ContactForm";
 import ErrorAlertDialog from "@/components/portfolioForms/ErrorDialog";
 import ColorSchemeForm, {
-  COLOR_SCHEMES,
 } from "@/components/portfolioForms/ColorSchemeForm";
 import DesignerPortfolio from "@/components/portfolioForms/DesignerPortfolio";
 import ContentCreatorPortfolio from "@/components/portfolioForms/ContentCreatorPortfolio";
@@ -47,6 +46,7 @@ import { populateFormWithDummyData } from "@/lib/dummyPortfolioData";
 import { Code } from "lucide-react";
 import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
 import { z, ZodType } from "zod";
+import { COLOR_SCHEMES } from "@/components/portfolioForms/types/ColorSchemes";
 
 interface PortfolioBuilderProps {
   editMode?: boolean;
@@ -251,10 +251,12 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
   const onSubmit = useCallback(
     async (data: PortfolioDefaultValueMap[typeof portfolioType]) => {
       setIsSubmitting(true);
+      console.log(data,"data");
       try {
         let result;
+        data.portfolioType = portfolioType;
         if (editMode && portfolioId) {
-          result = await updatePortfolioAction({ ...data, id: portfolioId });
+          result = await updatePortfolioAction({ ...data, id: portfolioId});
           toast.success("Portfolio updated successfully!");
         } else {
           result = await createPortfolioAction(data);
@@ -269,18 +271,6 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
     [portfolioType, router, editMode, portfolioId]
   );
 
-  const handleDeletePortfolio = useCallback(async (id: string) => {
-    setIsSubmitting(true);
-    try {
-      await deletePortfolioAction(id);
-      toast.success("Portfolio deleted successfully!");
-      router.push("/dashboard/portfolios");
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete portfolio.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [router]);
 
   // Render each step content
   const renderStepContent = () => {
@@ -375,14 +365,15 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
       open={isErrorDialogOpen}
       onOpenChange={setIsErrorDialogOpen}
     />
-    
+        {console.log(form.getValues("portfolioType"),"form")}
+
     <div className="grid lg:grid-cols-[280px_1fr] gap-6">
       <div className="">
         <div className="sticky">
           <VerticalStepper currentStep={step} />
         </div>
       </div>
-
+  
         <Card className="w-full max-w-7xl mx-auto shadow-none overflow-hidden h-[80vh] flex flex-col">
           <CardHeader className="sticky top-0 z-10">
             <div className="flex items-center justify-between">

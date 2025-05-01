@@ -6,6 +6,15 @@ export interface ColorScheme {
   name: string;
   primary: string;
   secondary: string;
+  dark: string;
+  light: string;
+  background: string;
+  card: string;
+  muted: string;
+  accent: string;
+  fontHeading: string;
+  fontBody: string;
+  body: string;
 }
 
 export interface Theme {

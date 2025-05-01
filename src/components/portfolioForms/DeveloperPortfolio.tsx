@@ -205,82 +205,6 @@ const TechnologyTagsInput = ({
   );
 };
 
-const SkillsInput = ({
-  value = [],
-  onChange,
-}: {
-  value: string[];
-  onChange: (value: string[]) => void;
-}) => {
-  const [skill, setSkills] = React.useState<string[]>(value ?? []);
-  const [inputValue, setInputValue] = React.useState("");
-
-  const addTag = () => {
-    const trimmed = inputValue.trim();
-    if (trimmed && !skill.includes(trimmed)) {
-      const newSkills = [...skill, trimmed];
-      setSkills(newSkills);
-      onChange(newSkills); // ✅ Send as array
-      setInputValue("");
-    }
-  };
-
-  const removeTag = (skillToRemove: string) => {
-    const newSkills = skill.filter((tag) => tag !== skillToRemove);
-    setSkills(newSkills);
-    onChange(newSkills); // ✅ Send as array
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      addTag();
-    }
-  };
-
-  // Keep internal state in sync when form resets
-  React.useEffect(() => {
-    if (JSON.stringify(value) !== JSON.stringify(skill)) {
-      setSkills(value ?? []);
-    }
-  }, [value]);
-
-  return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-2 mb-2">
-        {skill.map((tag) => (
-          <Badge
-            key={tag}
-            variant="secondary"
-            className="flex items-center gap-1"
-          >
-            {tag}
-            <button
-              type="button"
-              onClick={() => removeTag(tag)}
-              className="ml-1 text-xs hover:text-red-500"
-            >
-              ×
-            </button>
-          </Badge>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Add technology and press Enter"
-          className="flex-1"
-        />
-        <Button type="button" variant="outline" size="sm" onClick={addTag}>
-          Add
-        </Button>
-      </div>
-    </div>
-  );
-};
-
 
 
 // Project Roles Component
@@ -416,32 +340,6 @@ const DeveloperPortfolio = <T extends FieldValues>({
 
       {/* Social Links Section */}
       <SocialLinks control={control} />
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center"><Brain className="h-5 w-5 mr-2 text-pink-300"/> Skills</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <FormField
-            control={control}
-            name="skills"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <SkillsInput
-                    value={field.value || []}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Enter skills one at a time (e.g. JavaScript, React, Node.js)
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </CardContent>
-      </Card>
-    
 
 
       {/* Projects Section */}

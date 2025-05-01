@@ -81,6 +81,9 @@ const basePortfolioSchema = z.object({
       }
     ),
   location: z.string().max(50).optional(),
+  portfolioType : z.enum(["developer", "designer", "content-creator"]),
+
+  skills: z.array(z.string().min(1, "Please enter at least one skill")),
 
   // About section
   about: z
@@ -176,19 +179,21 @@ const basePortfolioSchema = z.object({
 
   // Theme and styling preferences
   theme: z
-    .object({
-      primary: z.string().default("#3490dc"),
-      secondary: z.string().default("#ffed4a"),
-      dark: z.string().default("#2d3748"),
-      light: z.string().default("#f8fafc"),
-      background: z.string().default("#ffffff"),
-      card: z.string().default("#f4f4f4"),
-      muted: z.string().default("#f1f5f9"),
-      accent: z.string().default("#e0e7ff"),
-      fontHeading: z.string().default("Montserrat"),
-      fontBody: z.string().default("Open Sans"),
-    })
-    .optional(),
+  .object({
+    primary: z.string().default("#3490dc"),
+    secondary: z.string().default("#ffed4a"),
+    dark: z.string().default("#2d3748"),
+    light: z.string().default("#f8fafc"),
+    background: z.string().default("#ffffff"),
+    card: z.string().default("#f4f4f4"),
+    muted: z.string().default("#f1f5f9"),
+    accent: z.string().default("#e0e7ff"),
+    fontHeading: z.string().default("Montserrat"),
+    fontBody: z.string().default("Open Sans"),
+    body: z.string().default("#1a202c"), // 👈 Add this line
+  })
+  .optional(),
+
 
   // Custom sections
   customSections: z
@@ -202,15 +207,11 @@ const basePortfolioSchema = z.object({
     .optional(),
 });
 const developerPortfolioSchema = basePortfolioSchema.extend({
-  // Social Links
+
   githubLink: z.string().url("Invalid GitHub URL").optional(),
   linkedinLink: z.string().url("Invalid LinkedIn URL").optional(),
   personalWebsite: z.string().url("Invalid website URL").optional(),
 
-  skills: z.array(z.string().min(1, "Please enter at least one skill")),
-
-
-  // Projects Section
   projects: z
     .array(
       z.object({
@@ -251,16 +252,6 @@ const developerPortfolioSchema = basePortfolioSchema.extend({
 });
 
 const designerPortfolioSchema = basePortfolioSchema.extend({
-  skills: z
-    .array(
-      z.object({
-        name: z.string().min(1, "Skill name is required"),
-        level: z.number().min(1).max(10).optional(),
-        category: z.string().optional(),
-      })
-    )
-    .min(1, "At least one skill is required"),
-
   tools: z
     .array(
       z.object({
@@ -444,21 +435,6 @@ const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
     )
     .min(1, "At least one case study is required"),
 
-  skills: z
-    .array(
-      z.object({
-        category: z.string().min(1, "Category is required"),
-        skills: z
-          .array(
-            z.object({
-              name: z.string().min(1, "Skill name is required"),
-              level: z.number().min(1).max(5).optional(),
-            })
-          )
-          .min(1, "At least one skill is required"),
-      })
-    )
-    .min(1, "At least one skill category is required"),
 
   certifications: z
     .array(

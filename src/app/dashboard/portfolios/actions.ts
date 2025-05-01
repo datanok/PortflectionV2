@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from '@/lib/prisma';
-import { authClient } from '../../../../auth-client';
+
 import { headers } from "next/headers";
 import { auth } from '../../../../auth';
 
@@ -14,7 +14,9 @@ export async function deletePortfolioAction(id: string) {
     throw new Error('Portfolio ID is required');
   }
 
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
   console.log(session,"asdas")
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
@@ -39,17 +41,36 @@ export async function deletePortfolioAction(id: string) {
  * Create a portfolio (server action)
  */
 export async function createPortfolioAction(data: any) {
-  const { data: session } = await authClient.getSession()
-  console.log(session,"asd")
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  console.log(session, "asd");
   if (!session?.user?.id) throw new Error('Unauthorized');
   const { type = 'developer', ...body } = data;
-  // You should validate data here with your Zod schemas if desired
+
+  // Split scalar and extra fields
+  const scalarFields = [
+    'name','title','email','phone','location','about','profileImage','contactForm',
+    'githubLink','linkedinLink','personalWebsite','socials','theme','type'
+  ];
+  const prismaData: Record<string, any> = {
+    userId: session.user.id,
+    type,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  const extraData: Record<string, any> = {};
+  for (const key in body) {
+    if (scalarFields.includes(key)) {
+      prismaData[key] = body[key];
+    } else {
+      extraData[key] = body[key];
+    }
+  }
+  prismaData.extraData = extraData;
+
   const portfolio = await prisma.portfolio.create({
-    data: {
-      userId: session.user.id,
-      ...body,
-      type,
-    },
+    data: prismaData,
   });
   return portfolio;
 }

@@ -110,11 +110,7 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
         title: "UX/UI Designer",
         about:
           "Creative designer with expertise in user-centered design principles and creating intuitive digital experiences.",
-        skills: [
-          { name: "UI Design", level: 5, category: "Design" },
-          { name: "UX Research", level: 4, category: "Research" },
-          { name: "Prototyping", level: 5, category: "Design" },
-        ],
+        skills: ["UI Design", "UX Research", "Prototyping"],
         tools: [
           { name: "Figma", level: 5 },
           { name: "Adobe XD", level: 4 },
@@ -249,15 +245,7 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
             ],
           },
         ],
-        skills: [
-          {
-            category: "Business Strategy",
-            skills: [
-              { name: "Market Analysis", level: 5 },
-              { name: "Competitive Research", level: 4 },
-            ],
-          },
-        ],
+        skills: ["Business Strategy", "Market Analysis", "Competitive Research"],
         certifications: [
           {
             name: "Certified Management Consultant",

@@ -1,6 +1,8 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import SectionHeader from "./SectionHeader";
+import { ChevronRight, Briefcase, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface ExperienceItem {
   position: string;
@@ -12,194 +14,193 @@ interface ExperienceItem {
   logo?: string;
 }
 
-interface SectionHeaderProps {
-  title: string;
-  subtitle: string;
-  theme?: any;
-}
-
 interface ExperienceTimelineProps {
   experience: ExperienceItem[];
   theme?: any;
 }
 
-const SectionHeader = ({ title, subtitle, theme }: SectionHeaderProps) => (
-  <div className="mb-10 text-center">
-    <h2 
-      className="text-3xl font-bold mb-2"
-      style={{
-        color: theme?.primary || '#38a169',
-        fontFamily: theme?.fontHeading || 'Nunito'
-      }}
-    >
-      {title}
-    </h2>
-    <p 
-      className="text-lg"
-      style={{
-        color: theme?.dark || '#22543d',
-        fontFamily: theme?.fontBody || 'Roboto'
-      }}
-    >
-      {subtitle}
-    </p>
-    <div 
-      className="w-24 h-1 mx-auto mt-4 rounded"
-      style={{
-        backgroundColor: theme?.accent || '#68d391'
-      }}
-    />
-  </div>
-);
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5
+    }
+  }
+};
 
 export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProps) {
   return (
     <section
+      className="py-20"
       style={{
         backgroundColor: theme?.background || '#e6fffa',
-        padding: '4rem 0',
       }}
     >
       <div className="container max-w-6xl mx-auto px-4">
         <SectionHeader
           title="Experience"
-          subtitle="My professional journey"
+          subtitle="A timeline of my professional career and key accomplishments"
           theme={theme}
         />
 
         {experience.length > 0 ? (
-          <div className="relative">
+          <motion.div 
+            className="relative space-y-14"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {/* Timeline Line */}
             <div 
-              className="absolute left-0 sm:left-1/2 transform sm:-translate-x-1/2 h-full w-1 hidden sm:block"
-              style={{ backgroundColor: theme?.accent || '#68d391' }}
+              className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 hidden md:block"
+              style={{ backgroundColor: theme?.accent ? `${theme.accent}50` : '#68d39150' }}
             />
 
             {experience.map((job, idx) => (
-              <div 
-                key={idx} 
-                className={`mb-12 relative flex flex-col sm:flex-row ${
-                  idx % 2 === 0 ? 'sm:flex-row-reverse' : ''
-                }`}
+              <motion.div 
+                key={idx}
+                variants={itemVariants} 
+                className="relative group"
               >
-                {/* Timeline Dot */}
+                {/* Timeline Node */}
                 <div 
-                  className="absolute left-0 sm:left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full z-10 hidden sm:block"
+                  className="absolute hidden md:flex items-center justify-center left-8 md:left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full z-20"
                   style={{ 
-                    backgroundColor: theme?.primary || '#38a169',
-                    border: `3px solid ${theme?.light || '#f0fff4'}`,
-                    top: '24px'
+                    backgroundColor: theme?.background || '#e6fffa',
+                    border: `2px solid ${theme?.accent || '#68d391'}`,
+                    top: '32px',
+                    boxShadow: `0 0 0 6px ${theme?.background || '#e6fffa'}`
                   }}
-                />
-
-                {/* Date Badge - Mobile (always visible) / Desktop (only visible at start of timeline) */}
-                <div className="sm:w-1/2 mb-4 sm:mb-0 sm:px-8 flex sm:justify-end items-start">
-                  <Badge
-                    className="text-sm py-1 px-3 hidden sm:block"
-                    style={{
-                      backgroundColor: theme?.secondary || '#ecc94b',
-                      color: theme?.dark || '#22543d'
-                    }}
-                  >
-                    {job.startDate} - {job.endDate || "Present"}
-                  </Badge>
+                >
+                  {job.logo ? (
+                    <img 
+                      src={job.logo} 
+                      alt={`${job.company} logo`} 
+                      className="w-6 h-6 object-contain rounded-sm" 
+                    />
+                  ) : (
+                    <Briefcase 
+                      className="w-5 h-5" 
+                      style={{ color: theme?.primary || '#38a169' }}
+                    />
+                  )}
                 </div>
 
-                {/* Job Card */}
-                <div className="sm:w-1/2 sm:px-8">
-                  <Card
-                    className="overflow-hidden transition-all duration-300 hover:shadow-md"
-                    style={{
-                      backgroundColor: theme?.card || '#c6f6d5',
-                      borderColor: theme?.accent || '#68d391',
-                      borderWidth: '1px',
-                    }}
-                  >
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start mb-1">
-                        <h3
-                          className="text-xl font-bold"
-                          style={{
-                            color: theme?.primary || '#38a169',
-                            fontFamily: theme?.fontHeading || 'Nunito',
-                          }}
-                        >
-                          {job.position}
-                        </h3>
-                        {job.logo && (
-                          <div className="w-10 h-10 flex-shrink-0">
-                            <img 
-                              src={job.logo} 
-                              alt={`${job.company} logo`} 
-                              className="w-full h-full object-contain" 
-                            />
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                        <span
-                          className="text-lg font-medium"
+                <div className={`flex flex-col md:flex-row md:items-stretch ${
+                  idx % 2 === 0 ? '' : 'md:flex-row-reverse'
+                }`}>
+                  {/* Date Column */}
+                  <div className="md:w-1/2 pl-20 md:pl-0 md:pr-16 md:text-right mb-4 md:mb-0 relative">
+                    <div 
+                      className="absolute top-0 left-0 w-12 h-12 rounded-full flex items-center justify-center md:hidden"
+                      style={{ 
+                        backgroundColor: theme?.accent ? `${theme.accent}15` : '#68d39115',
+                      }}
+                    >
+                      {job.logo ? (
+                        <img 
+                          src={job.logo} 
+                          alt={`${job.company} logo`} 
+                          className="w-6 h-6 object-contain rounded-sm" 
+                        />
+                      ) : (
+                        <Briefcase 
+                          className="w-5 h-5" 
+                          style={{ color: theme?.primary || '#38a169' }}
+                        />
+                      )}
+                    </div>
+
+                    <h3
+                      className="text-xl md:text-2xl font-bold mb-2"
+                      style={{
+                        color: theme?.primary || '#38a169',
+                        fontFamily: theme?.fontHeading || 'Nunito',
+                      }}
+                    >
+                      {job.position}
+                    </h3>
+                    
+                    <h4
+                      className="text-lg mb-3"
+                      style={{
+                        color: theme?.dark || '#22543d',
+                        fontFamily: theme?.fontBody || 'Roboto',
+                      }}
+                    >
+                      {job.company}
+                    </h4>
+
+                    <div className="flex items-center md:justify-end mb-4">
+                      <Badge
+                        className="py-1.5 px-3 rounded-full text-sm font-medium flex items-center"
+                        style={{
+                          backgroundColor: theme?.secondary ? `${theme.secondary}20` : '#ecc94b20',
+                          color: theme?.secondary || '#ecc94b',
+                          borderColor: theme?.secondary ? `${theme.secondary}30` : '#ecc94b30',
+                        }}
+                      >
+                        <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                        {job.startDate} - {job.endDate || "Present"}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Content Column */}
+                  <div className={`md:w-1/2 ${idx % 2 === 0 ? 'md:pl-16' : 'md:pr-16'}`}>
+                    <Card
+                      className="overflow-hidden transition-all duration-300 group-hover:shadow-lg border-0"
+                      style={{
+                        backgroundColor: theme?.card || '#c6f6d5',
+                        borderRadius: '12px',
+                        boxShadow: `0 4px 20px ${theme?.accent ? `${theme.accent}15` : 'rgba(104, 211, 145, 0.15)'}`,
+                      }}
+                    >
+                      <CardContent className="p-6 md:p-8">
+                        <p
+                          className="mb-6 leading-relaxed"
                           style={{
                             color: theme?.dark || '#22543d',
                             fontFamily: theme?.fontBody || 'Roboto',
                           }}
                         >
-                          {job.company}
-                        </span>
-                        
-                        <Badge
-                          variant="outline"
-                          className="sm:hidden"
-                          style={{
-                            backgroundColor: theme?.muted || '#f0fff4',
-                            color: theme?.dark || '#22543d',
-                            borderColor: theme?.accent || '#68d391',
-                          }}
-                        >
-                          {job.startDate} - {job.endDate || "Present"}
-                        </Badge>
-                      </div>
-                    </CardHeader>
+                          {job.description}
+                        </p>
 
-                    <CardContent>
-                      <p
-                        className="mb-4"
-                        style={{
-                          color: theme?.dark || '#22543d',
-                          fontFamily: theme?.fontBody || 'Roboto',
-                        }}
-                      >
-                        {job.description}
-                      </p>
-
-                      {job.achievements && job.achievements.length > 0 && (
-                        <>
-                          <Separator 
-                            className="my-3" 
-                            style={{ backgroundColor: theme?.accent || '#68d391', opacity: 0.4 }} 
-                          />
-                          
-                          <div className="mt-2">
+                        {job.achievements && job.achievements.length > 0 && (
+                          <div className="mt-4">
                             <h4
-                              className="font-semibold mb-2"
+                              className="font-bold mb-4 flex items-center"
                               style={{
-                                color: theme?.dark || '#22543d',
+                                color: theme?.primary || '#38a169',
                                 fontFamily: theme?.fontHeading || 'Nunito',
                               }}
                             >
                               Key Achievements
                             </h4>
                             
-                            <ul className="space-y-2">
+                            <ul className="space-y-3">
                               {job.achievements.map((achievement, i) => (
                                 <li 
                                   key={i}
                                   className="flex items-start"
                                 >
-                                  <span
-                                    className="mr-2 mt-1 inline-block w-2 h-2 rounded-full flex-shrink-0"
-                                    style={{ backgroundColor: theme?.accent || '#68d391' }}
+                                  <ChevronRight 
+                                    className="mr-2 mt-1 w-4 h-4 flex-shrink-0"
+                                    style={{ color: theme?.accent || '#68d391' }}
                                   />
                                   <span
                                     style={{
@@ -213,14 +214,14 @@ export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProp
                               ))}
                             </ul>
                           </div>
-                        </>
-                      )}
-                    </CardContent>
-                  </Card>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div 
             className="text-center p-8 rounded-lg"
