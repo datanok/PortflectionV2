@@ -25,33 +25,55 @@ type Props = {
 };
 
 export const PortfolioNavbar = ({ theme, name }: Props) => {
+  // Client-side only state initialization to prevent hydration errors
+  const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
 
+  // Mark component as mounted after initial render
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-      
-      // Update active section based on scroll position
-      const sections = navLinks.map(link => link.href.substring(1));
-      const currentSection = sections.find(section => {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          return rect.top <= 100 && rect.bottom >= 100;
-        }
-        return false;
-      });
-      
-      if (currentSection) {
-        setActiveSection(currentSection);
-      }
-    };
-    
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    // Debounced scroll handler for better performance
+    let scrollTimeout: NodeJS.Timeout;
+
+    const handleScroll = () => {
+      clearTimeout(scrollTimeout);
+
+      scrollTimeout = setTimeout(() => {
+        setIsScrolled(window.scrollY > 10);
+
+        // Update active section based on scroll position
+        const sections = navLinks.map(link => link.href.substring(1));
+
+        // Find the current section in view
+        for (const section of sections) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 100 && rect.bottom >= 100) {
+              setActiveSection(section);
+              break;
+            }
+          }
+        }
+      }, 50); // Debounce time
+    };
+
+    // Initial check
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [mounted]);
 
   const scrollToSection = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -62,87 +84,135 @@ export const PortfolioNavbar = ({ theme, name }: Props) => {
     }
   };
 
+  // Default styles to use before hydration
+  const defaultBackground = "#f1f5f9";
+  const defaultPrimary = "#718096";
+  const defaultMuted = "#e2e8f0";
+  const defaultBody = "#2d3748";
+  const defaultFontHeading = "Merriweather";
+  const defaultFontBody = "Lato";
+
   return (
-    <nav
-      className={clsx(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled ? "py-2 shadow-md" : "py-4"
-      )}
-      style={{
-        backgroundColor: isScrolled 
-          ? `${theme?.background || "#f1f5f9"}e6` 
-          : `${theme?.background || "#f1f5f9"}99`,
-        backdropFilter: "blur(8px)"
-      }}
-    >
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        {/* Logo / Site Name */}
-        <Link
-          href="/"
-          className="text-xl font-bold tracking-wide"
-          style={{
-            color: theme?.primary || "#718096",
-            fontFamily: theme?.fontHeading || "Merriweather",
-          }}
-        >
-          {name || "Portfolio"}
-        </Link>
+    <>
+      <nav
+        className={clsx(
+          "fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 rounded-full px-6",
+          mounted && isScrolled ? "py-2 shadow-md " : "py-4",
+          "hidden md:flex items-center justify-center"
+        )}
+        style={{
+          backgroundColor: mounted
+            ? `${isScrolled
+              ? `${theme?.background || defaultBackground}e6`
+              : `${theme?.background || defaultBackground}99`}`
+            : `${defaultBackground}99`,
+          backdropFilter: "blur(8px)",
+          border: `1px solid ${theme?.muted || defaultMuted}`,
+          
+        }}
+      >
+        
+        <div className="container mx-auto gap-4 px-4 flex items-center justify-between">
+          {/* Logo / Site Name */}
+         
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={(e) => scrollToSection(e, link.href)}
-              className="flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200"
-              style={{
-                color: theme?.body || "#1a202c",
-                fontFamily: theme?.fontBody || "Lato",
-                backgroundColor: activeSection === link.href.substring(1)
-                  ? `${theme?.muted || "#edf2f7"}`
-                  : "transparent",
-                borderBottom: activeSection === link.href.substring(1)
-                  ? `2px solid ${theme?.primary || "#718096"}`
-                  : "none",
-                fontWeight: activeSection === link.href.substring(1) ? "600" : "normal"
-              }}
-            >
-              <span className="text-lg" style={{ 
-                color: theme?.primary || "#718096" 
-              }}>
-                {link.icon}
-              </span>
-              <span>{link.name}</span>
-            </Link>
-          ))}
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const isActive = mounted && activeSection === link.href.substring(1);
+
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => scrollToSection(e, link.href)}
+                  className={clsx(
+                    "flex text-lg items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all duration-200",
+                    isActive
+                      ? "bg-opacity-100 font-semibold"
+                      : "hover:bg-opacity-70 hover:font-medium"
+                  )}
+                  style={{
+                    color: isActive
+                      ? theme?.background || defaultPrimary
+                      : theme?.body || defaultBody,
+                    backgroundColor: isActive
+                      ? theme?.primary || defaultMuted
+                      : "transparent",
+                    fontFamily: theme?.fontBody || defaultFontBody,
+                  }}
+                >
+                  {/* <span className="text-base" style={{ color: theme?.primary || defaultPrimary }}>
+                    {link.icon}
+                  </span> */}
+                  <span className="text-lg">{link.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Mobile Toggle - Hidden on desktop */}
+          <button
+            className="md:hidden flex flex-col justify-center items-center gap-1 p-2 rounded-md"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+            style={{
+              color: theme?.primary || defaultPrimary,
+              backgroundColor: isMenuOpen ? theme?.muted || defaultMuted : "transparent"
+            }}
+          >
+            <div className="w-6 h-0.5 bg-current" />
+            <div className="w-6 h-0.5 bg-current" />
+            <div className="w-6 h-0.5 bg-current" />
+          </button>
         </div>
+      </nav>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden flex flex-col justify-center items-center gap-1 p-2 rounded-md"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle menu"
-          style={{
-            color: theme?.primary || "#718096",
-            backgroundColor: isMenuOpen ? theme?.muted || "#edf2f7" : "transparent"
-          }}
-        >
-          <div className="w-6 h-0.5 bg-current" />
-          <div className="w-6 h-0.5 bg-current" />
-          <div className="w-6 h-0.5 bg-current" />
-        </button>
-      </div>
+      {/* Mobile Sticky Bottom Button */}
+      {mounted && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 md:hidden">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-full shadow-lg flex items-center gap-2"
+            style={{
+              color: theme?.primary || defaultPrimary,
+              fontFamily: theme?.fontBody || defaultFontBody,
+              border: `1px solid ${theme?.muted || defaultMuted}`,
+            }}
+          >
+            <span>Menu</span>
+          </button>
+        </div>
+      )}
 
       {/* Mobile Menu */}
-      {isMenuOpen && (
-        <div 
-          className="md:hidden mt-2 px-4 py-2 rounded-b-lg shadow-lg"
+      {mounted && isMenuOpen && (<>
+        {/* Add a black transparent background */}
+        <div
+          className="fixed top-0 left-0 w-full h-full bg-black opacity-50 z-40"
+          onClick={() => setIsMenuOpen(false)}
+        />
+        <div
+          className="fixed bottom-0 left-0 right-0 z-50 p-4 pt-6 rounded-t-2xl shadow-2xl transition-all duration-300 md:hidden"
           style={{
-            backgroundColor: `${theme?.background || "#f1f5f9"}f2`,
-            backdropFilter: "blur(10px)"
+            backgroundColor: `${theme?.background || defaultBackground}f2`,
+            backdropFilter: "blur(1px)"
           }}
         >
+
+
+          <div className="flex justify-between items-center mb-4">
+            <span className="font-semibold" style={{ color: theme?.primary || defaultPrimary }}>
+              Menu
+            </span>
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="text-lg font-bold"
+              aria-label="Close menu"
+            >
+              ✕
+            </button>
+          </div>
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -150,28 +220,29 @@ export const PortfolioNavbar = ({ theme, name }: Props) => {
               onClick={(e) => scrollToSection(e, link.href)}
               className="block py-3 px-4 my-1 rounded-md transition-all duration-200"
               style={{
-                color: theme?.body || "#1a202c",
-                fontFamily: theme?.fontBody || "Lato",
+                color: theme?.body || defaultBody,
+                fontFamily: theme?.fontBody || defaultFontBody,
                 backgroundColor: activeSection === link.href.substring(1)
-                  ? theme?.muted || "#edf2f7"
+                  ? theme?.muted || defaultMuted
                   : "transparent",
                 borderLeft: activeSection === link.href.substring(1)
-                  ? `3px solid ${theme?.primary || "#718096"}`
+                  ? `3px solid ${theme?.primary || defaultPrimary}`
                   : "none",
                 paddingLeft: activeSection === link.href.substring(1) ? "14px" : "16px",
                 fontWeight: activeSection === link.href.substring(1) ? "600" : "normal"
               }}
             >
               <div className="flex items-center gap-3">
-                <span style={{ color: theme?.primary || "#718096" }}>
+                {/* <span style={{ color: theme?.primary || defaultPrimary }}>
                   {link.icon}
-                </span> 
+                </span> */}
                 {link.name}
               </div>
             </Link>
           ))}
         </div>
+      </>
       )}
-    </nav>
+    </>
   );
 };

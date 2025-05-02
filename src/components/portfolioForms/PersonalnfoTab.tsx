@@ -161,6 +161,19 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
             </FormItem>
           )}
         />
+        <FormField
+          control={control}
+          name="profileImage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Profile Image</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter Image link" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={control}

@@ -99,9 +99,12 @@ const basePortfolioSchema = z.object({
     .object({
       github: z.string().url("Please provide a valid GitHub URL").optional(),
       linkedin: z
-        .string()
-        .url("Please provide a valid LinkedIn URL")
-        .optional(),
+  .string()
+  .url("Please provide a valid LinkedIn URL")
+  .transform((val) => (val.trim() === "" ? undefined : val))
+  .optional(),
+
+    
       twitter: z.string().url("Please provide a valid Twitter URL").optional(),
       instagram: z
         .string()
@@ -208,8 +211,16 @@ const basePortfolioSchema = z.object({
 });
 const developerPortfolioSchema = basePortfolioSchema.extend({
 
-  githubLink: z.string().url("Invalid GitHub URL").optional(),
-  linkedinLink: z.string().url("Invalid LinkedIn URL").optional(),
+  githubLink:  z
+  .string()
+  .url("Please provide a valid Github URL")
+  .transform((val) => (val.trim() === "" ? undefined : val))
+  .optional(),
+  linkedin: z
+  .string()
+  .url("Please provide a valid LinkedIn URL")
+  .transform((val) => (val.trim() === "" ? undefined : val))
+  .optional(),
   personalWebsite: z.string().url("Invalid website URL").optional(),
 
   projects: z

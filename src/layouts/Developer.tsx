@@ -8,6 +8,7 @@ import DesignerProjectSection from "@/components/ui/portfolio-components/Designe
 import HeroSection from "@/components/ui/portfolio-components/HeroSection";
 import SkillsSection from "@/components/ui/portfolio-components/SkillsSection";
 import { PortfolioNavbar } from "@/components/ui/portfolio-components/PortfolioNavbar";
+import SocialIcon from "@/components/ui/portfolio-components/SocialIcons";
 
 export default function Developer() {
   const portfolio = usePortfolioData();
@@ -53,7 +54,7 @@ export default function Developer() {
     >
       {/* Navbar */}
       <PortfolioNavbar theme={theme} name={name} />
-      
+
       {/* Main Content */}
       <div>
         {/* Hero Section */}
@@ -72,115 +73,65 @@ export default function Developer() {
         </section>
 
         {/* Projects Section */}
-        <section 
-          id="projects" 
-          className="container mx-auto py-20 px-4 scroll-mt-16"
+        <section
+          id="projects"
+          className="container mx-auto scroll-mt-16"
           style={{ backgroundColor: theme?.muted || "#edf2f7" }}
         >
-          <div className="max-w-5xl mx-auto">
-            <h2 
-              className="text-3xl font-bold mb-12 text-center" 
-              style={{ 
-                color: theme?.primary || "#718096", 
-                fontFamily: theme?.fontHeading || "Merriweather" 
-              }}
-            >
-              My Projects
-            </h2>
-            <ProjectSectionComponent projects={projects} theme={theme} />
-          </div>
+          <ProjectSectionComponent projects={projects} theme={theme} />
+
         </section>
 
         {/* Skills Section */}
-        <section 
-          id="skills" 
-          className="container mx-auto py-20 px-4 scroll-mt-16"
+        <section
+          id="skills"
+          className="container mx-auto  scroll-mt-16"
         >
-          <div className="max-w-5xl mx-auto">
-            <h2 
-              className="text-3xl font-bold mb-12 text-center" 
-              style={{ 
-                color: theme?.primary || "#718096", 
-                fontFamily: theme?.fontHeading || "Merriweather" 
-              }}
-            >
-              Skills & Expertise
-            </h2>
-            <SkillsSection skills={skills} theme={theme} />
-          </div>
+
+          <SkillsSection skills={skills} theme={theme} />
+
         </section>
 
         {/* Experience Section */}
-        <section 
-          id="experience" 
-          className="container mx-auto py-20 px-4 scroll-mt-16"
+        <section
+          id="experience"
+          className="container mx-auto  scroll-mt-16"
           style={{ backgroundColor: theme?.muted || "#edf2f7" }}
         >
-          <div className="max-w-5xl mx-auto">
-            <h2 
-              className="text-3xl font-bold mb-12 text-center" 
-              style={{ 
-                color: theme?.primary || "#718096", 
-                fontFamily: theme?.fontHeading || "Merriweather" 
-              }}
-            >
-              Work Experience
-            </h2>
-            <ExperienceTimeline theme={theme} experience={experience} />
-          </div>
+
+          <ExperienceTimeline theme={theme} experience={experience} />
+
         </section>
 
         {/* Education Section */}
-        <section 
-          id="education" 
-          className="container mx-auto py-20 px-4 scroll-mt-16"
+        <section
+          id="education"
+          className="container mx-auto  scroll-mt-16"
         >
-          <div className="max-w-5xl mx-auto">
-            <h2 
-              className="text-3xl font-bold mb-12 text-center" 
-              style={{ 
-                color: theme?.primary || "#718096", 
-                fontFamily: theme?.fontHeading || "Merriweather" 
-              }}
-            >
-              Education
-            </h2>
-            <EducationSection education={education} theme={theme} />
-          </div>
+
+          <EducationSection education={education} theme={theme} />
+
         </section>
 
         {/* Footer */}
-        <footer 
-          className="py-12 text-center" 
-          style={{ 
+        <footer
+          className="py-12 text-center"
+          style={{
             backgroundColor: theme?.primary || "#718096",
             color: theme?.light || "#f7fafc"
           }}
         >
           <div className="container mx-auto px-4">
             <p className="mb-6 text-lg">© {new Date().getFullYear()} {name} | Portfolio</p>
-            
+
             {/* Social Links */}
-            {socials && socials.length > 0 && (
-              <div className="flex justify-center space-x-6 mt-6">
-                {socials.map((social, index) => (
-                  <a 
-                    key={index} 
-                    href={social.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="transition-opacity hover:opacity-80 text-lg"
-                    style={{ color: theme?.light || "#f7fafc" }}
-                  >
-                    {social.platform}
-                  </a>
-                ))}
-              </div>
-            )}
-            
+            {Object.entries(socials).map(([platform, url]) => (
+              <SocialIcon key={platform} type={platform} url={url} theme={theme} />
+            ))}
+
             {/* Back to top button */}
-            <a 
-              href="#hero" 
+            <a
+              href="#hero"
               className="inline-flex items-center mt-8 px-6 py-3 rounded-md transition-all"
               style={{
                 backgroundColor: theme?.accent || "#a0aec0",
