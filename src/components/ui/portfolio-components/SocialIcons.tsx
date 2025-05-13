@@ -12,7 +12,12 @@ import {
     size?: number;
     theme?: {
       primary?: string;
-      accent?: string; // Make sure this is included in your interface
+      accent?: string; 
+      background?: string;
+      muted?: string;
+      body?: string;
+      fontBody?: string;
+
     };
   }
   
@@ -32,28 +37,20 @@ import {
     if (!url) return null;
   
     return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="transition-colors duration-300"
-        style={{ 
-          color: theme?.primary,
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = theme?.accent || theme?.primary || '';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = theme?.primary || 'red';
-        }}
-        aria-label={`${type} profile`}
-      >
-        {iconMap[type] || <FiExternalLink size={size} />}
-      </a>
+      <a 
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="p-2 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+      style={{ 
+        backgroundColor: theme?.background,
+        color: theme?.primary,
+        backdropFilter: 'blur(8px)',
+        border: `1px solid ${theme?.primary}50`
+      }}
+    >
+      {iconMap[type] || <FiExternalLink size={size} />}
+    </a>
     );
   };
   

@@ -4,7 +4,6 @@ export async function getUserPortfolioData(
   id: string
 ): Promise<PortfolioData & { portfolioType: string } | null> {
   let url: string;
-  console.log("idahr")
 
   if (typeof window === "undefined") {
     // Server-side: use absolute URL from env or default to localhost

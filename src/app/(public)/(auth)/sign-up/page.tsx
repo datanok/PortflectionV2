@@ -57,7 +57,6 @@ export default function SignUp() {
           });
         },
         onError: (ctx) => {
-          console.log("error", ctx);
           toast.error("Something went wrong", {
             description: ctx.error.message ?? "Something went wrong.",
           });

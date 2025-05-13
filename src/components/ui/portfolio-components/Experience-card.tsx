@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import SectionHeader from "./SectionHeader";
 import { ChevronRight, Briefcase, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
+import ModernBackgroundElements from "./misc/DecorativeCircles";
 
 interface ExperienceItem {
   position: string;
@@ -46,7 +47,7 @@ export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProp
     <section
       className="py-20"
       style={{
-        backgroundColor: theme?.background || '#e6fffa',
+        backgroundColor: theme?.muted || '#e6fffa',
       }}
     >
       <div className="container max-w-6xl mx-auto px-4">

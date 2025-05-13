@@ -6,6 +6,10 @@ import {
   Truck, Zap, Coffee, MessageCircle, GitBranch, Share2
 } from 'lucide-react';
 import SectionHeader from './SectionHeader';
+import WaveDivider from './WaveDivider';
+import ModernCircles from './misc/DecorativeCircles';
+import ModernBackgroundElements from './misc/DecorativeCircles';
+import DecorativeCircles from './misc/DecorativeCircles';
 
 const SkillsSection = ({ 
   // Customizable title and subtitle
@@ -213,7 +217,6 @@ const SkillsSection = ({
     
     // First pass: try to match skills with categories based on keywords
     skillsArray.forEach(skill => {
-        console.log(skill)
       const skillLower = skill?.toLowerCase();
       let matched = false;
       
@@ -284,10 +287,11 @@ const SkillsSection = ({
     <section
       className="py-20 relative overflow-hidden"
       style={{
-        backgroundColor: theme.muted,
+        backgroundColor: theme.background,
       }}
     >
       {/* Background decorative elements */}
+ 
       <div className="absolute w-full h-full top-0 left-0 pointer-events-none overflow-hidden opacity-5">
         <div className="absolute top-20 right-20 w-72 h-72 rounded-full" style={{ background: theme.primary }} />
         <div className="absolute bottom-16 left-20 w-56 h-56 rounded-full" style={{ background: theme.secondary }} />
@@ -379,14 +383,15 @@ const SkillsSection = ({
       </div>
       
       {/* Bottom wave decoration */}
-      <div className="absolute bottom-0 left-0 right-0 h-16 opacity-10 overflow-hidden">
+      {/* <div className="absolute bottom-0 left-0 right-0 h-16 opacity-10 overflow-hidden">
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full">
           <path 
             d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
             style={{ fill: theme.primary }}
           />
         </svg>
-      </div>
+      </div> */}
+
     </section>
   );
 };

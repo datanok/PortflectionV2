@@ -58,7 +58,6 @@ export default function SignIn() {
           router.refresh();
         },
         onError: (ctx: ErrorContext) => {
-          console.log(ctx);
           toast.error("Something went wrong", {
             description: ctx.error.message ?? "Something went wrong.",
           });
@@ -83,7 +82,6 @@ export default function SignIn() {
           router.refresh();
         },
         onError: (ctx: ErrorContext) => {
-          console.log("error", ctx);
           toast.error("Something went wrong", {
             description:(ctx.error.message || ctx.error.statusText) ?? "Something went wrong.",
           });

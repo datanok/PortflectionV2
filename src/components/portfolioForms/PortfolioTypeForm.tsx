@@ -23,7 +23,6 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
   const handlePortfolioTypeChange = (type: string) => {
     setPortfolioType(type);
     reset({ portfolioType: type }); // This resets and sets portfolioType in one go
-    console.log(type, "type");
   };
   useEffect(() => {
     form.setValue("portfolioType", portfolioType);

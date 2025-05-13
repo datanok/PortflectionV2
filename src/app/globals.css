@@ -22,6 +22,14 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;          /* Tailwind slate-600 */
 }
+@keyframes float-particle {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-20px);
+  }
+}
 
 @theme inline {
   --color-brand: var(--brand);

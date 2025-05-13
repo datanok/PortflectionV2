@@ -24,7 +24,7 @@ type Props = {
   name?: string;
 };
 
-export const PortfolioNavbar = ({ theme, name }: Props) => {
+export const PortfolioNavbar = ({ theme}: Props) => {
   // Client-side only state initialization to prevent hydration errors
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -89,7 +89,6 @@ export const PortfolioNavbar = ({ theme, name }: Props) => {
   const defaultPrimary = "#718096";
   const defaultMuted = "#e2e8f0";
   const defaultBody = "#2d3748";
-  const defaultFontHeading = "Merriweather";
   const defaultFontBody = "Lato";
 
   return (
@@ -97,15 +96,15 @@ export const PortfolioNavbar = ({ theme, name }: Props) => {
       <nav
         className={clsx(
           "fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 rounded-full px-6",
-          mounted && isScrolled ? "py-2 shadow-md " : "py-4",
+          mounted && isScrolled ? "py-2 shadow-md " : "py-2",
           "hidden md:flex items-center justify-center"
         )}
         style={{
           backgroundColor: mounted
             ? `${isScrolled
-              ? `${theme?.background || defaultBackground}e6`
-              : `${theme?.background || defaultBackground}99`}`
-            : `${defaultBackground}99`,
+              ? `${theme?.background || defaultBackground}80`
+              : `${theme?.background || defaultBackground}1A`}`
+            : `${defaultBackground}1A`,
           backdropFilter: "blur(8px)",
           border: `1px solid ${theme?.muted || defaultMuted}`,
           
@@ -127,7 +126,7 @@ export const PortfolioNavbar = ({ theme, name }: Props) => {
                   href={link.href}
                   onClick={(e) => scrollToSection(e, link.href)}
                   className={clsx(
-                    "flex text-lg items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all duration-200",
+                    "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all duration-200",
                     isActive
                       ? "bg-opacity-100 font-semibold"
                       : "hover:bg-opacity-70 hover:font-medium"
@@ -145,7 +144,7 @@ export const PortfolioNavbar = ({ theme, name }: Props) => {
                   {/* <span className="text-base" style={{ color: theme?.primary || defaultPrimary }}>
                     {link.icon}
                   </span> */}
-                  <span className="text-lg">{link.name}</span>
+                  <span className="text-base">{link.name}</span>
                 </Link>
               );
             })}

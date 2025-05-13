@@ -11,7 +11,6 @@ export default function AuthButtons() {
   if (isPending) return <div>Loading...</div>;
 
   const session = data;
-  console.log(session);
   return !session ? (
     <div className="flex gap-2 justify-center">
       <Link href="/sign-in">

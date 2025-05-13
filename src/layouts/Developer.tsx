@@ -9,6 +9,7 @@ import HeroSection from "@/components/ui/portfolio-components/HeroSection";
 import SkillsSection from "@/components/ui/portfolio-components/SkillsSection";
 import { PortfolioNavbar } from "@/components/ui/portfolio-components/PortfolioNavbar";
 import SocialIcon from "@/components/ui/portfolio-components/SocialIcons";
+import { FONT_MAP } from "@/lib/fontMap";
 
 export default function Developer() {
   const portfolio = usePortfolioData();
@@ -23,6 +24,7 @@ export default function Developer() {
     githubLink,
     socials,
     theme,
+    type,
     extraData = {},
   } = portfolio;
 
@@ -33,123 +35,117 @@ export default function Developer() {
     projects = [],
   } = extraData;
 
-  // Dynamically select the ProjectSection component based on portfolioType
   const { portfolioType } = portfolio;
   const projectSectionMap = {
     developer: DeveloperProjectSection,
     designer: DesignerProjectSection,
-    // Add more types as you create them
   };
   const ProjectSectionComponent = projectSectionMap[portfolioType] || DeveloperProjectSection;
+  const headingFont = FONT_MAP[portfolio.theme.fontHeading] || FONT_MAP['Montserrat'];
+  const bodyFont = FONT_MAP[portfolio.theme.fontBody] || FONT_MAP['Lato'];
 
   return (
     <div
       style={{
         backgroundColor: theme?.background || "#f1f5f9",
         color: theme?.body || "#1a202c",
-        fontFamily: theme?.fontBody || "Lato",
         minHeight: "100vh",
       }}
-      className="scroll-smooth"
+      className={`${bodyFont.variable} ${headingFont.variable} scroll-smooth`}
     >
       {/* Navbar */}
       <PortfolioNavbar theme={theme} name={name} />
 
-      {/* Main Content */}
-      <div>
-        {/* Hero Section */}
-        <section id="hero" className="scroll-mt-16">
-          <HeroSection
-            name={name}
-            title={title}
-            about={about}
-            email={email}
-            githubLink={githubLink}
-            location={location}
-            profileImage={profileImage}
-            socials={socials}
-            theme={theme}
-          />
-        </section>
+      {/* Hero Section */}
+      <section id="hero" className="scroll-mt-16">
+        <HeroSection
+          name={name}
+          title={title}
+          about={about}
+          email={email}
+          githubLink={githubLink}
+          location={location}
+          profileImage={profileImage}
+          socials={socials}
+          theme={theme}
+          portfolioType={type}
+        />
+      </section>
 
-        {/* Projects Section */}
-        <section
-          id="projects"
-          className="container mx-auto scroll-mt-16"
-          style={{ backgroundColor: theme?.muted || "#edf2f7" }}
-        >
-          <ProjectSectionComponent projects={projects} theme={theme} />
+      {/* Divider */}
+  
+      {/* Projects Section */}
+      <section id="projects" className="container mx-auto scroll-mt-16">
 
-        </section>
 
-        {/* Skills Section */}
-        <section
-          id="skills"
-          className="container mx-auto  scroll-mt-16"
-        >
+        <ProjectSectionComponent projects={projects} theme={theme} />
+ 
+      </section>
 
-          <SkillsSection skills={skills} theme={theme} />
 
-        </section>
+      {/* Skills Section */}
+      <section id="skills" className="container mx-auto scroll-mt-16">
 
-        {/* Experience Section */}
-        <section
-          id="experience"
-          className="container mx-auto  scroll-mt-16"
-          style={{ backgroundColor: theme?.muted || "#edf2f7" }}
-        >
+        <SkillsSection skills={skills} theme={theme} />
+      </section>
 
-          <ExperienceTimeline theme={theme} experience={experience} />
 
-        </section>
+      {/* Experience Section */}
+      <section
+        id="experience"
+        className="container mx-auto scroll-mt-16"
+        style={{ backgroundColor: theme?.muted || "#edf2f7" }}
+      >
+        <ExperienceTimeline theme={theme} experience={experience} />
+      </section>
 
-        {/* Education Section */}
-        <section
-          id="education"
-          className="container mx-auto  scroll-mt-16"
-        >
+      {/* Divider */}
+   
 
-          <EducationSection education={education} theme={theme} />
+      {/* Education Section */}
+      <section id="education" className="container mx-auto scroll-mt-16">
+        <EducationSection education={education} theme={theme} />
+      </section>
 
-        </section>
+      {/* Footer */}
+      <footer
+  className="py-4 px-4"
+  style={{
+    backgroundColor: theme?.primary || "#1f2937",
+    color: theme?.light || "#f7fafc",
+    fontFamily: theme?.fontBody || "Lato",
+  }}
+>
+  <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-center md:text-left">
+    {/* Left Section: Name and Year */}
+    <p className="text-xs md:text-sm shrink-0">
+      © {new Date().getFullYear()} Portfolio by {name}
+    </p>
 
-        {/* Footer */}
-        <footer
-          className="py-12 text-center"
-          style={{
-            backgroundColor: theme?.primary || "#718096",
-            color: theme?.light || "#f7fafc"
-          }}
-        >
-          <div className="container mx-auto px-4">
-            <p className="mb-6 text-lg">© {new Date().getFullYear()} {name} | Portfolio</p>
-
-            {/* Social Links */}
-            {Object.entries(socials).map(([platform, url]) => (
-              <SocialIcon key={platform} type={platform} url={url} theme={theme} />
-            ))}
-
-            {/* Back to top button */}
-            <a
-              href="#hero"
-              className="inline-flex items-center mt-8 px-6 py-3 rounded-md transition-all"
-              style={{
-                backgroundColor: theme?.accent || "#a0aec0",
-                color: theme?.light || "#f7fafc",
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-              Back to Top
-            </a>
-          </div>
-        </footer>
+    {/* Middle Section: Social Icons */}
+    {socials && Object.keys(socials).length > 0 && (
+      <div className="flex justify-center md:justify-start flex-wrap gap-3">
+        {Object.entries(socials).map(([platform, url]) => (
+          <SocialIcon key={platform} type={platform} url={url} theme={theme} />
+        ))}
       </div>
+    )}
+
+    {/* Right Section: Made with Portflection */}
+    <p className="text-[11px] opacity-60">
+      Made with ❤️ using{" "}
+      <a
+        href="https://portflection.com"
+        className="underline hover:text-inherit"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Portflection
+      </a>
+    </p>
+  </div>
+</footer>
+
     </div>
   );
 }

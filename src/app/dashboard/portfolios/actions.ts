@@ -17,7 +17,6 @@ export async function deletePortfolioAction(id: string) {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
-  console.log(session,"asdas")
   if (!session?.user?.id) {
     throw new Error('Unauthorized');
   }
@@ -44,7 +43,6 @@ export async function createPortfolioAction(data: any) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  console.log(session, "asd");
   if (!session?.user?.id) throw new Error('Unauthorized');
   const { type = 'developer', ...body } = data;
 
@@ -82,7 +80,6 @@ export async function updatePortfolioAction(data: any) {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
-  console.log(session,"asd")
   if (!session?.user?.id) throw new Error('Unauthorized');
   const { id, type = 'developer', ...body } = data;
   if (!id) throw new Error('Portfolio ID is required');

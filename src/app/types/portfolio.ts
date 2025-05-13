@@ -16,11 +16,19 @@ export interface ColorScheme {
   fontBody: string;
   body: string;
 }
-
 export interface Theme {
-  primary: string;
-  secondary: string;
-}
+  primary?: string;
+  secondary?: string;
+  dark?: string;
+  light?: string;
+  background?: string;
+  card?: string;
+  muted?: string;
+  accent?: string;
+  fontHeading?: string;
+  fontBody?: string;
+  body?: string;
+};
 
 export interface BasePortfolio {
   name: string;
@@ -146,6 +154,7 @@ export interface SkillCategory {
   category: string;
   skills: string[];
 }
+
 
 export interface BusinessConsultingPortfolio extends BasePortfolio {
   caseStudies: CaseStudy[];

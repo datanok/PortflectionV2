@@ -5,11 +5,9 @@ import PortfolioClientPage from "./PortfolioClientPage";
 export default async function PortfolioPage({ params }: { params: { id: string } }) {
   const { id } = await params;
   const portfolioData = await getUserPortfolioData(id);
-  console.log("hello")
   if (!portfolioData) notFound();
 
   const { portfolioType } = portfolioData;
-  console.log(portfolioData,"data")
 
   return (
     <PortfolioClientPage

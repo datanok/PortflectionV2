@@ -84,7 +84,6 @@ model Portfolio {
   contactForm      Boolean  @default(true)
 
   // Optional individual links
-  githubLink       String?
   linkedinLink     String?
   personalWebsite  String?
 

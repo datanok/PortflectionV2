@@ -14,7 +14,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import React from "react";
-import { Brain } from "lucide-react";
 
 interface PersonalInfoTabProps {
   form: UseFormReturn<PortfolioFormData>;
@@ -60,7 +59,6 @@ const SkillsInput = ({
     }
   }, [value]);
 
-  {console.log(skill)}
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2 mb-2">

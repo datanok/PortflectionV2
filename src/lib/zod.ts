@@ -81,7 +81,7 @@ const basePortfolioSchema = z.object({
       }
     ),
   location: z.string().max(50).optional(),
-  portfolioType : z.enum(["developer", "designer", "content-creator"]),
+  portfolioType : z.enum(["developer", "designer", "contentCreator"]),
 
   skills: z.array(z.string().min(1, "Please enter at least one skill")),
 
@@ -193,9 +193,9 @@ const basePortfolioSchema = z.object({
     accent: z.string().default("#e0e7ff"),
     fontHeading: z.string().default("Montserrat"),
     fontBody: z.string().default("Open Sans"),
-    body: z.string().default("#1a202c"), // 👈 Add this line
+    body: z.string().default("#1a202c"), // 
   })
-  .optional(),
+  .required(),
 
 
   // Custom sections
@@ -211,11 +211,6 @@ const basePortfolioSchema = z.object({
 });
 const developerPortfolioSchema = basePortfolioSchema.extend({
 
-  githubLink:  z
-  .string()
-  .url("Please provide a valid Github URL")
-  .transform((val) => (val.trim() === "" ? undefined : val))
-  .optional(),
   linkedin: z
   .string()
   .url("Please provide a valid LinkedIn URL")

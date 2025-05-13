@@ -6,7 +6,7 @@ export async function getUserPortfolioDataMock(username: string): Promise<Portfo
   const userPortfolioTypes: Record<string, string> = {
     'janedeveloper': 'developer',
     'alexdesigner': 'designer',
-    'taylorcontent': 'content-creator',
+    'taylorcontent': 'contentCreator',
     'jordanconsultant': 'business-consultant'
   };
   if (!userPortfolioTypes[username]) {

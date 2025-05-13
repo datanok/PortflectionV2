@@ -1,4 +1,4 @@
-import { UseFormReturn, useFieldArray } from "react-hook-form";
+import { UseFormReturn, UseFormTrigger, useFieldArray } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/form";
 import { TabsContent } from "@/components/ui/tabs";
 import { PortfolioFormData } from "./types/portfolio";
-import { X, Plus, CirclePlus, PlusCircle } from "lucide-react";
+import { X, Plus, PlusCircle } from "lucide-react";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import { toast } from "sonner";
 
 interface CareerTabProps {
   form: UseFormReturn<PortfolioFormData>;
+  trigger: UseFormTrigger<PortfolioFormData>;
 }
 
 const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {

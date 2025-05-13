@@ -1,235 +1,363 @@
 import { useState, useEffect } from 'react';
-import SocialIcon from './SocialIcons';
+import { motion } from 'framer-motion';
 import { FiMail, FiMapPin } from 'react-icons/fi';
-import { FaGithub } from 'react-icons/fa6';
+import { FaGithub } from 'react-icons/fa';
+import { HiSparkles } from 'react-icons/hi';
+import SocialIcon from './SocialIcons';
+import FloatingParticles from './FloatingParticles';
+import { Theme } from '@/app/types/portfolio';
 
 interface HeroSectionProps {
-    name: string;
-    title: string;
-    about: string;
-    email: string;
+  name: string;
+  title: string;
+  about: string;
+  email: string;
     githubLink: string;
-    location: string;
-    profileImage: string;
-    socials: {
-      linkedin?: string;
-      twitter?: string;
-      instagram?: string;
-      website?: string;
-    };
-    theme: {
-      primary: string;
-      secondary: string;
-      dark: string;
-      light: string;
-      background: string;
-      card: string;
-      muted: string;
-      accent: string;
-      fontHeading: string;
-      fontBody: string;
-    };
-  }
-  const HeroSection = ({
-    name,
-    title,
-    about,
-    email,
-    githubLink,
-    location,
-    profileImage,
-    socials,
-    theme,
-  }: HeroSectionProps) => {
+  location: string;
+  profileImage: string;
+  portfolioType: string;
+  socials: {
+    linkedin?: string;
+    twitter?: string;
+    instagram?: string;
+    website?: string;
+  };
+  theme: Theme;
+ 
+}
+
+
+const FuturisticHeroSection = ({
+  name,
+  title,
+  about,
+  email,
+  githubLink,
+  location,
+  profileImage,
+  socials,
+  theme,
+}: HeroSectionProps) => {
   const [scrolled, setScrolled] = useState(false);
-  const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 20);
     };
-
-    // Animation on mount
-    setTimeout(() => setAnimateIn(true), 100);
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3
+      }
+    }
+  };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
 
+  
   return (
     <section
-      className={`relative py-16 md:py-24 overflow-hidden ${scrolled ? 'shadow-sm' : ''}`}
+      className="relative min-h-screen w-full flex items-center overflow-hidden"
       style={{
         backgroundColor: theme.background,
-        fontFamily: theme.fontBody
+        fontFamily: theme.fontBody,
+        transition: 'background-color 0.3s ease',
       }}
     >
-      {/* Background gradient effect */}
-      <div className="absolute top-0 left-0 right-0 h-2" style={{ background: `linear-gradient(90deg, ${theme.primary}, ${theme.secondary})` }} />
-      
-      {/* Background pattern */}
-      <div className="absolute inset-0 z-0 opacity-5">
-        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full" style={{ background: theme.primary }} />
-        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full" style={{ background: theme.secondary }} />
+      {/* Gradient background */}
+      {/* <div className="absolute inset-0  overflow-hidden">
+        <div 
+          className="absolute inset-0 opacity-40"
+          style={{
+            backgroundImage: `radial-gradient(circle at 30% 30%, ${theme.primary}15, transparent 60%), 
+                              radial-gradient(circle at 70% 60%, ${theme.secondary}15, transparent 60%)`,
+          }}
+        />
+      </div>  */}
+  
+      <div className="absolute inset-0 z-0 opacity-100">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(to right, ${theme.accent}30 1px, transparent 1px), 
+                              linear-gradient(to bottom, ${theme.accent}30 1px, transparent 1px)`,
+            backgroundSize: "40px 40px",
+          }}
+        />
       </div>
+      {/* Floating particles */}
+      <FloatingParticles 
+  theme={theme}
+  particleCount={5}
+  opacity={0.7}
+/>
 
-      <div className="container max-w-6xl mx-auto px-4 relative z-10">
-        <div className={`grid grid-cols-1 lg:grid-cols-5 gap-12 items-center transition-all duration-700 ${animateIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          
-          {/* Profile Image with animations */}
-          <div className="lg:col-span-2 flex justify-center lg:justify-end order-1 lg:order-2">
-            <div className="relative">
-              {/* Orbital accent circle */}
-              <div 
-                className="absolute inset-0 rounded-full animate-pulse"
-                style={{ 
-                  background: `linear-gradient(135deg, ${theme.primary}50, ${theme.secondary}50)`,
-                  transform: 'scale(1.1)'
-                }}
-              />
-              
-              {/* Image container */}
-              <div className="relative group">
-                <div 
-                  className="absolute inset-0 rounded-full transition-all duration-300 group-hover:scale-105 group-hover:blur-sm" 
-                  style={{ 
-                    background: `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`,
-                  }}
-                />
-                
-                <div 
-                  className="relative rounded-full overflow-hidden border-4 p-1 bg-white transform transition-transform duration-500 hover:rotate-6"
-                  style={{ borderColor: theme.accent, width: '250px', height: '250px' }}
-                >
-                  <img 
-                    src={profileImage} 
-                    alt={name} 
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                </div>
-              </div>
-              
-              {/* Achievement badges/floating elements */}
-              <div className="absolute -top-4 -right-4 bg-white p-2 rounded-full shadow-lg animate-bounce" style={{ animationDuration: '3s' }}>
-                <div className="rounded-full p-1" style={{ background: `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})` }}>
-                  <span className="flex items-center justify-center bg-white rounded-full w-8 h-8">
-                    <span className="text-lg" style={{ color: theme.primary }}>⭐</span>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Profile Info */}
-          <div className="lg:col-span-3 order-2 lg:order-1 text-center lg:text-left">
+
+      {/* Animated top border */}
+      <div
+        className={`absolute top-0 left-0 right-0 h-1 transition-all duration-500 ${
+          scrolled ? "opacity-100" : "opacity-0"
+        }`}
+        style={{
+          background: `linear-gradient(90deg, ${theme.primary}, ${theme.secondary}, ${theme.primary})`,
+          backgroundSize: "200% 100%",
+          animation: "gradient-flow 8s ease infinite",
+        }}
+      />
+
+      <div className="container max-w-6xl mx-auto px-6 py-16 relative z-10">
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
+          {/* Content Side */}
+          <motion.div variants={itemVariants} className="order-2 lg:order-1">
             <div className="space-y-6">
-              <div>
-                <h3 
-                  className="text-sm uppercase tracking-wider mb-2 font-semibold"
-                  style={{ color: theme.primary }}
+              {/* Name with glowing effect */}
+              <motion.div
+                className="relative inline-block"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+              >
+                <div
+                  className="absolute -inset-1 blur-xl opacity-30 rounded-lg"
+                  style={{ background: `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})` }}
+                />
+                <h1
+                  className="text-5xl md:text-6xl lg:text-7xl font-bold relative"
+                  style={{
+                    fontFamily: theme.fontHeading,
+                    background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    textShadow: `0 0 20px ${theme.primary}20`,
+                  }}
                 >
-                  Welcome to my portfolio
-                </h3>
-                <h1 
-                  className="text-4xl md:text-5xl lg:text-6xl font-bold mb-2 leading-tight"
-                  style={{ fontFamily: theme.fontHeading, color: theme.dark }}
-                >
-                  I'm <span style={{ color: theme.primary }}>{name}</span>
+                  {name}
                 </h1>
-                <h2 
-                  className="text-xl md:text-2xl lg:text-3xl font-medium mb-4 inline-block relative"
-                  style={{ color: theme.secondary }}
-                >
-                  {title}
-                  <div 
-                    className="absolute bottom-0 left-0 h-1 w-full transform origin-left transition-all duration-500 scale-x-0 group-hover:scale-x-100" 
-                    style={{ background: theme.secondary }}
-                  />
-                </h2>
-              </div>
-              
-              <p 
-                className="text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0"
+              </motion.div>
+
+              {/* Title with underline animation */}
+              <motion.h2
+                variants={itemVariants}
+                className="text-2xl md:text-3xl font-medium mb-4 relative group inline-block"
+              >
+                <span style={{ color: theme.body }}>{title}</span>
+                <div
+                  className="absolute bottom-0 left-0 h-0.5 w-0 group-hover:w-full transition-all duration-500"
+                  style={{ background: `linear-gradient(90deg, ${theme.primary}, ${theme.secondary})` }}
+                />
+              </motion.h2>
+
+              {/* About text */}
+              <motion.p
+                variants={itemVariants}
+                className="text-lg leading-relaxed"
                 style={{ color: theme.body }}
               >
                 {about}
-              </p>
-              
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 mt-6">
+              </motion.p>
+
+              {/* Action buttons */}
+              <motion.div variants={itemVariants} className="flex flex-wrap gap-4 mt-8">
                 {email && (
-                  <a 
+                  <motion.a
                     href={`mailto:${email}`}
-                    className="px-6 py-3 rounded-lg shadow-md font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${theme.primary}, ${theme.primary}DD)`,
-                      color: 'white',
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 rounded-full shadow-lg font-medium flex items-center gap-2 transition-all duration-300"
+                    style={{
+                      background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})`,
+                      color: theme.light,
+                      boxShadow: `0 8px 20px ${theme.primary}30`,
                     }}
                   >
-                    <div className="flex items-center gap-2">
                     <FiMail className="h-5 w-5" />
-                      <span>Contact Me</span>
-                    </div>
-                  </a>
+                    <span>Connect</span>
+                  </motion.a>
                 )}
-                
+
                 {githubLink && (
-                  <a 
+                  <motion.a
                     href={githubLink}
                     target="_blank"
-                    className="px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 border-2"
-                    style={{ 
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-all duration-300 border group"
+                    style={{
                       borderColor: theme.primary,
-                      color: theme.primary
+                      color: theme.primary,
+                      background: `${theme.background}90`,
+                      backdropFilter: "blur(8px)",
                     }}
                   >
-                    <div className="flex items-center gap-2">
                     <FaGithub className="h-5 w-5" />
-
-                      <span>View GitHub</span>
-                    </div>
-                  </a>
+                    <span>View Projects</span>
+                    <div 
+                      className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                      style={{ background: theme.primary }}
+                    />
+                  </motion.a>
                 )}
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-4 justify-center lg:justify-start mt-8">
+              </motion.div>
+
+              {/* Location and socials */}
+              <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-6 mt-8">
                 {location && (
-                  <div 
-                    className="flex items-center gap-1 text-sm py-1 px-3 rounded-full"
-                    style={{ 
-                      backgroundColor: theme.muted,
-                      color: theme.dark
+                  <div
+                    className="flex items-center gap-2 py-1 px-4 rounded-full"
+                    style={{
+                      background: `${theme.muted}80`,
+                      backdropFilter: "blur(8px)",
+                      color: theme.body,
+                      border: `1px solid ${theme.primary}20`,
                     }}
                   >
-                    <FiMapPin className="h-4 w-4" />
+                    <FiMapPin style={{ color: theme.primary }} />
                     <span>{location}</span>
                   </div>
                 )}
-                
+
                 <div className="flex items-center gap-3">
-                  {Object.entries(socials).map(([platform, url]) => (
-                    <SocialIcon key={platform} type={platform} url={url} theme={theme} />
-                  ))}
+                  {Object.entries(socials).map(
+                    ([platform, url]) =>
+                      url && (
+                        <SocialIcon
+                          key={platform}
+                          type={platform}
+                          url={url}
+                          theme={theme}
+                        />
+                      )
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+
+          {/* Image Side */}
+          <motion.div
+            variants={itemVariants}
+            className="order-1 lg:order-2 flex justify-center"
+          >
+            <div className="relative">
+              {/* Glowing background */}
+              <div
+                className="absolute -inset-4 blur-2xl opacity-30 rounded-full"
+                style={{ background: `radial-gradient(circle, ${theme.primary}, ${theme.secondary})` }}
+              />
+              
+              {/* Decorative rings */}
+              <div className="absolute inset-0 -m-10 rounded-full opacity-20 animate-spin-slow"
+                style={{ 
+                  border: `1px solid ${theme.primary}`,
+                  borderRadius: "100%",
+                }} 
+              />
+              
+              <div className="absolute inset-0 -m-16 rounded-full opacity-10 animate-reverse-spin"
+                style={{ 
+                  border: `1px dashed ${theme.secondary}`,
+                  borderRadius: "100%",
+                }} 
+              />
+              
+              {/* Hexagon frame */}
+              <div className="relative group">
+                <div className="absolute inset-0 rounded-xl overflow-hidden">
+                  <div
+                    className="w-full h-full"
+                    style={{
+                      clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                      background: `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`,
+                      transform: "scale(1.05)",
+                      opacity: 0.7,
+                    }}
+                  />
+                </div>
+                
+                {/* Image container */}
+                <div
+                  className="relative overflow-hidden transition-all duration-700 group-hover:shadow-2xl"
+                  style={{
+                    width: "280px",
+                    height: "280px",
+                    clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                  }}
+                >
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-transparent to-black opacity-20" />
+                  
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt={name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        img.src = '/default-avatar.png';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-4xl font-bold text-light">
+                      {name.charAt(0)}
+                    </div>
+                  )}
+                  
+                  {/* Shine effect on hover */}
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700"
+                    style={{
+                      background: `linear-gradient(45deg, transparent, ${theme.light}, transparent)`,
+                      backgroundSize: "200% 200%",
+                      animation: "shine 1.5s ease forwards",
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {/* Badge */}
+              <div
+                className="absolute -top-2 -right-2 p-2 rounded-full shadow-lg"
+                style={{
+                  background: `linear-gradient(45deg, ${theme.primary}, ${theme.secondary})`,
+                  boxShadow: `0 4px 12px ${theme.primary}50`,
+                }}
+              >
+                <div className="flex items-center justify-center bg-white rounded-full w-8 h-8">
+                  <HiSparkles
+                    className="text-lg"
+                    style={{ color: theme.primary }}
+                  />
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        
-        {/* Animated wave divider */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 opacity-10 overflow-hidden pointer-events-none">
-
-          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className="w-full h-full">
-            <path 
-              d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" 
-              style={{ fill: theme.primary }}
-            />
-          </svg>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
+
+
     </section>
   );
 };
 
-export default HeroSection;
+export default FuturisticHeroSection;

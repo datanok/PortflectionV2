@@ -296,7 +296,7 @@ const ProjectSection = ({ projects, theme }) => {
   return (
     <section
       style={{
-        backgroundColor: theme.background,
+        backgroundColor: `${theme.muted}F2`,
         padding: '2rem 1rem'
       }}
       id="projects"

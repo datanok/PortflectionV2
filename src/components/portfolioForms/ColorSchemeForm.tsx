@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { COLOR_SCHEMES } from "./types/ColorSchemes";
 import { useState, useEffect } from "react";
 import { ColorScheme } from "@/app/types/portfolio";
+import { FONT_MAP } from "@/lib/fontMap";
 
 interface ColorSchemeFormProps {
   control: any;
@@ -88,100 +89,104 @@ const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ control }) => {
   );
 };
 
-// Extracted Preview Card component for reuse
-const PreviewCard = ({ scheme }: { scheme: ColorScheme }) => (
-  <Card className="shadow-md">
-    <CardHeader>
-      <h4 className="text-xl font-bold">Live Preview</h4>
-    </CardHeader>
-    <CardContent>
-      <div
-        className="rounded-xl p-4 shadow-inner transition-all duration-300"
-        style={{
-          backgroundColor: scheme.background,
-          color: scheme.body,
-          fontFamily: scheme.fontBody,
-        }}
-      >
-        <h4
-          className="text-lg font-bold mb-4"
+export const PreviewCard = ({ scheme }: { scheme: ColorScheme }) => {
+  const headingFont = FONT_MAP[scheme.fontHeading] || FONT_MAP["Montserrat"];
+  const bodyFont = FONT_MAP[scheme.fontBody] || FONT_MAP["Lato"];
+
+  return (
+    <Card className={`shadow-md ${headingFont.variable} ${bodyFont.variable}`}>
+      <CardHeader>
+        <h4 className="text-xl font-bold">Live Preview</h4>
+      </CardHeader>
+      <CardContent>
+        <div
+          className="rounded-xl p-4 shadow-inner transition-all duration-300"
           style={{
+            backgroundColor: scheme.background,
             color: scheme.body,
-            fontFamily: scheme.fontHeading,
+            fontFamily: scheme.fontBody,
           }}
         >
-          {scheme.name}
-        </h4>
-
-        <div className="space-y-4">
-          <div
-            className="rounded-md p-3"
+          <h4
+            className="text-lg font-bold mb-4"
             style={{
-              backgroundColor: scheme.card,
               color: scheme.body,
-              fontFamily: scheme.fontBody,
+              fontFamily: scheme.fontHeading,
             }}
           >
-            <strong style={{ fontFamily: scheme.fontHeading }}>Card</strong>
-            <p>This is a card styled with the selected color scheme.</p>
-          </div>
+            {scheme.name}
+          </h4>
 
-          <button
-            className="w-full px-4 py-2 rounded-md font-medium text-white"
-            style={{
-              backgroundColor: scheme.primary,
-              fontFamily: scheme.fontBody,
-            }}
-          >
-            Primary Button
-          </button>
+          <div className="space-y-4">
+            <div
+              className="rounded-md p-3"
+              style={{
+                backgroundColor: scheme.card,
+                color: scheme.body,
+                fontFamily: scheme.fontBody,
+              }}
+            >
+              <strong style={{ fontFamily: scheme.fontHeading }}>Card</strong>
+              <p>This is a card styled with the selected color scheme.</p>
+            </div>
 
-          <button
-            className="w-full px-4 py-2 rounded-md font-medium text-white"
-            style={{
-              backgroundColor: scheme.secondary,
-              fontFamily: scheme.fontBody,
-            }}
-          >
-            Secondary Button
-          </button>
+            <button
+              className="w-full px-4 py-2 rounded-md font-medium text-white"
+              style={{
+                backgroundColor: scheme.primary,
+                fontFamily: scheme.fontBody,
+              }}
+            >
+              Primary Button
+            </button>
 
-          <div
-            className="p-2 rounded-md"
-            style={{
-              backgroundColor: scheme.accent,
-              color: scheme.body,
-            }}
-          >
-            Accent Element
-          </div>
+            <button
+              className="w-full px-4 py-2 rounded-md font-medium text-white"
+              style={{
+                backgroundColor: scheme.secondary,
+                fontFamily: scheme.fontBody,
+              }}
+            >
+              Secondary Button
+            </button>
 
-          <div
-            className="p-2 rounded-md"
-            style={{
-              backgroundColor: scheme.muted,
-              color: scheme.body,
-            }}
-          >
-            Muted Element
-          </div>
+            <div
+              className="p-2 rounded-md"
+              style={{
+                backgroundColor: scheme.accent,
+                color: scheme.body,
+              }}
+            >
+              Accent Element
+            </div>
 
-          <div>
-            <h5 style={{ fontFamily: scheme.fontHeading, color: scheme.body }}>
-              Fonts
-            </h5>
-            <p style={{ fontFamily: scheme.fontHeading, color: scheme.body }}>
-              Heading: {scheme.fontHeading}
-            </p>
-            <p style={{ fontFamily: scheme.fontBody, color: scheme.body }}>
-              Body: {scheme.fontBody}
-            </p>
+            <div
+              className="p-2 rounded-md"
+              style={{
+                backgroundColor: scheme.muted,
+                color: scheme.body,
+              }}
+            >
+              Muted Element
+            </div>
+
+            <div>
+              <h5 style={{ fontFamily: scheme.fontHeading, color: scheme.body }}>
+                Fonts
+              </h5>
+              <p style={{ fontFamily: scheme.fontHeading, color: scheme.body }}>
+                Heading: {scheme.fontHeading}
+              </p>
+              <p style={{ fontFamily: scheme.fontBody, color: scheme.body }}>
+                Body: {scheme.fontBody}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </CardContent>
-  </Card>
-);
+      </CardContent>
+    </Card>
+  );
+};
 
 
 export default ColorSchemeForm;

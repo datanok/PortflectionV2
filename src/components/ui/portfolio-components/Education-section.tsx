@@ -34,6 +34,15 @@ export function EducationSection({ education, theme }: EducationSectionProps) {
         backgroundColor: theme?.background || "#ffffff",
       }}
     >
+    
+    <div className="absolute w-full h-full top-0 left-0 pointer-events-none overflow-hidden opacity-5">
+        <div className="absolute top-20 right-20 w-72 h-72 rounded-full" style={{ background: theme.primary }} />
+        <div className="absolute bottom-16 left-20 w-56 h-56 rounded-full" style={{ background: theme.secondary }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full" 
+             style={{ background: theme.primary, opacity: 0.2 }} />
+        
+    
+      </div>
       <div className="container max-w-7xl mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
           <span 

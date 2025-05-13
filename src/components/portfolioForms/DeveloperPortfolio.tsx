@@ -292,7 +292,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
   });
   const handleAddDummyData = () => {
     addDummyDeveloperPortfolioData(appendProject, setValue);
-    toast.success("Sample data loaded successfully!");
+    toast.success("Sample data loaded successfully!");  
   };
   const handleAddProject = async () => {
     const isValid = await trigger("projects" as Path<T>);
@@ -513,7 +513,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <FormField
                       control={control}
-                      name={`projects.${projectIndex}.githubLink`}
+                      name={`projects.${projectIndex}.                                  `}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center">

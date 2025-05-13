@@ -47,6 +47,7 @@ import { Code } from "lucide-react";
 import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
 import { z, ZodType } from "zod";
 import { COLOR_SCHEMES } from "@/components/portfolioForms/types/ColorSchemes";
+import { PortfolioType } from "@/app/types/portfolio";
 
 interface PortfolioBuilderProps {
   editMode?: boolean;
@@ -54,17 +55,13 @@ interface PortfolioBuilderProps {
   portfolioId?: string | null;
 }
 // Type definitions for better type safety
-type PortfolioType =
-  | "developer"
-  | "designer"
-  | "contentCreator"
-  | "businessConsulting";
+
 type TabType = "personal" | "career" | "contact" | "portfolio";
 
 type PortfolioDefaultValueMap = {
   developer: z.infer<typeof developerPortfolioSchema>;
   designer: z.infer<typeof designerPortfolioSchema>;
-  "contentCreator": z.infer<typeof contentCreatorPortfolioSchema>;
+  contentCreator: z.infer<typeof contentCreatorPortfolioSchema>;
   businessConsulting: z.infer<typeof businessConsultingPortfolioSchema>;
 };
 // Utility functions moved outside the component
@@ -127,12 +124,7 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
     },
     businessConsulting: {
       caseStudies: [],
-      skills: [
-        {
-          category: "",
-          skills: [],
-        },
-      ],
+      skills: [],
       certifications: [],
       keyAchievements: [],
       ...baseDefaults,
@@ -175,7 +167,6 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
   const {
     control,
     handleSubmit,
-    setValue,
     trigger,
     formState,
     reset,
@@ -251,18 +242,18 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
   const onSubmit = useCallback(
     async (data: PortfolioDefaultValueMap[typeof portfolioType]) => {
       setIsSubmitting(true);
-      console.log(data,"data");
       try {
-        let result;
+       
         data.portfolioType = portfolioType;
         if (editMode && portfolioId) {
-          result = await updatePortfolioAction({ ...data, id: portfolioId});
+         const result = await updatePortfolioAction({ ...data, id: portfolioId});
           toast.success("Portfolio updated successfully!");
+          router.push(`/portfolio/${result.id}`);
         } else {
-          result = await createPortfolioAction(data);
+         const result = await createPortfolioAction(data);
           toast.success("Portfolio created successfully!");
+          router.push(`/portfolio/${result.id}`);
         }
-        router.push("/dashboard/portfolios");
       } catch (error: any) {
         setIsSubmitting(false);
         toast.error(error.message || (editMode ? "Failed to update portfolio." : "Failed to create portfolio."));
@@ -365,7 +356,6 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
       open={isErrorDialogOpen}
       onOpenChange={setIsErrorDialogOpen}
     />
-        {console.log(form.getValues("portfolioType"),"form")}
 
     <div className="grid lg:grid-cols-[280px_1fr] gap-6">
       <div className="">
