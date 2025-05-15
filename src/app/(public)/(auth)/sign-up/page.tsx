@@ -23,7 +23,7 @@ import LoadingButton from "@/components/ui/loading-button";
 
 import { signUpSchema } from "@/lib/zod";
 import { toast } from "sonner";
-import { authClient } from "../../../../auth-client";
+import { authClient } from "../../../../../auth-client";
 
 export default function SignUp() {
   const [pending, setPending] = useState(false);

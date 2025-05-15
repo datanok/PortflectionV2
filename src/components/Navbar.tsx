@@ -47,7 +47,7 @@ export default function Navbar() {
             >
               {name}
             </Link>
-            <div className="hidden md:flex items-center space-x-6">
+            {/* <div className="hidden md:flex items-center space-x-6">
               <Link
                 href="/templates"
                 className="hover:text-red-500 dark:hover:text-pink-400"
@@ -66,7 +66,7 @@ export default function Navbar() {
               >
                 Dashboard
               </Link>
-            </div>
+            </div> */}
           </NavbarLeft>
           <NavbarRight>
             <div className="hidden md:block">
