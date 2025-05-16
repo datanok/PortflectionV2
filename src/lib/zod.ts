@@ -81,7 +81,7 @@ const basePortfolioSchema = z.object({
       }
     ),
   location: z.string().max(50).optional(),
-  portfolioType : z.enum(["developer", "designer", "contentCreator"]),
+  portfolioType : z.enum(["developer", "designer", "contentCreator","businessConsulting"]),
 
   skills: z.array(z.string().min(1, "Please enter at least one skill")),
 
@@ -218,7 +218,7 @@ const developerPortfolioSchema = basePortfolioSchema.extend({
   .optional(),
   personalWebsite: z.string().url("Invalid website URL").optional(),
 
-  projects: z
+  portfolioItems: z
     .array(
       z.object({
         title: z.string().min(1, "Project title is required"),
@@ -254,7 +254,7 @@ const developerPortfolioSchema = basePortfolioSchema.extend({
       })
     )
     .min(1, "At least one project is required")
-    .max(10, "Maximum 10 projects allowed"),
+    .max(10, "Maximum 10 portfolioItems allowed"),
 });
 
 const designerPortfolioSchema = basePortfolioSchema.extend({
@@ -267,7 +267,7 @@ const designerPortfolioSchema = basePortfolioSchema.extend({
     )
     .optional(),
 
-  projects: z
+  portfolioItems: z
     .array(
       z.object({
         title: z.string().min(1, "Title is required"),
@@ -396,7 +396,7 @@ const contentCreatorPortfolioSchema = basePortfolioSchema.extend({
 
 const businessConsultingPortfolioSchema = basePortfolioSchema.extend({
 
-  caseStudies: z
+  portfolioItems: z
     .array(
       z.object({
         title: z.string().min(1, "Title is required"),

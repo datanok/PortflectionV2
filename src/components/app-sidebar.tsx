@@ -52,16 +52,13 @@ const navItems = [
     title: "Dashboard",
     url: "/dashboard",
     icon: LayoutDashboard,
-    items: [
-      { title: "Dashboard", url: "/dashboard" },
-    ],
   },
   {
     title: "Portfolios",
     url: "/dashboard/portfolios",
     icon: Folder,
     items: [
-      { title: "My Portfolios", url: "/dashboard/portfolios" },
+      { title: "My Portfolios", url: "/dashboard/my-portfolios" },
       { title: "Create New", url: "/dashboard/portfolios/new" },
     ],
   },
@@ -69,20 +66,14 @@ const navItems = [
     title: "Analytics",
     url: "/dashboard/analytics",
     icon: BarChart3,
-    items: [
-      { title: "Performance", url: "/dashboard/analytics/performance" },
-      { title: "Trends", url: "/dashboard/analytics/trends" },
-    ],
   },
   {
     title: "Settings",
     url: "/dashboard/settings",
     icon: Settings,
-    items: [
-      { title: "Settings", url: "/dashboard/settings", icon: Settings },
-    ],
   },
 ];
+
 export const Logo = () => {
   return (
     <Link

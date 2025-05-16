@@ -12,8 +12,6 @@ import {
 import { PortfolioFormData } from "./types/portfolio";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
-import { addDummyContactData } from "@/lib/formscripts";
-import { Button } from "../ui/button";
 import { PhoneInput } from "../phone-input";
 
 interface SocialLink {

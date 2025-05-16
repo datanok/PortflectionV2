@@ -17,18 +17,18 @@ export interface ColorScheme {
   body: string;
 }
 export interface Theme {
-  primary?: string;
-  secondary?: string;
-  dark?: string;
-  light?: string;
-  background?: string;
-  card?: string;
-  muted?: string;
-  accent?: string;
-  fontHeading?: string;
-  fontBody?: string;
-  body?: string;
-};
+  primary: string;
+  secondary: string;
+  dark: string;
+  light: string;
+  background: string;
+  card: string;
+  muted: string;
+  accent: string;
+  fontHeading: string;
+  fontBody: string;
+  body?: string; 
+}
 
 export interface BasePortfolio {
   name: string;
@@ -85,7 +85,7 @@ export interface DeveloperPortfolio extends BasePortfolio {
   linkedinLink?: string;
   personalWebsite?: string;
   skills: DeveloperSkills;
-  projects: DeveloperProject[];
+  portfolioItems: DeveloperProject[];
 }
 
 export interface DesignerProject {
@@ -110,7 +110,7 @@ export interface Testimonial {
 export interface DesignerPortfolio extends BasePortfolio {
   skills: string[];
   tools: string[];
-  projects: DesignerProject[];
+  portfolioItems: DesignerProject[];
   testimonials: Testimonial[];
 }
 
@@ -157,7 +157,7 @@ export interface SkillCategory {
 
 
 export interface BusinessConsultingPortfolio extends BasePortfolio {
-  caseStudies: CaseStudy[];
+  portfolioItems: CaseStudy[];
   skills: SkillCategory[];
   tools?: string[];
   certifications?: string[];

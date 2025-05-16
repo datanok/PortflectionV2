@@ -35,7 +35,10 @@ export async function GET(req: NextRequest) {
     // Get query parameters
     const url = new URL(req.url);
     const detailView = url.searchParams.get('detail') === 'true';
-    
+    const limitParam = url.searchParams.get("limit");
+
+const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
     if (detailView) {
       // If detail view is requested, return full portfolio data
       const portfolios = await prisma.portfolio.findMany({
@@ -47,6 +50,7 @@ export async function GET(req: NextRequest) {
     } else {
       // For list view, only return essential data
       const portfoliosList = await prisma.portfolio.findMany({
+        ...(limit ? { take: limit } : {}),
         where: { userId: session.user.id },
         select: {
           id: true,

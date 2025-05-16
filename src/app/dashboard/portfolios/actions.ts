@@ -81,8 +81,9 @@ export async function updatePortfolioAction(data: any) {
     headers: await headers(),
   })
   if (!session?.user?.id) throw new Error('Unauthorized');
-  const { id, type = 'developer', ...body } = data;
+  const { id, portfolioType = 'developer', ...body } = data;
   if (!id) throw new Error('Portfolio ID is required');
+  const type  = portfolioType
   // Verify ownership
   const existingPortfolio = await prisma.portfolio.findUnique({ where: { id, userId: session.user.id } });
   if (!existingPortfolio) throw new Error('Portfolio not found or access denied');

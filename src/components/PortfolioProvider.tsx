@@ -18,11 +18,11 @@ export type PortfolioData =
 
 // Type guard helpers
 export function isDeveloperPortfolio(data: PortfolioData): data is DeveloperPortfolioFormData {
-  return 'skills' in data && Array.isArray(data.skills) && 'projects' in data;
+  return 'skills' in data && Array.isArray(data.skills) && 'portfolioItems' in data;
 }
 
 export function isDesignerPortfolio(data: PortfolioData): data is DesignerPortfolioFormData {
-  return 'tools' in data && 'projects' in data && Array.isArray(data.projects);
+  return 'tools' in data && 'portfolioItems' in data && Array.isArray(data.portfolioItems);
 }
 
 export function isContentCreatorPortfolio(data: PortfolioData): data is ContentCreatorPortfolioFormData {
@@ -30,7 +30,7 @@ export function isContentCreatorPortfolio(data: PortfolioData): data is ContentC
 }
 
 export function isBusinessConsultantPortfolio(data: PortfolioData): data is BusinessConsultingPortfolioFormData {
-  return 'caseStudies' in data && 'skills' in data && Array.isArray(data.skills);
+  return 'portfolioItems' in data && 'skills' in data && Array.isArray(data.skills);
 }
 
 // Create the context with initial undefined value
@@ -39,7 +39,7 @@ const PortfolioContext = createContext<PortfolioData | undefined>(undefined);
 interface PortfolioDataProviderProps {
   children: ReactNode;
   value: PortfolioData;
-  type: 'developer' | 'designer' | 'contentCreator' | 'business-consultant' | 'base';
+  type: 'developer' | 'designer' | 'contentCreator' | 'businessConsulting' | 'base';
 }
 
 // Enhanced provider component with type checking

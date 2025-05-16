@@ -51,7 +51,7 @@ const ProjectImages = <T extends FieldValues>({
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `projects.${projectIndex}.images` as const,
+    name: `portfolioItems.${projectIndex}.images` as const,
   });
 
   return (
@@ -94,7 +94,7 @@ const ProjectImages = <T extends FieldValues>({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={control}
-              name={`projects.${projectIndex}.images.${imageIndex}.url`}
+              name={`portfolioItems.${projectIndex}.images.${imageIndex}.url`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Image URL*</FormLabel>
@@ -111,7 +111,7 @@ const ProjectImages = <T extends FieldValues>({
 
             <FormField
               control={control}
-              name={`projects.${projectIndex}.images.${imageIndex}.type`}
+              name={`portfolioItems.${projectIndex}.images.${imageIndex}.type`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Image Type</FormLabel>
@@ -139,7 +139,7 @@ const ProjectImages = <T extends FieldValues>({
 
           <FormField
             control={control}
-            name={`projects.${projectIndex}.images.${imageIndex}.caption`}
+            name={`portfolioItems.${projectIndex}.images.${imageIndex}.caption`}
             render={({ field }) => (
               <FormItem className="mt-3">
                 <FormLabel>Caption</FormLabel>
@@ -191,7 +191,7 @@ const ProjectTestimonial = <T extends FieldValues>({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={control}
-            name={`projects.${projectIndex}.testimonial.name`}
+            name={`portfolioItems.${projectIndex}.testimonial.name`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Client Name*</FormLabel>
@@ -205,7 +205,7 @@ const ProjectTestimonial = <T extends FieldValues>({
 
           <FormField
             control={control}
-            name={`projects.${projectIndex}.testimonial.position`}
+            name={`portfolioItems.${projectIndex}.testimonial.position`}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Position</FormLabel>
@@ -220,7 +220,7 @@ const ProjectTestimonial = <T extends FieldValues>({
 
         <FormField
           control={control}
-          name={`projects.${projectIndex}.testimonial.company`}
+          name={`portfolioItems.${projectIndex}.testimonial.company`}
           render={({ field }) => (
             <FormItem className="mt-3">
               <FormLabel>Company</FormLabel>
@@ -234,7 +234,7 @@ const ProjectTestimonial = <T extends FieldValues>({
 
         <FormField
           control={control}
-          name={`projects.${projectIndex}.testimonial.content`}
+          name={`portfolioItems.${projectIndex}.testimonial.content`}
           render={({ field }) => (
             <FormItem className="mt-3">
               <FormLabel>Testimonial Content*</FormLabel>
@@ -268,11 +268,11 @@ const DesignerPortfolio = <T extends FieldValues>({
     move: moveProject,
   } = useFieldArray({
     control,
-    name: "projects",
+    name: "portfolioItems",
   });
 
   const handleAddProject = async () => {
-    const isValid = await trigger("projects");
+    const isValid = await trigger("portfolioItems");
     if (projectFields.length > 0 && !isValid) return;
 
     appendProject({
@@ -395,7 +395,7 @@ const DesignerPortfolio = <T extends FieldValues>({
                 <TabsContent value="basic" className="space-y-4">
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.title`}
+                    name={`portfolioItems.${projectIndex}.title`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Project Title*</FormLabel>
@@ -412,7 +412,7 @@ const DesignerPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.client`}
+                    name={`portfolioItems.${projectIndex}.client`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Client</FormLabel>
@@ -426,7 +426,7 @@ const DesignerPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.description`}
+                    name={`portfolioItems.${projectIndex}.description`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Project Description*</FormLabel>
@@ -446,7 +446,7 @@ const DesignerPortfolio = <T extends FieldValues>({
                 <TabsContent value="detail" className="space-y-4">
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.problem`}
+                    name={`portfolioItems.${projectIndex}.problem`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Problem Statement</FormLabel>
@@ -464,7 +464,7 @@ const DesignerPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.solution`}
+                    name={`portfolioItems.${projectIndex}.solution`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Solution</FormLabel>
@@ -482,7 +482,7 @@ const DesignerPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.process`}
+                    name={`portfolioItems.${projectIndex}.process`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Design Process</FormLabel>
@@ -500,7 +500,7 @@ const DesignerPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.outcome`}
+                    name={`portfolioItems.${projectIndex}.outcome`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Outcome & Results</FormLabel>

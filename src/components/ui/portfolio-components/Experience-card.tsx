@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import SectionHeader from "./SectionHeader";
 import { ChevronRight, Briefcase, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
-import ModernBackgroundElements from "./misc/DecorativeCircles";
 
 interface ExperienceItem {
   position: string;

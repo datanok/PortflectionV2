@@ -13,7 +13,7 @@ import {
 
 const navLinks = [
   { name: "Home", href: "#hero", icon: <FaHome /> },
-  { name: "Projects", href: "#projects", icon: <FaProjectDiagram /> },
+  { name: "Projects", href: "#portfolioItems", icon: <FaProjectDiagram /> },
   { name: "Skills", href: "#skills", icon: <FaTools /> },
   { name: "Experience", href: "#experience", icon: <FaBriefcase /> },
   { name: "Education", href: "#education", icon: <FaGraduationCap /> },

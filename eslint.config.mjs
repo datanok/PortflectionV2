@@ -15,6 +15,7 @@ const eslintConfig = [
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+      "react/jsx-no-controlled-uncontrolled": "warn"
     },
   },
 ];

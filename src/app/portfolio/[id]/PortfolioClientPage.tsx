@@ -31,7 +31,7 @@ export default function PortfolioClientPage({ portfolioData, portfolioType }: { 
   const PortfolioTemplate = dynamic(
     () => import(`@/layouts/${type}.tsx`),
     {
-      loading: () => <LoadingPortfolio type={portfolioType} />, ssr: true
+      loading: () => <LoadingPortfolio type={portfolioType} />, ssr: false
     }
   );
 

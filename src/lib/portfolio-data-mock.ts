@@ -7,7 +7,7 @@ export async function getUserPortfolioDataMock(username: string): Promise<Portfo
     'janedeveloper': 'developer',
     'alexdesigner': 'designer',
     'taylorcontent': 'contentCreator',
-    'jordanconsultant': 'business-consultant'
+    'jordanconsultant': 'businessConsulting'
   };
   if (!userPortfolioTypes[username]) {
     return null;

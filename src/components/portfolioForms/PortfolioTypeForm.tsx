@@ -22,10 +22,11 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
 }) => {
   const handlePortfolioTypeChange = (type: string) => {
     setPortfolioType(type);
-    reset({ portfolioType: type }); // This resets and sets portfolioType in one go
+    reset({ portfolioType: type as "developer" | "designer" | "contentCreator" | "businessConsulting" }); // This resets and sets portfolioType in one go
   };
   useEffect(() => {
-    form.setValue("portfolioType", portfolioType);
+    console.log("asd",portfolioType)
+    form.setValue("portfolioType", portfolioType as "developer" | "designer" | "contentCreator" | "businessConsulting");
   }, [portfolioType, form]);
 
   const portfolioTypes = [

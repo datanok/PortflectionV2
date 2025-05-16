@@ -73,7 +73,7 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
         about:
           "Full stack developer with 5+ years of experience building scalable web applications. Specialized in JavaScript, React, Node.js, and cloud technologies.",
         skills:["JavaScript", "React", "Node.js", "Cloud"],
-          projects: [
+          portfolioItems: [
           {
             title: "E-commerce Platform",
             description:
@@ -115,7 +115,7 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
           { name: "Figma", level: 5 },
           { name: "Adobe XD", level: 4 },
         ],
-        projects: [
+        portfolioItems: [
           {
             title: "Mobile Banking App Redesign",
             client: "FinTech Solutions",
@@ -226,7 +226,7 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
         title: "Business Strategy Consultant",
         about:
           "Helping businesses optimize operations and develop growth strategies through data-driven insights.",
-        caseStudies: [
+        portfolioItems: [
           {
             title: "Retail Chain Digital Transformation",
             organization: "National Retail Co.",
@@ -299,11 +299,11 @@ export const populateFormWithDummyData = (
   // Type-specific fields
   switch (portfolioType) {
     case "developer":
-      setArrayField("projects", (dummyData as any).projects);
+      setArrayField("portfolioItems", (dummyData as any).portfolioItems);
       break;
 
     case "designer":
-      setArrayField("projects", (dummyData as any).projects);
+      setArrayField("portfolioItems", (dummyData as any).portfolioItems);
       setArrayField("testimonials", (dummyData as any).testimonials);
       setArrayField("awards", (dummyData as any).awards);
       break;
@@ -314,7 +314,7 @@ export const populateFormWithDummyData = (
       break;
 
     case "businessConsulting":
-      setArrayField("caseStudies", (dummyData as any).caseStudies);
+      setArrayField("portfolioItems", (dummyData as any).portfolioItems);
       setArrayField("certifications", (dummyData as any).certifications);
       break;
   }

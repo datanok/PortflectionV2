@@ -1,3 +1,4 @@
+"use Client"
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, GraduationCap, ChevronRight } from "lucide-react";
 
@@ -19,7 +20,7 @@ interface EducationSectionProps {
   theme?: any;
 }
 
-export function EducationSection({ education, theme }: EducationSectionProps) {
+export default function EducationSection({ education, theme }: EducationSectionProps) {
   const [animateItems, setAnimateItems] = useState(false);
   
   useEffect(() => {

@@ -103,13 +103,13 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
       linkedinLink: "",
       personalWebsite: "",
      
-      projects: [],
+      portfolioItems: [],
       ...baseDefaults,
     },
     designer: {
       skills: [],
       tools: [],
-      projects: [],
+      portfolioItems: [],
       testimonials: [],
       awards: [],
       ...baseDefaults,
@@ -123,7 +123,7 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
       ...baseDefaults,
     },
     businessConsulting: {
-      caseStudies: [],
+      portfolioItems: [],
       skills: [],
       certifications: [],
       keyAchievements: [],
@@ -140,10 +140,10 @@ const VALIDATION_RULES = {
   personal: ["name", "title", "about", "email", "location"],
   contact: ["phone"],
   career: ["experience", "education"],
-  developer: ["skills", "projects", "githubLink"],
-  designer: ["skills", "tools", "projects"],
+  developer: ["skills", "portfolioItems", "githubLink"],
+  designer: ["skills", "tools", "portfolioItems"],
   contentCreator: ["specialties", "portfolioItems"],
-  businessConsulting: ["caseStudies", "skills"],
+  businessConsulting: ["portfolioItems", "skills"],
   theme: ["theme"],
 };
 
@@ -206,7 +206,7 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
 
   const nextStep = useCallback(async () => {
     let isValid = true;
-
+  
     // Step-specific validation
     if (step === 2) {
       // In step 2, validate only the current tab's fields
@@ -214,18 +214,32 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
         currentTab === "portfolio"
           ? portfolioValidationFields
           : VALIDATION_RULES[currentTab];
+      
       if (fieldsToValidate && fieldsToValidate.length > 0) {
         isValid = await trigger(fieldsToValidate as any);
+      }
+  
+      // If on step 2 and current tab is not the last tab, change tab instead of step
+      if (isValid && currentTab !== "portfolio") {
+        // Move to the next tab
+        const tabs = ["personal", "career", "contact", "portfolio"];
+        const currentIndex = tabs.indexOf(currentTab);
+        console.log(currentTab)
+        if (currentIndex < tabs.length - 1) {
+          setCurrentTab(tabs[currentIndex + 1] as any);
+          console.log(tabs[currentIndex + 1])
+          return; // Exit early to prevent step change
+        }
       }
     } else if (step === 3) {
       isValid = await trigger("theme" as any);
     }
-
+  
+    // Only proceed to next step if validation passes and we're not handling tabs
     if (isValid) {
       setStep((prev) => prev + 1);
     }
   }, [step, currentTab, portfolioValidationFields, trigger]);
-
   const handleLoadDummyData = () => {
     populateFormWithDummyData(form, portfolioType);
   };
@@ -242,6 +256,7 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
   const onSubmit = useCallback(
     async (data: PortfolioDefaultValueMap[typeof portfolioType]) => {
       setIsSubmitting(true);
+      console.log(data,"data")
       try {
        
         data.portfolioType = portfolioType;
@@ -279,7 +294,8 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
       case 2:
         return (
           <div className="space-y-6">
-            <Tabs defaultValue="personal" onValueChange={handleTabChange}>
+            <Tabs defaultValue="personal" onValueChange={handleTabChange}   key={currentTab}  // Add this to force re-render
+  value={currentTab}>
               <ScrollArea>
                 <div className="w-full relative h-10">
                   <TabsList className="absolute flex flex-row justify-stretch w-full">

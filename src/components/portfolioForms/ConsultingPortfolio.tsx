@@ -60,7 +60,7 @@ const KeyMetrics = <T extends FieldValues>({
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `caseStudies.${caseStudyIndex}.keyMetrics`,
+    name: `portfolioItems.${caseStudyIndex}.keyMetrics`,
   });
 
   const handleAddMetric = () => {
@@ -76,7 +76,7 @@ const KeyMetrics = <T extends FieldValues>({
             <div className="grid grid-cols-2 gap-2 flex-1">
               <FormField
                 control={control}
-                name={`caseStudies.${caseStudyIndex}.keyMetrics.${index}.name`}
+                name={`portfolioItems.${caseStudyIndex}.keyMetrics.${index}.name`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -88,7 +88,7 @@ const KeyMetrics = <T extends FieldValues>({
               />
               <FormField
                 control={control}
-                name={`caseStudies.${caseStudyIndex}.keyMetrics.${index}.value`}
+                name={`portfolioItems.${caseStudyIndex}.keyMetrics.${index}.value`}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -135,7 +135,7 @@ const Testimonials = <T extends FieldValues>({
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `caseStudies.${caseStudyIndex}.testimonials`,
+    name: `portfolioItems.${caseStudyIndex}.testimonials`,
   });
 
   const handleAddTestimonial = () => {
@@ -152,7 +152,7 @@ const Testimonials = <T extends FieldValues>({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
                 <FormField
                   control={control}
-                  name={`caseStudies.${caseStudyIndex}.testimonials.${index}.name`}
+                  name={`portfolioItems.${caseStudyIndex}.testimonials.${index}.name`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name*</FormLabel>
@@ -165,7 +165,7 @@ const Testimonials = <T extends FieldValues>({
                 />
                 <FormField
                   control={control}
-                  name={`caseStudies.${caseStudyIndex}.testimonials.${index}.position`}
+                  name={`portfolioItems.${caseStudyIndex}.testimonials.${index}.position`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Position*</FormLabel>
@@ -178,7 +178,7 @@ const Testimonials = <T extends FieldValues>({
                 />
                 <FormField
                   control={control}
-                  name={`caseStudies.${caseStudyIndex}.testimonials.${index}.company`}
+                  name={`portfolioItems.${caseStudyIndex}.testimonials.${index}.company`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Company</FormLabel>
@@ -202,7 +202,7 @@ const Testimonials = <T extends FieldValues>({
             </div>
             <FormField
               control={control}
-              name={`caseStudies.${caseStudyIndex}.testimonials.${index}.content`}
+              name={`portfolioItems.${caseStudyIndex}.testimonials.${index}.content`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Testimonial*</FormLabel>
@@ -517,13 +517,13 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
     move: moveCaseStudy,
   } = useFieldArray({
     control,
-    name: "caseStudies",
+    name: "portfolioItems",
   });
 
 
 
   const handleAddCaseStudy = async () => {
-    const isValid = await trigger("caseStudies" as Path<T>);
+    const isValid = await trigger("portfolioItems" as Path<T>);
     if (caseStudyFields.length > 0 && !isValid) return;
 
     appendCaseStudy({
@@ -643,7 +643,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={control}
-                      name={`caseStudies.${caseStudyIndex}.title`}
+                      name={`portfolioItems.${caseStudyIndex}.title`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Project Title*</FormLabel>
@@ -659,7 +659,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
                     />
                     <FormField
                       control={control}
-                      name={`caseStudies.${caseStudyIndex}.organization`}
+                      name={`portfolioItems.${caseStudyIndex}.organization`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Client Organization*</FormLabel>
@@ -678,7 +678,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <FormField
                       control={control}
-                      name={`caseStudies.${caseStudyIndex}.role`}
+                      name={`portfolioItems.${caseStudyIndex}.role`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Your Role*</FormLabel>
@@ -694,7 +694,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
                     />
                     <FormField
                       control={control}
-                      name={`caseStudies.${caseStudyIndex}.startDate`}
+                      name={`portfolioItems.${caseStudyIndex}.startDate`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Start Date*</FormLabel>
@@ -707,7 +707,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
                     />
                     <FormField
                       control={control}
-                      name={`caseStudies.${caseStudyIndex}.endDate`}
+                      name={`portfolioItems.${caseStudyIndex}.endDate`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>End Date</FormLabel>
@@ -726,7 +726,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`caseStudies.${caseStudyIndex}.ongoing`}
+                    name={`portfolioItems.${caseStudyIndex}.ongoing`}
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
@@ -747,7 +747,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`caseStudies.${caseStudyIndex}.description`}
+                    name={`portfolioItems.${caseStudyIndex}.description`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Project Description*</FormLabel>
@@ -765,7 +765,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`caseStudies.${caseStudyIndex}.teamSize`}
+                    name={`portfolioItems.${caseStudyIndex}.teamSize`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Team Size</FormLabel>
@@ -791,7 +791,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
                 <TabsContent value="details" className="space-y-4">
                   <FormField
                     control={control}
-                    name={`caseStudies.${caseStudyIndex}.challenges`}
+                    name={`portfolioItems.${caseStudyIndex}.challenges`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Challenges</FormLabel>
@@ -809,7 +809,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`caseStudies.${caseStudyIndex}.solutions`}
+                    name={`portfolioItems.${caseStudyIndex}.solutions`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Solutions Implemented</FormLabel>
@@ -827,7 +827,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`caseStudies.${caseStudyIndex}.outcomes`}
+                    name={`portfolioItems.${caseStudyIndex}.outcomes`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Outcomes & Results</FormLabel>
@@ -857,7 +857,7 @@ const BusinessConsultingPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`caseStudies.${caseStudyIndex}.featured`}
+                    name={`portfolioItems.${caseStudyIndex}.featured`}
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">

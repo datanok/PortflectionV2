@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+"use client";
+
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Code, Layers, PenTool, Cpu, TerminalSquare, Database, PieChart, 
   Workflow, Compass, Languages, Figma, Brush, Users, Award, 
@@ -7,11 +10,9 @@ import {
 } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 import WaveDivider from './WaveDivider';
-import ModernCircles from './misc/DecorativeCircles';
-import ModernBackgroundElements from './misc/DecorativeCircles';
 import DecorativeCircles from './misc/DecorativeCircles';
 
-const SkillsSection = ({ 
+const SkillsSection = ({
   // Customizable title and subtitle
   sectionTitle = "Skills & Expertise",
   sectionSubtitle = "Technologies and tools I specialize in",
@@ -47,7 +48,7 @@ const SkillsSection = ({
     const timer = setTimeout(() => setAnimateItems(true), 300);
     return () => clearTimeout(timer);
   }, []);
-  
+
   // Define preset skill categories based on professional role
   const presetCategories = {
     developer: [

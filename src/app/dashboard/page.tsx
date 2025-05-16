@@ -47,7 +47,7 @@ const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(nu
 
   useEffect(() => {
     // Fetch the portfolio list from the API
-    fetch("/api/getPortfolioList")
+    fetch("/api/getPortfolioList?limit=3")
       .then((res) => res.json())
       .then((data) => {
         setPortfolioList(data.portfolios || []);
@@ -68,31 +68,11 @@ const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(nu
     } catch (error: any) {
       toast.error(error.message || "Failed to delete portfolio.");
     } 
-  }, [router]);
+  }, []);
 
   return (
     <div className="p-2">
-      {/* Breadcrumb Navigation */}
-      {/* <header className="flex h-14 items-center">
-        <div className="flex items-center gap-2 px-2">
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Portfolios</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header> */}
-      
+    
       <div className="flex flex-col gap-6 mt-4">
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-3">

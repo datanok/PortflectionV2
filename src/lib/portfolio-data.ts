@@ -2,7 +2,7 @@ import { PortfolioData } from "@/components/PortfolioProvider";
 
 export async function getUserPortfolioData(
   id: string
-): Promise<PortfolioData & { portfolioType: string } | null> {
+): Promise<PortfolioData & { portfolioType: string, portfolioItems: any } | null> {
   let url: string;
 
   if (typeof window === "undefined") {

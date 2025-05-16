@@ -4,8 +4,9 @@ import { FiMail, FiMapPin } from 'react-icons/fi';
 import { FaGithub } from 'react-icons/fa';
 import { HiSparkles } from 'react-icons/hi';
 import SocialIcon from './SocialIcons';
-import FloatingParticles from './FloatingParticles';
 import { Theme } from '@/app/types/portfolio';
+import dynamic from 'next/dynamic';
+const FloatingParticles = dynamic(() => import('./FloatingParticles'), { ssr: false });
 
 interface HeroSectionProps {
   name: string;

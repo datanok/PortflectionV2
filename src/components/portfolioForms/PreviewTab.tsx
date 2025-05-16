@@ -14,14 +14,27 @@ const PreviewTab = ({ form, portfolioType }: PreviewTabProps) => {
       case "developer":
         return (
           <div className="flex gap-2">
-            <Badge variant="secondary">{form.getValues("projects")?.length || 0} Projects</Badge>
+            <Badge variant="secondary">{form.getValues("portfolioItems")?.length || 0} Projects</Badge>
             <Badge variant="secondary">{form.getValues("skills")?.length || 0} Skills</Badge>
           </div>
         );
       case "designer":
-        return <Badge variant="secondary">{form.getValues("caseStudies")?.length || 0} Case Studies</Badge>;
-      case "photographer":
-        return <Badge variant="secondary">{form.getValues("gallery")?.length || 0} Photos</Badge>;
+        return <Badge variant="secondary">{form.getValues("portfolioItems")?.length || 0} Case Studies</Badge>;
+      case "contentCreator":
+        return (
+          <div className="flex gap-2">
+            <Badge variant="secondary">{form.getValues("portfolioItems")?.length || 0} Portfolio Items</Badge>
+            <Badge variant="secondary">{form.getValues("testimonials")?.length || 0} Testimonials</Badge>
+          </div>
+        );
+      case "businessConsulting":
+        return (
+          <div className="flex gap-2">
+            <Badge variant="secondary">{form.getValues("portfolioItems")?.length || 0} Case Studies</Badge>
+            <Badge variant="secondary">{form.getValues("certifications")?.length || 0} Certifications</Badge>
+            <Badge variant="secondary">{form.getValues("keyAchievements")?.length || 0} Key Achievements</Badge>
+          </div>
+        );
       default:
         return null;
     }

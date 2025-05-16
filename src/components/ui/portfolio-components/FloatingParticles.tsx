@@ -103,6 +103,6 @@ const FloatingParticles = ({
         ))}
       </div>
     </>
-  );
+  );f
 }; 
 export default React.memo(FloatingParticles);

@@ -25,7 +25,7 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { Trash2, PlusCircle, Github, ExternalLink, Code, Brain } from "lucide-react";
+import { Trash2, PlusCircle, Github, ExternalLink, Code } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -37,7 +37,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { PROJECT_TYPES } from "@/lib/zod";
 import { toast } from "sonner";
-import { addDummyDeveloperPortfolioData } from "@/lib/formscripts";
 
 interface FormProps<T extends FieldValues> {
   control: Control<T>;
@@ -191,7 +190,7 @@ const TechnologyTagsInput = ({
       </div>
       <div className="flex gap-2">
         <Input
-          value={inputValue}
+          value={inputValue || ""}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Add technology and press Enter"
@@ -217,7 +216,7 @@ const ProjectRoles = <T extends FieldValues>({
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
-    name: `projects.${projectIndex}.roles` as const,
+    name: `portfolioItems.${projectIndex}.roles` as const,
   });
 
   const handleAddRole = () => {
@@ -238,7 +237,7 @@ const ProjectRoles = <T extends FieldValues>({
           <div key={role.id} className="flex items-center gap-2">
             <FormField
               control={control}
-              name={`projects.${projectIndex}.roles.${roleIndex}`}
+              name={`portfolioItems.${projectIndex}.roles.${roleIndex}`}
               render={({ field }) => (
                 <FormItem className="flex-1 mb-0">
                   <FormControl>
@@ -288,14 +287,11 @@ const DeveloperPortfolio = <T extends FieldValues>({
     move: moveProject,
   } = useFieldArray({
     control,
-    name: "projects",
+    name: "portfolioItems",
   });
-  const handleAddDummyData = () => {
-    addDummyDeveloperPortfolioData(appendProject, setValue);
-    toast.success("Sample data loaded successfully!");  
-  };
+
   const handleAddProject = async () => {
-    const isValid = await trigger("projects" as Path<T>);
+    const isValid = await trigger("portfolioItems" as Path<T>);
     if (projectFields.length > 0 && !isValid) return;
 
     appendProject({
@@ -422,7 +418,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
                 <TabsContent value="basic" className="space-y-4">
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.title`}
+                    name={`portfolioItems.${projectIndex}.title`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Project Title*</FormLabel>
@@ -439,13 +435,13 @@ const DeveloperPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.type`}
+                    name={`portfolioItems.${projectIndex}.type`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Project Type*</FormLabel>
                         <Select
                           onValueChange={field.onChange}
-                          value={field.value}
+                          value={field.value || ""}
                         >
                           <FormControl>
                             <SelectTrigger>
@@ -467,7 +463,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.description`}
+                    name={`portfolioItems.${projectIndex}.description`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Project Description*</FormLabel>
@@ -491,13 +487,13 @@ const DeveloperPortfolio = <T extends FieldValues>({
                 <TabsContent value="links" className="space-y-4">
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.technologies`}
+                    name={`portfolioItems.${projectIndex}.technologies`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Technologies Used*</FormLabel>
                         <FormControl>
                           <TechnologyTagsInput
-                            value={field.value}
+                            value={field.value || ""}
                             onChange={field.onChange}
                           />
                         </FormControl>
@@ -513,7 +509,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <FormField
                       control={control}
-                      name={`projects.${projectIndex}.                                  `}
+                      name={`portfolioItems.${projectIndex}.                                  `}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center">
@@ -533,7 +529,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
 
                     <FormField
                       control={control}
-                      name={`projects.${projectIndex}.liveDemo`}
+                      name={`portfolioItems.${projectIndex}.liveDemo`}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex items-center">
@@ -558,7 +554,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.challenges`}
+                    name={`portfolioItems.${projectIndex}.challenges`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Challenges Faced</FormLabel>
@@ -576,7 +572,7 @@ const DeveloperPortfolio = <T extends FieldValues>({
 
                   <FormField
                     control={control}
-                    name={`projects.${projectIndex}.learnings`}
+                    name={`portfolioItems.${projectIndex}.learnings`}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Key Learnings</FormLabel>
@@ -632,14 +628,6 @@ const DeveloperPortfolio = <T extends FieldValues>({
             </CardFooter>
           </Card>
         ))}
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => handleAddDummyData()}
-          className="absolute bottom-4 right-4 flex items-center gap-2"
-        >
-          add dummy data
-        </Button>
         {projectFields.length > 0 && (
           <Button
             type="button"
