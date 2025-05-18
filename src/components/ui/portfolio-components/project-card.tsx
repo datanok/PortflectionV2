@@ -16,7 +16,7 @@ const PatternFallback = ({ theme }) => {
         backgroundPosition: '0 0, 10px 10px'
       }}
     >
-      <Code size={32} style={{ color: theme.dark, opacity: 0.5 }} />
+      <Code size={32} style={{ color: theme.body, opacity: 0.5 }} />
     </div>
   );
 };
@@ -90,7 +90,7 @@ const ProjectCard = ({
         <div 
           className="absolute inset-0 transition-opacity duration-300"
           style={{ 
-            background: `linear-gradient(to bottom, transparent 60%, ${theme.dark})`, 
+            background: `linear-gradient(to bottom, transparent 60%, ${theme.body})`, 
             opacity: isHovered ? 0.8 : 0.5 
           }}
         />
@@ -101,7 +101,7 @@ const ProjectCard = ({
               className="px-2.5 py-0.5 rounded-full text-xs font-medium"
               style={{
                 backgroundColor: theme.accent,
-                color: theme.dark,
+                color: theme.body,
               }}
             >
               {type}
@@ -124,8 +124,8 @@ const ProjectCard = ({
               className="p-1.5 rounded-full hover:scale-110 transition-transform"
               style={{ 
                 backgroundColor: theme.light, 
-                color: theme.dark,
-                boxShadow: `0 2px 4px ${theme.dark}20`
+                color: theme.body,
+                boxShadow: `0 2px 4px ${theme.body}20`
               }}
               aria-label="GitHub repository"
             >
@@ -141,7 +141,7 @@ const ProjectCard = ({
               style={{ 
                 backgroundColor: theme.primary, 
                 color: theme.light,
-                boxShadow: `0 2px 4px ${theme.dark}20`
+                boxShadow: `0 2px 4px ${theme.body}20`
               }}
               aria-label="Live demo"
             >
@@ -154,7 +154,7 @@ const ProjectCard = ({
       <div className="p-4 sm:p-5">
         <h3 
           className="text-lg font-bold mb-2 flex items-center"
-          style={{ color: theme.dark, fontFamily: theme.fontHeading }}
+          style={{ color: theme.body, fontFamily: theme.fontHeading }}
         >
           {title}
           <Sparkles 
@@ -169,7 +169,7 @@ const ProjectCard = ({
 
         <p 
           className="mb-3 text-sm line-clamp-3 leading-relaxed" 
-          style={{ color: theme.dark }}
+          style={{ color: theme.body }}
         >
           {description}
         </p>
@@ -182,7 +182,7 @@ const ProjectCard = ({
                 className="px-2 py-0.5 text-xs rounded-md"
                 style={{
                   backgroundColor: theme.muted,
-                  color: theme.dark,
+                  color: theme.body,
                   border: `1px solid ${theme.accent}`
                 }}
               >
@@ -198,7 +198,7 @@ const ProjectCard = ({
             onClick={() => setExpanded(!expanded)}
             style={{
               backgroundColor: expanded ? theme.primary : theme.muted,
-              color: expanded ? theme.light : theme.dark,
+              color: expanded ? theme.light : theme.body,
               border: `1px solid ${expanded ? theme.primary : theme.accent}`,
               fontFamily: theme.fontBody,
             }}
@@ -239,7 +239,7 @@ const ProjectCard = ({
               </h4>
               <p 
                 className="text-xs leading-relaxed" 
-                style={{ color: theme.dark }}
+                style={{ color: theme.body }}
               >
                 {roles.join(", ")}
               </p>
@@ -259,7 +259,7 @@ const ProjectCard = ({
               </h4>
               <p 
                 className="text-xs leading-relaxed" 
-                style={{ color: theme.dark }}
+                style={{ color: theme.body }}
               >
                 {challenges}
               </p>
@@ -279,7 +279,7 @@ const ProjectCard = ({
               </h4>
               <p 
                 className="text-xs leading-relaxed" 
-                style={{ color: theme.dark }}
+                style={{ color: theme.body }}
               >
                 {learnings}
               </p>

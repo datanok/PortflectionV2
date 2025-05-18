@@ -1,7 +1,7 @@
 "use Client"
 import { useState, useEffect } from "react";
 import { Calendar, MapPin, GraduationCap, ChevronRight } from "lucide-react";
-
+import Image from 'next/image'
 interface EducationItem {
   degree: string;
   institution: string;
@@ -105,7 +105,7 @@ export default function EducationSection({ education, theme }: EducationSectionP
                         }}
                       >
                         {edu.logo ? (
-                          <img 
+                          <Image 
                             src={edu.logo} 
                             alt={`${edu.institution} logo`} 
                             className="w-8 h-8 object-contain" 

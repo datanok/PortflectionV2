@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import SectionHeader from "./SectionHeader";
 import { ChevronRight, Briefcase, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
-
+import Image from 'next/image'
 interface ExperienceItem {
   position: string;
   company: string;
@@ -86,7 +86,7 @@ export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProp
                   }}
                 >
                   {job.logo ? (
-                    <img 
+                    <Image 
                       src={job.logo} 
                       alt={`${job.company} logo`} 
                       className="w-6 h-6 object-contain rounded-sm" 
@@ -111,7 +111,7 @@ export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProp
                       }}
                     >
                       {job.logo ? (
-                        <img 
+                        <Image 
                           src={job.logo} 
                           alt={`${job.company} logo`} 
                           className="w-6 h-6 object-contain rounded-sm" 

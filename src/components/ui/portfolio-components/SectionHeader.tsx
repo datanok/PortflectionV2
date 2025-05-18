@@ -43,7 +43,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
       <p
         className="text-lg max-w-2xl mx-auto"
         style={{
-          color: theme?.dark || "#22543d",
+          color: theme?.body || "#22543d",
           fontFamily: theme?.fontBody || "Roboto",
           opacity: 0.9,
         }}

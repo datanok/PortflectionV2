@@ -1,7 +1,7 @@
 // pages/portfolio-builder.tsx
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback ,useEffect} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -117,6 +117,7 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
     about: "",
     phone: "",
     location: "",
+    portfolioType: portfolioType,
     theme: {
       primary: colorScheme.primary,
       secondary: colorScheme.secondary,
@@ -186,7 +187,9 @@ export default function PortfolioBuilder({
   const { data: session } = authClient.useSession();
   
   const tabs = useMemo(() => ["personal", "career", "contact", "portfolio"], []);
-  const portfolioType = editMode ? (defaultValues?.portfolioType as PortfolioType) : "developer" as PortfolioType;
+  const [portfolioType, setPortfolioType] = useState<PortfolioType>(
+    editMode ? (defaultValues?.portfolioType as PortfolioType) : "developer"
+  );
 
   const form = useForm<PortfolioFormData>({
     resolver: zodResolver(getSchemaForType(portfolioType)),
@@ -195,20 +198,32 @@ export default function PortfolioBuilder({
 
   const { control, handleSubmit, trigger, formState, reset, getValues } = form;
 
+  // Update the form schema when portfolio type changes
+  useEffect(() => {
+    const currentTheme = getValues("theme");
+    form.reset({
+      ...getDefaultValues(portfolioType),
+      theme: currentTheme || {
+        primary: COLOR_SCHEMES[0].primary,
+        secondary: COLOR_SCHEMES[0].secondary,
+      },
+      portfolioType: portfolioType,
+    });
+    form.setValue("portfolioType", portfolioType);
+  }, [portfolioType, form, getValues]);
+
   // Handle portfolio type change with proper form reset
   const handlePortfolioTypeChange = useCallback(
     (newType: PortfolioType) => {
-      // Get current theme values before reset
-      const currentTheme = getValues("theme");
-
-      // Reset with new schema and defaults while preserving theme
+      setPortfolioType(newType);
       reset(
         {
           ...getDefaultValues(newType),
-          theme: currentTheme || {
+          theme: getValues("theme") || {
             primary: COLOR_SCHEMES[0].primary,
             secondary: COLOR_SCHEMES[0].secondary,
           },
+          portfolioType: newType,
         },
 
       );
@@ -254,10 +269,9 @@ export default function PortfolioBuilder({
   
     // Only proceed to next step if validation passed
     setStep((prev) => prev + 1);
-  }, [step, currentTab, portfolioValidationFields, trigger]);
+  }, [step, currentTab, portfolioValidationFields, trigger, tabs, setCurrentTab, setStep]);
   
   const prevStep = useCallback(() => {
-
     const currentIndex = tabs.indexOf(currentTab);
   
     if (step === 2 && currentIndex > 0) {
@@ -267,7 +281,7 @@ export default function PortfolioBuilder({
       // Go back one step (e.g., from 3 to 2 or from 2 to 1 if already at first tab)
       setStep((prev) => Math.max(prev - 1, 1));
     }
-  }, [step, currentTab]);
+  }, [step, currentTab, tabs, setCurrentTab, setStep]);
   
 
   const handleTabChange = useCallback((newTab: string) => {
@@ -325,9 +339,9 @@ export default function PortfolioBuilder({
           <PortfolioTypeForm
             form={form}
             portfolioType={portfolioType}
-            setPortfolioType={handlePortfolioTypeChange}
-            nextStep={nextStep}
             reset={reset}
+            setPortfolioType={setPortfolioType}
+            nextStep={nextStep}
           />
         );
       case 2:

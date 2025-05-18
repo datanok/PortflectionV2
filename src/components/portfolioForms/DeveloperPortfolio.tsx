@@ -166,7 +166,7 @@ const TechnologyTagsInput = ({
     if (tags.join(",") !== newTags.join(",")) {
       setTags(newTags);
     }
-  }, [value]);
+  }, [value, tags, setTags]);
 
   return (
     <div className="space-y-2">

@@ -236,7 +236,7 @@ const SkillsSection = ({
       // If not matched to any category, add to the last category as "Other"
       if (!matched) {
         // Check if we need to create or use an "Other" category
-        let otherCategory = categorized.find(cat => cat.name === "Other");
+        const otherCategory = categorized.find(cat => cat.name === "Other");
         
         if (!otherCategory) {
           // If we're using custom categories and there's no "Other" category, add to the last one
@@ -321,10 +321,13 @@ const SkillsSection = ({
         </div>
       </div>
       
-      <div className="container max-w-6xl mx-auto px-4 relative z-10">
+      <div className="container max-w-6xl mx-auto px-4 relative z-10" style={{
+        color: theme.body,
+      }}>
         <SectionHeader
           title={sectionTitle}
           subtitle={sectionSubtitle}
+          theme={theme}
         />
         
         <div className="space-y-10">
@@ -347,7 +350,7 @@ const SkillsSection = ({
                 </div>
                 <h3 
                   className="text-xl font-semibold"
-                  style={{ color: theme.dark, fontFamily: theme.fontHeading }}
+                  style={{ color: theme.body, fontFamily: theme.fontHeading }}
                 >
                   {category.name}
                 </h3>
@@ -364,7 +367,7 @@ const SkillsSection = ({
                       className="flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300 hover:shadow-md hover:-translate-y-1"
                       style={{
                         background: `linear-gradient(135deg, ${theme.background}, ${theme.card})`,
-                        color: theme.dark,
+                        color: theme.body,
                         fontFamily: theme.fontBody,
                         border: `1px solid ${theme.accent}`,
                         transitionDelay: `${i * 50}ms`,

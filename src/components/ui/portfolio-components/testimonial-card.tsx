@@ -28,7 +28,7 @@ export function TestimonialCard({
     <Card className={`${className}`}>
       <CardContent className="pt-6">
         <div className="relative">
-          <span className="text-6xl text-muted-foreground/20 absolute -top-6 -left-2">"</span>
+          <span className="text-6xl text-muted-foreground/20 absolute -top-6 -left-2">&quot;</span>
           <blockquote className="text-muted-foreground mb-4 z-10 relative">
             {quote}
           </blockquote>
