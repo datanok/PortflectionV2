@@ -49,6 +49,8 @@ import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
 import { z, ZodType } from "zod";
 import { COLOR_SCHEMES } from "@/components/portfolioForms/types/ColorSchemes";
 import { PortfolioType } from "@/app/types/portfolio";
+import { Prisma } from "@prisma/client";
+import { authClient } from "../../../../../auth-client";
 
 interface PortfolioBuilderProps {
   editMode?: boolean;
@@ -65,6 +67,29 @@ type PortfolioDefaultValueMap = {
   contentCreator: z.infer<typeof contentCreatorPortfolioSchema>;
   businessConsulting: z.infer<typeof businessConsultingPortfolioSchema>;
 };
+
+type PortfolioFormData = {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+  location: string;
+  about: string;
+  linkedin: string;
+  personalWebsite: string;
+  portfolioType: PortfolioType;
+  portfolioItems: any[];
+  theme: {
+    primary: string;
+    secondary: string;
+  };
+} & (
+  | { portfolioType: 'developer' }
+  | { portfolioType: 'designer' }
+  | { portfolioType: 'contentCreator' }
+  | { portfolioType: 'businessConsulting' }
+) & Prisma.PortfolioCreateInput;
+
 // Utility functions moved outside the component
 const getSchemaForType = (type: PortfolioType): ZodType => {
   switch (type) {
@@ -100,8 +125,7 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
 
   const typeDefaults: PortfolioDefaultValueMap = {
     developer: {
-      githubLink: "",
-      linkedinLink: "",
+      linkedin: "",
       personalWebsite: "",
 
       portfolioItems: [],
@@ -154,20 +178,19 @@ export default function PortfolioBuilder({
 }: PortfolioBuilderProps = {}) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [portfolioType, setPortfolioType] = useState<PortfolioType>(
-    defaultValues?.portfolioType || "developer"
-  );
+
   const [currentTab, setCurrentTab] = useState<TabType>("personal");
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [isDummyDataAlertOpen, setIsDummyDataAlertOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const tabs = ["personal", "career", "contact", "portfolio"];
+  const { data: session } = authClient.useSession();
+  
+  const tabs = useMemo(() => ["personal", "career", "contact", "portfolio"], []);
+  const portfolioType = editMode ? (defaultValues?.portfolioType as PortfolioType) : "developer" as PortfolioType;
 
-  // Create form with proper typing
-  const form = useForm<PortfolioDefaultValueMap[typeof portfolioType]>({
+  const form = useForm<PortfolioFormData>({
     resolver: zodResolver(getSchemaForType(portfolioType)),
-    defaultValues: defaultValues || getDefaultValues(portfolioType),
-    mode: "onBlur",
+    defaultValues: getDefaultValues(portfolioType),
   });
 
   const { control, handleSubmit, trigger, formState, reset, getValues } = form;
@@ -175,7 +198,6 @@ export default function PortfolioBuilder({
   // Handle portfolio type change with proper form reset
   const handlePortfolioTypeChange = useCallback(
     (newType: PortfolioType) => {
-      setPortfolioType(newType);
       // Get current theme values before reset
       const currentTheme = getValues("theme");
 
@@ -188,9 +210,7 @@ export default function PortfolioBuilder({
             secondary: COLOR_SCHEMES[0].secondary,
           },
         },
-        {
-          resolver: zodResolver(getSchemaForType(newType)),
-        }
+
       );
     },
     [getValues, reset]
@@ -204,8 +224,7 @@ export default function PortfolioBuilder({
   // Handle color scheme selection
   const nextStep = useCallback(async () => {
     let isValid = true;
-  
-    const tabs = useMemo(() => ["personal", "career", "contact", "portfolio"], []);
+
     const currentIndex = tabs.indexOf(currentTab);
   
     if (step === 2) {
@@ -261,7 +280,7 @@ export default function PortfolioBuilder({
   };
   // Handle form submission with toast feedback
   const onSubmit = useCallback(
-    async (data: PortfolioDefaultValueMap[typeof portfolioType]) => {
+    async (data: PortfolioFormData) => {
       setIsSubmitting(true);
       try {
         if (editMode && portfolioId) {
@@ -272,7 +291,16 @@ export default function PortfolioBuilder({
           toast.success("Portfolio updated successfully!");
           router.push(`/portfolio/${result.id}`);
         } else {
-          const result = await createPortfolioAction(data);
+          // Add required fields for creation
+          const portfolioData = {
+            ...data,
+            user: {
+              connect: {
+                id: session?.user?.id || ''
+              }
+            }
+          };
+          const result = await createPortfolioAction(portfolioData as Prisma.PortfolioCreateInput);
           toast.success("Portfolio created successfully!");
           router.push(`/portfolio/${result.id}`);
         }
@@ -286,7 +314,7 @@ export default function PortfolioBuilder({
         );
       }
     },
-    [ router, editMode, portfolioId]
+    [router, editMode, portfolioId, session]
   );
 
   // Render each step content

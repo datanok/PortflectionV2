@@ -7,7 +7,8 @@ import { getSession } from "@/app/actions/portfolio-actions";
 
 export const revalidate = 0; // no caching, always fresh preview
 
-export default async function PortfolioPreviewPage({ params }: { params: { id: string } }) {
+export default async function PortfolioPreviewPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getSession()
   if (!session) redirect("/login");
 

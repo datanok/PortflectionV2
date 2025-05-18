@@ -4,7 +4,8 @@ import PortfolioClientPage from "./PortfolioClientPage";
 
 export const revalidate = 3600; // Regenerate every 1 hour
 
-export default async function PortfolioPage({ params }: { params: { id: string } }) {
+export default async function PortfolioPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const portfolioData = await getUserPortfolioData(params.id);
   if (!portfolioData) notFound();
 

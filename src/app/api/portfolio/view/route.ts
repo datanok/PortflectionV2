@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Get IP address
-    let ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.ip || null;
+    let ip = req.headers.get("x-forwarded-for")?.split(",")[0] || null;
     if (ip && ip.startsWith("::ffff:")) ip = ip.substring(7); // IPv4-mapped IPv6
 
     // Get country from IP using IP2Location

@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 import { headers } from "next/headers";
 import { auth } from "../../../../auth";
@@ -41,7 +42,7 @@ export async function deletePortfolioAction(id: string) {
 /**
  * Create a portfolio (server action)
  */
-export async function createPortfolioAction(data: any) {
+export async function createPortfolioAction(data: Prisma.PortfolioCreateInput) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -65,11 +66,18 @@ export async function createPortfolioAction(data: any) {
     "theme",
     "portfolioType",
   ];
-  const prismaData: Record<string, any> = {
-    userId: session.user.id,
+  const prismaData: Prisma.PortfolioCreateInput = {
     portfolioType,
+    name: data.name,
+    title: data.title,
+    email: data.email,
     createdAt: new Date(),
     updatedAt: new Date(),
+    user: {
+      connect: {
+        id: session.user.id
+      }
+    },
   };
   const extraData: Record<string, any> = {};
   for (const key in body) {
