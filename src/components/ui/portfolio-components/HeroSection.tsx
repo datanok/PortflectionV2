@@ -13,7 +13,9 @@ interface HeroSectionProps {
   title: string;
   about: string;
   email: string;
-    githubLink: string;
+  githubLink: string;
+  linkedinLink?: string;
+  personalWebsite?: string;
   location: string;
   profileImage: string;
   portfolioType: string;
@@ -22,11 +24,10 @@ interface HeroSectionProps {
     twitter?: string;
     instagram?: string;
     website?: string;
+    github?: string;
   };
   theme: Theme;
- 
 }
-
 
 const FuturisticHeroSection = ({
   name,

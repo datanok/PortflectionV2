@@ -68,7 +68,7 @@ export function NavUser({
       },
       {
         loading: 'Signing out...',
-        success: () => 'Successfully signed out!',
+        success: () => 'Successfully signed outsss!',
         error: 'Error signing out'
       }
     );

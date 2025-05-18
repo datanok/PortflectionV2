@@ -277,15 +277,7 @@ const designerPortfolioSchema = basePortfolioSchema.extend({
         solution: z.string().optional(),
         process: z.string().optional(),
         outcome: z.string().optional(),
-        images: z
-          .array(
-            z.object({
-              url: z.string().url("Must be a valid URL"),
-              caption: z.string().optional(),
-              type: z.enum(["before", "after", "process", "final"]).optional(),
-            })
-          )
-          .optional(),
+        images: z.string().url("Must be a valid URL").optional(),
         testimonial: z
           .object({
             name: z.string().min(1, "Name is required"),

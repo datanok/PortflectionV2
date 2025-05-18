@@ -2,9 +2,10 @@ import { notFound } from "next/navigation";
 import { getUserPortfolioData } from "@/lib/portfolio-data";
 import PortfolioClientPage from "./PortfolioClientPage";
 
+export const revalidate = 3600; // Regenerate every 1 hour
+
 export default async function PortfolioPage({ params }: { params: { id: string } }) {
-  const { id } = await params;
-  const portfolioData = await getUserPortfolioData(id);
+  const portfolioData = await getUserPortfolioData(params.id);
   if (!portfolioData) notFound();
 
   const { portfolioType } = portfolioData;
@@ -15,20 +16,4 @@ export default async function PortfolioPage({ params }: { params: { id: string }
       portfolioType={portfolioType}
     />
   );
-}
-
-// This would typically come from a database in production
-// For this example, we're generating static params for demo users
-export async function generateStaticParams() {
-  // In a real app, this would fetch from your database
-  const demoUsers = [
-    'janedeveloper',
-    'alexdesigner',
-    'taylorcontent',
-    'jordanconsultant'
-  ];
-  
-  return demoUsers.map(id => ({
-    id
-  }));
 }

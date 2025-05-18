@@ -46,7 +46,7 @@ export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProp
     <section
       className="py-20"
       style={{
-        backgroundColor: theme?.muted || '#e6fffa',
+        backgroundColor: theme?.muted,
       }}
     >
       <div className="container max-w-6xl mx-auto px-4">

@@ -51,6 +51,7 @@ model Account {
   accountId             String
   providerId            String
   accessToken           String?
+  idToken              String?  // Required for Google OAuth
   refreshToken          String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
@@ -73,7 +74,7 @@ model Verification {
 model Portfolio {
   id               String   @id @default(cuid()) @map("_id")
   userId           String
-  type             String   // e.g. 'developer', 'designer', etc.
+  portfolioType    String @default("developer")   // e.g. 'developer', 'designer', etc.
   name             String
   title            String
   email            String
@@ -83,17 +84,11 @@ model Portfolio {
   profileImage     String?
   contactForm      Boolean  @default(true)
 
-  // Optional individual links
   linkedinLink     String?
   personalWebsite  String?
 
-  // Socials as structured array (not object) for better front-end mapping
   socials          Json?     // Array of { type: string; url: string; username: string }
-
-  // Theme settings like colors, fonts, etc.
   theme            Json?
-
-  // Type-specific fields (e.g. projects, skills, services)
   extraData        Json?
 
   createdAt        DateTime @default(now())
@@ -102,7 +97,10 @@ model Portfolio {
 
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   viewsLog         PortfolioView[]
+
+  isPublished      Boolean  @default(false)
 }
+
 
 model PortfolioView {
   id            String   @id @default(cuid()) @map("_id")

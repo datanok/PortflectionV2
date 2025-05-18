@@ -13,7 +13,6 @@ const authenticateUser = async (req: NextRequest): Promise<Session | null> => {
       },
       // Add caching to avoid repeated auth calls
       cache: 'force-cache', 
-    //   next: { revalidate: 60 } // Revalidate session every minute
     });
     
     return session;
@@ -46,7 +45,13 @@ export async function GET(req: NextRequest) {
     });
     
     if (userPortfolios.length === 0) {
-      return NextResponse.json({ error: "No portfolios found for this user" }, { status: 404 });
+      return NextResponse.json({
+        error: {
+          code: "NO_PORTFOLIOS",
+          message: "You haven't created any portfolios yet."
+        }
+      }, { status: 404 });
+      
     }
     
     // Extract all portfolio IDs
@@ -266,7 +271,7 @@ export async function GET(req: NextRequest) {
       if (!aggregatedStats.viewsByCountry[view.country]) {
         aggregatedStats.viewsByCountry[view.country] = 0;
       }
-      aggregatedStats.viewsByCountry[view.country] += view._count.id;
+      aggregatedStats.viewsByCountry[view.country] = (aggregatedStats.viewsByCountry[view.country] || 0) + Number(view._count?.id || 0);
     });
     
     // Aggregate views by referrer
@@ -274,17 +279,17 @@ export async function GET(req: NextRequest) {
       if (!aggregatedStats.viewsByReferrer[view.referrer]) {
         aggregatedStats.viewsByReferrer[view.referrer] = 0;
       }
-      aggregatedStats.viewsByReferrer[view.referrer] += view._count.id;
+      aggregatedStats.viewsByReferrer[view.referrer] = (aggregatedStats.viewsByReferrer[view.referrer] || 0) + Number(view._count?.id || 0);
     });
     
     // Aggregate bot traffic
     botTraffic.forEach(view => {
       if (view.isBot) {
-        aggregatedStats.botTraffic.bot += view._count.id;
+        aggregatedStats.botTraffic.bot = (aggregatedStats.botTraffic.bot || 0) + Number(view._count?.id || 0);
       } else {
-        aggregatedStats.botTraffic.human += view._count.id;
+        aggregatedStats.botTraffic.human = (aggregatedStats.botTraffic.human || 0) + Number(view._count?.id || 0);
       }
-    });
+    }); 
 
     // Convert aggregated stats objects to arrays for easier consumption
     const formattedAggregatedStats = {
@@ -295,12 +300,12 @@ export async function GET(req: NextRequest) {
       })).sort((a, b) => a.date.localeCompare(b.date)),
       viewsByCountry: Object.entries(aggregatedStats.viewsByCountry).map(([country, count]) => ({ 
         country, 
-        count 
-      })).sort((a, b) => b.count - a.count),
+        count: Number(count) 
+      })).sort((a, b) => Number(b.count) - Number(a.count)),
       viewsByReferrer: Object.entries(aggregatedStats.viewsByReferrer).map(([referrer, count]) => ({ 
         referrer, 
-        count 
-      })).sort((a, b) => b.count - a.count).slice(0, 10),
+        count: Number(count) 
+      })).sort((a, b) => Number(b.count) - Number(a.count)).slice(0, 10),
       botTraffic: [
         { isBot: true, count: aggregatedStats.botTraffic.bot },
         { isBot: false, count: aggregatedStats.botTraffic.human }

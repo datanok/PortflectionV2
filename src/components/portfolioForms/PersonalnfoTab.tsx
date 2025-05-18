@@ -111,7 +111,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -125,7 +125,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
             <FormItem>
               <FormLabel>Professional Title</FormLabel>
               <FormControl>
-                <Input placeholder="Full Stack Developer" {...field} />
+                <Input placeholder="Full Stack Developer" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -139,7 +139,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
             <FormItem>
               <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input placeholder="your.email@example.com" {...field} />
+                <Input placeholder="your.email@example.com" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -153,7 +153,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
             <FormItem>
               <FormLabel>Location</FormLabel>
               <FormControl>
-                <Input placeholder="New York, USA" {...field} />
+                <Input placeholder="New York, USA" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -166,7 +166,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
             <FormItem>
               <FormLabel>Profile Image</FormLabel>
               <FormControl>
-                <Input placeholder="Enter Image link" {...field} />
+                <Input placeholder="Enter Image link" {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -184,6 +184,7 @@ const PersonalInfoTab: React.FC<PersonalInfoTabProps> = ({ form }) => {
                   placeholder="Tell potential clients or employers about yourself..."
                   className="min-h-32 focus:ring-2 focus:ring-blue-500"
                   {...field}
+                  value={field.value || ""} 
                 />
               </FormControl>
               <FormDescription>

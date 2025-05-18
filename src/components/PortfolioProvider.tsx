@@ -39,7 +39,6 @@ const PortfolioContext = createContext<PortfolioData | undefined>(undefined);
 interface PortfolioDataProviderProps {
   children: ReactNode;
   value: PortfolioData;
-  type: 'developer' | 'designer' | 'contentCreator' | 'businessConsulting' | 'base';
 }
 
 // Enhanced provider component with type checking

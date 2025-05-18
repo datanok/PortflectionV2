@@ -296,7 +296,7 @@ const ProjectSection = ({ portfolioItems, theme }) => {
   return (
     <section
       style={{
-        backgroundColor: `${theme.muted}F2`,
+        backgroundColor: theme?.muted || '#e6fffa',
         padding: '2rem 1rem'
       }}
       id="projects"

@@ -4,15 +4,17 @@ export default function LoadingButton({
   pending,
   children,
   onClick,
+  className,
 }: {
   pending: boolean;
   children: React.ReactNode;
   onClick?: () => void;
+  className?: string;
 }) {
   return (
     <Button
       onClick={onClick}
-      className="w-full"
+      className={className}
       type="submit"
       disabled={pending}
     >

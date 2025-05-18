@@ -49,125 +49,30 @@ const ProjectImages = <T extends FieldValues>({
   control: Control<T>;
   projectIndex: number;
 }) => {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: `portfolioItems.${projectIndex}.images` as const,
-  });
-
   return (
     <div className="pt-4 border-t">
       <h3 className="text-sm font-medium mb-4 flex items-center">
         <Image className="h-4 w-4 mr-2 text-blue-500" />
-        Project Images
+        Project Image
       </h3>
 
-      {fields.length === 0 && (
-        <div className="p-8 border-2 border-dashed rounded-lg text-center mb-4">
-          <p className="text-gray-500 mb-2">No images added yet</p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => append({ url: "", caption: "", type: "final" })}
-          >
-            <PlusCircle className="h-4 w-4 mr-2" />
-            Add First Image
-          </Button>
-        </div>
-      )}
-
-      {fields.map((image, imageIndex) => (
-        <div key={image.id} className="mb-4 p-4 border rounded-lg bg-slate-50">
-          <div className="flex justify-between items-center mb-3">
-            <h4 className="text-sm font-medium">Image {imageIndex + 1}</h4>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => remove(imageIndex)}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={control}
-              name={`portfolioItems.${projectIndex}.images.${imageIndex}.url`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL*</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://example.com/image.jpg"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name={`portfolioItems.${projectIndex}.images.${imageIndex}.type`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image Type</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || ""}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select image type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="before">Before</SelectItem>
-                      <SelectItem value="after">After</SelectItem>
-                      <SelectItem value="process">Process</SelectItem>
-                      <SelectItem value="final">Final</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={control}
-            name={`portfolioItems.${projectIndex}.images.${imageIndex}.caption`}
-            render={({ field }) => (
-              <FormItem className="mt-3">
-                <FormLabel>Caption</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Describe what this image shows"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      ))}
-
-      {fields.length > 0 && (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => append({ url: "", caption: "", type: "final" })}
-          className="mt-2"
-        >
-          <PlusCircle className="h-4 w-4 mr-2" />
-          Add Another Image
-        </Button>
-      )}
+      <FormField
+        control={control}
+        name={`portfolioItems.${projectIndex}.images`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Image URL</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="https://example.com/image.jpg"
+                {...field}
+                value={field.value || ""}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 };
@@ -283,7 +188,7 @@ const DesignerPortfolio = <T extends FieldValues>({
       solution: "",
       process: "",
       outcome: "",
-      images: [],
+      images: "",
       testimonial: {
         name: "",
         position: "",

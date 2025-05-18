@@ -6,9 +6,8 @@ import {
   businessConsultingPortfolioSchema,
 } from '@/lib/zod';
 import prisma from '@/lib/prisma';
-import { betterFetch } from '@better-fetch/fetch';
-import { Session } from '../../../../auth';
 
+import {authenticateUser} from '@/lib/authenticateUser';
 const portfolioSchemas: Record<string, any> = {
   developer: developerPortfolioSchema,
   designer: designerPortfolioSchema,
@@ -57,25 +56,7 @@ const extractPortfolioData = (data: any) => {
   };
 };
 
-// Authentication middleware
-const authenticateUser = async (req: NextRequest): Promise<Session | null> => {
-  try {
-    const { data: session } = await betterFetch<Session>('/api/auth/get-session', {
-      baseURL: process.env.BETTER_AUTH_URL,
-      headers: {
-        cookie: req.headers.get('cookie') || '',
-      },
-      // Add caching to avoid repeated auth calls
-      cache: 'force-cache', 
-      next: { revalidate: 60 } // Revalidate session every minute
-    });
-    
-    return session;
-  } catch (error) {
-    console.error('Authentication error:', error);
-    return null;
-  }
-};
+
 
 // Handle POST requests (Create portfolio)
 export async function POST(req: NextRequest) {

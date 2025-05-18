@@ -6,13 +6,15 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { deletePortfolioAction, createPortfolioAction, updatePortfolioAction } from "../actions";
+import {
+  deletePortfolioAction,
+  createPortfolioAction,
+  updatePortfolioAction,
+} from "../actions";
 
 // UI Components
 import { Button } from "@/components/ui/button";
-import {
-  Form
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import {
   Card,
   CardContent,
@@ -37,8 +39,7 @@ import PortfolioTypeForm from "@/components/portfolioForms/PortfolioTypeForm";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ContactInfoTab from "@/components/portfolioForms/ContactForm";
 import ErrorAlertDialog from "@/components/portfolioForms/ErrorDialog";
-import ColorSchemeForm, {
-} from "@/components/portfolioForms/ColorSchemeForm";
+import ColorSchemeForm from "@/components/portfolioForms/ColorSchemeForm";
 import DesignerPortfolio from "@/components/portfolioForms/DesignerPortfolio";
 import ContentCreatorPortfolio from "@/components/portfolioForms/ContentCreatorPortfolio";
 import BusinessConsultingPortfolio from "@/components/portfolioForms/ConsultingPortfolio";
@@ -65,7 +66,7 @@ type PortfolioDefaultValueMap = {
   businessConsulting: z.infer<typeof businessConsultingPortfolioSchema>;
 };
 // Utility functions moved outside the component
-const getSchemaForType  = (type: PortfolioType):ZodType => {
+const getSchemaForType = (type: PortfolioType): ZodType => {
   switch (type) {
     case "developer":
       return developerPortfolioSchema;
@@ -102,7 +103,7 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
       githubLink: "",
       linkedinLink: "",
       personalWebsite: "",
-     
+
       portfolioItems: [],
       ...baseDefaults,
     },
@@ -114,7 +115,7 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
       awards: [],
       ...baseDefaults,
     },
-    "contentCreator": {
+    contentCreator: {
       specialties: [],
       portfolioItems: [],
       testimonials: [],
@@ -134,7 +135,6 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
   return typeDefaults[portfolioType];
 };
 
-
 // Define validation rules for each step and tab
 const VALIDATION_RULES = {
   personal: ["name", "title", "about", "email", "location"],
@@ -147,14 +147,21 @@ const VALIDATION_RULES = {
   theme: ["theme"],
 };
 
-export default function PortfolioBuilder({ editMode = false, defaultValues = null, portfolioId = null }:PortfolioBuilderProps = {}) {
+export default function PortfolioBuilder({
+  editMode = false,
+  defaultValues = null,
+  portfolioId = null,
+}: PortfolioBuilderProps = {}) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [portfolioType, setPortfolioType] = useState<PortfolioType>(defaultValues?.type || "developer");
+  const [portfolioType, setPortfolioType] = useState<PortfolioType>(
+    defaultValues?.portfolioType || "developer"
+  );
   const [currentTab, setCurrentTab] = useState<TabType>("personal");
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [isDummyDataAlertOpen, setIsDummyDataAlertOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const tabs = ["personal", "career", "contact", "portfolio"];
 
   // Create form with proper typing
   const form = useForm<PortfolioDefaultValueMap[typeof portfolioType]>({
@@ -162,16 +169,8 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
     defaultValues: defaultValues || getDefaultValues(portfolioType),
     mode: "onBlur",
   });
-  
-  
-  const {
-    control,
-    handleSubmit,
-    trigger,
-    formState,
-    reset,
-    getValues,
-  } = form;
+
+  const { control, handleSubmit, trigger, formState, reset, getValues } = form;
 
   // Handle portfolio type change with proper form reset
   const handlePortfolioTypeChange = useCallback(
@@ -203,80 +202,92 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
   }, [portfolioType]);
 
   // Handle color scheme selection
-
   const nextStep = useCallback(async () => {
     let isValid = true;
   
-    // Step-specific validation
+    const tabs = ["personal", "career", "contact", "portfolio"];
+    const currentIndex = tabs.indexOf(currentTab);
+  
     if (step === 2) {
-      // In step 2, validate only the current tab's fields
+      // Validate only the current tab's fields
       const fieldsToValidate =
         currentTab === "portfolio"
           ? portfolioValidationFields
           : VALIDATION_RULES[currentTab];
-      
+  
       if (fieldsToValidate && fieldsToValidate.length > 0) {
         isValid = await trigger(fieldsToValidate as any);
       }
   
-      // If on step 2 and current tab is not the last tab, change tab instead of step
-      if (isValid && currentTab !== "portfolio") {
-        // Move to the next tab
-        const tabs = ["personal", "career", "contact", "portfolio"];
-        const currentIndex = tabs.indexOf(currentTab);
-        console.log(currentTab)
-        if (currentIndex < tabs.length - 1) {
-          setCurrentTab(tabs[currentIndex + 1] as any);
-          console.log(tabs[currentIndex + 1])
-          return; // Exit early to prevent step change
-        }
+      if (!isValid) return;
+      
+      if (currentIndex < tabs.length - 1) {
+        // Move to next tab, NOT next step
+        setCurrentTab(tabs[currentIndex + 1] as any);
+        return;
       }
+  
+      // If currentTab is the last tab and valid, allow step increment
     } else if (step === 3) {
       isValid = await trigger("theme" as any);
+      if (!isValid) return;
     }
   
-    // Only proceed to next step if validation passes and we're not handling tabs
-    if (isValid) {
-      setStep((prev) => prev + 1);
-    }
+    // Only proceed to next step if validation passed
+    setStep((prev) => prev + 1);
   }, [step, currentTab, portfolioValidationFields, trigger]);
-  const handleLoadDummyData = () => {
-    populateFormWithDummyData(form, portfolioType);
-  };
-
+  
   const prevStep = useCallback(() => {
-    setStep((prev) => prev - 1);
-  }, []);
+
+    const currentIndex = tabs.indexOf(currentTab);
+  
+    if (step === 2 && currentIndex > 0) {
+      // Go back one tab within step 2
+      setCurrentTab(tabs[currentIndex - 1] as any);
+    } else {
+      // Go back one step (e.g., from 3 to 2 or from 2 to 1 if already at first tab)
+      setStep((prev) => Math.max(prev - 1, 1));
+    }
+  }, [step, currentTab]);
+  
 
   const handleTabChange = useCallback((newTab: string) => {
     setCurrentTab(newTab as TabType);
   }, []);
 
+
+  const handleLoadDummyData = () => {
+    populateFormWithDummyData(form, portfolioType);
+  };
   // Handle form submission with toast feedback
   const onSubmit = useCallback(
     async (data: PortfolioDefaultValueMap[typeof portfolioType]) => {
       setIsSubmitting(true);
-      console.log(data,"data")
       try {
-       
-        data.portfolioType = portfolioType;
         if (editMode && portfolioId) {
-         const result = await updatePortfolioAction({ ...data, id: portfolioId});
+          const result = await updatePortfolioAction({
+            ...data,
+            id: portfolioId,
+          });
           toast.success("Portfolio updated successfully!");
           router.push(`/portfolio/${result.id}`);
         } else {
-         const result = await createPortfolioAction(data);
+          const result = await createPortfolioAction(data);
           toast.success("Portfolio created successfully!");
           router.push(`/portfolio/${result.id}`);
         }
       } catch (error: any) {
         setIsSubmitting(false);
-        toast.error(error.message || (editMode ? "Failed to update portfolio." : "Failed to create portfolio."));
+        toast.error(
+          error.message ||
+            (editMode
+              ? "Failed to update portfolio."
+              : "Failed to create portfolio.")
+        );
       }
     },
     [portfolioType, router, editMode, portfolioId]
   );
-
 
   // Render each step content
   const renderStepContent = () => {
@@ -294,8 +305,12 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
       case 2:
         return (
           <div className="space-y-6">
-            <Tabs defaultValue="personal" onValueChange={handleTabChange}   key={currentTab}  // Add this to force re-render
-  value={currentTab}>
+            <Tabs
+              defaultValue="personal"
+              onValueChange={handleTabChange}
+              key={currentTab} // Add this to force re-render
+              value={currentTab}
+            >
               <ScrollArea>
                 <div className="w-full relative h-10">
                   <TabsList className="absolute flex flex-row justify-stretch w-full">
@@ -347,11 +362,7 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
           </div>
         );
       case 3:
-        return (
-          <ColorSchemeForm
-            control={control}
-          />
-        );
+        return <ColorSchemeForm control={control} />;
       case 4:
         return <PreviewTab form={form} portfolioType={portfolioType} />;
       default:
@@ -361,29 +372,31 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
 
   return (
     <div className="container max-w-7xl mx-auto overflow-hidden">
-    <DummyDataAlert
-      open={isDummyDataAlertOpen}
-      setOpen={setIsDummyDataAlertOpen}
-      onConfirm={handleLoadDummyData}
-    />
-    
-    <ErrorAlertDialog
-      errors={formState.errors}
-      open={isErrorDialogOpen}
-      onOpenChange={setIsErrorDialogOpen}
-    />
+      <DummyDataAlert
+        open={isDummyDataAlertOpen}
+        setOpen={setIsDummyDataAlertOpen}
+        onConfirm={handleLoadDummyData}
+      />
 
-    <div className="grid lg:grid-cols-[280px_1fr] gap-6">
-      <div className="">
-        <div className="sticky">
-          <VerticalStepper currentStep={step} />
+      <ErrorAlertDialog
+        errors={formState.errors}
+        open={isErrorDialogOpen}
+        onOpenChange={setIsErrorDialogOpen}
+      />
+
+      <div className="grid lg:grid-cols-[280px_1fr] gap-6">
+        <div className="">
+          <div className="sticky">
+            <VerticalStepper currentStep={step} tabList={tabs} currentTab={currentTab} />
+          </div>
         </div>
-      </div>
-  
+
         <Card className="w-full max-w-7xl mx-auto shadow-none overflow-hidden h-[80vh] flex flex-col">
           <CardHeader className="sticky top-0 z-10">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-medium">{editMode ? "Edit Portfolio" : "Build Your Portfolio"}</CardTitle>
+              <CardTitle className="text-xl font-medium">
+                {editMode ? "Edit Portfolio" : "Build Your Portfolio"}
+              </CardTitle>
 
               {step > 1 && (
                 <Button
@@ -399,46 +412,47 @@ export default function PortfolioBuilder({ editMode = false, defaultValues = nul
                 </Button>
               )}
             </div>
+          </CardHeader>
 
-         
-        </CardHeader>
+          <CardContent className="flex-1 overflow-auto p-2">
+            <Form {...form}>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {renderStepContent()}
+              </form>
+            </Form>
+          </CardContent>
 
-        <CardContent className="flex-1 overflow-auto p-2">
-    <Form {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {renderStepContent()}
-      </form>
-    </Form>
-  </CardContent>
+          <CardFooter className="">
+            <div className="flex justify-between w-full">
+              <div>
+                {step > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    size="sm"
+                  >
+                    Previous
+                  </Button>
+                )}
+              </div>
 
-
-  <CardFooter className="">
-          <div className="flex justify-between w-full">
-            <div>
-              {step > 1 && (
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={prevStep}
-                  size="sm"
-                >
-                  Previous
-                </Button>
-              )}
+              <Button
+                type={step < 4 ? "button" : "submit"}
+                onClick={step < 4 ? nextStep : handleSubmit(onSubmit)}
+                size="sm"
+                disabled={isSubmitting}
+              >
+                {step < 4
+                  ? "Next Step"
+                  : editMode
+                  ? "Update Portfolio"
+                  : "Create Portfolio"}
+              </Button>
             </div>
-            
-            <Button 
-              type={step < 4 ? "button" : "submit"}
-              onClick={step < 4 ? nextStep : handleSubmit(onSubmit)}
-              size="sm"
-              disabled={isSubmitting}
-            >
-              {step < 4 ? "Next Step" : (editMode ? "Update Portfolio" : "Create Portfolio")}
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
-  </div>
   );
 }
