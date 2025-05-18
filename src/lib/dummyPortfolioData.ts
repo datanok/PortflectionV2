@@ -111,7 +111,7 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
       },
     ],
     githubLink: "https://github.com/alexjohnson",
-    linkedinLink: "https://linkedin.com/in/alexjohnson",
+    linkedin: "https://linkedin.com/in/alexjohnson",
     personalWebsite: "https://alexjohnson.dev",
   };
 

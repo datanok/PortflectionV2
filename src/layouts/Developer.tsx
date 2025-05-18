@@ -208,9 +208,8 @@ console.log(portfolio);
     businessConsulting: BusinessProjectSection,
   }), []);
   const getProjectSection = useCallback(() => {
-    console.log(portfolioType);
     return memoizedProjectSectionMap[portfolioType] || DeveloperProjectSection;
-  }, [portfolioType]);
+  }, [portfolioType, memoizedProjectSectionMap]);
 
   const ProjectSectionComponent = getProjectSection();
 
