@@ -1,6 +1,5 @@
-import { Image, Quote, Paintbrush, ArrowRight, ArrowDown } from "lucide-react";
-import { useState, useEffect } from "react";
-import { Separator } from "@/components/ui/separator";
+import { Quote, ArrowRight, ArrowDown } from "lucide-react";
+import { useState } from "react";
 
 const SectionHeader = ({ title, subtitle, theme }) => (
   <div className="mb-10">
@@ -166,7 +165,7 @@ const DesignerProjectCard = ({
                   color: theme.dark 
                 }}
               >
-                "{testimonial.content}"
+                &quot;{testimonial.content}&quot;
               </p>
               <p 
                 className="text-xs font-semibold"

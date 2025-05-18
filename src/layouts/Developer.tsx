@@ -263,7 +263,7 @@ console.log(portfolio);
         backgroundColor: theme?.primary,
         color: theme?.light,
         padding: "8px 16px",
-        borderRadius: "4px",
+        borderRadius: "25px",
         border: `1px solid ${theme?.primary}`,
         fontFamily: theme?.fontBody,
       }}

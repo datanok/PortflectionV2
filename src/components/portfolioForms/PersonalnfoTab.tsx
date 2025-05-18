@@ -57,12 +57,12 @@ const SkillsInput = ({
     if (JSON.stringify(value) !== JSON.stringify(skill)) {
       setSkills(value ?? []);
     }
-  }, [value]);
+  }, [value, skill]);
 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2 mb-2">
-        {skill.map((tag,idx) => (
+        {skill.map((tag, idx) => (
           <Badge
             key={tag + idx}
             variant="secondary"

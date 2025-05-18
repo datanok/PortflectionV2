@@ -205,7 +205,7 @@ export default function PortfolioBuilder({
   const nextStep = useCallback(async () => {
     let isValid = true;
   
-    const tabs = ["personal", "career", "contact", "portfolio"];
+    const tabs = useMemo(() => ["personal", "career", "contact", "portfolio"], []);
     const currentIndex = tabs.indexOf(currentTab);
   
     if (step === 2) {
@@ -286,7 +286,7 @@ export default function PortfolioBuilder({
         );
       }
     },
-    [portfolioType, router, editMode, portfolioId]
+    [ router, editMode, portfolioId]
   );
 
   // Render each step content

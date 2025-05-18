@@ -44,12 +44,12 @@ const DummyDataAlert: React.FC<DummyDataAlertProps> = ({
         ⚠️ Your current data will be ruthlessly overwritten!
       </p>
       <p className="text-xs leading-relaxed">
-        Any masterpieces you've typed will disappear faster than your motivation on a Monday morning.
+        Any masterpieces you&apos;ve typed will disappear faster than your motivation on a Monday morning.
       </p>
     </div>
 
     <p className="text-xs sm:text-sm italic text-muted-foreground">
-      For the low price of “whatever I feel like charging today,” you can enjoy this premium feature.
+      For the low price of &quot;whatever I feel like charging today,&quot; you can enjoy this premium feature.
       Feel free to GPay me whenever guilt kicks in.
     </p>
   </div>
@@ -61,7 +61,7 @@ const DummyDataAlert: React.FC<DummyDataAlertProps> = ({
             onClick={() => setOpen(false)}
             className="mt-0 w-full sm:w-auto"
           >
-            No thanks, I'll do actual work
+            No thanks, I&apos;ll do actual work
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
@@ -70,7 +70,7 @@ const DummyDataAlert: React.FC<DummyDataAlertProps> = ({
             }}
             className="bg-amber-500 hover:bg-amber-400 w-full sm:w-auto"
           >
-            Yes, I'm feeling lazy!
+            Yes, I&apos;m feeling lazy!
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

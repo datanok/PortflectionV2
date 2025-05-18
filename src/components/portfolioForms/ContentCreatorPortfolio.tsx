@@ -138,7 +138,7 @@ const PortfolioItemsSection = <T extends FieldValues>({
     <Card className="mb-6">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center">
-          <Image className="h-5 w-5 mr-2 text-blue-500" />
+          <Image className="h-5 w-5 mr-2 text-blue-500" alt="Portfolio items icon" />
           Portfolio Items
         </CardTitle>
       </CardHeader>

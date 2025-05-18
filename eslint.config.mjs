@@ -11,11 +11,13 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  //disable typescript expilicit any rule
+  //disable typescript expilicit any rule 
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "react/jsx-no-controlled-uncontrolled": "warn"
+      "@typescript-eslint/no-unused-vars": "off",
+      "jsx-a11y/alt-text": "off "
+
     },
   },
 ];

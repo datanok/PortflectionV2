@@ -73,7 +73,7 @@ const FloatingParticles = ({
         moveY
       };
     });
-  }, [particleCount, theme, opacity, icons]); // Removed iconCount from dependencies
+  }, [particleCount, theme, opacity, icons, iconCount]); // Removed iconCount from dependencies
 
   if (iconCount === 0) return null;
   return (
@@ -103,6 +103,6 @@ const FloatingParticles = ({
         ))}
       </div>
     </>
-  );f
+  );
 }; 
 export default React.memo(FloatingParticles);
