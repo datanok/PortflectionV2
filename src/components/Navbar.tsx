@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Menu, X } from "lucide-react";
@@ -17,15 +17,20 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-const AuthButtons = dynamic(() => import("./auth-buttons"), { ssr: false });
+import { motion } from "motion/react";
+import Image from "next/image";
+import { authClient } from "../../auth-client";
 
-interface NavbarLink {
-  text: string;
-  href: string;
-}
+const AuthButtons = dynamic(() => import("./auth-buttons"), { ssr: false });
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const { data, isPending } = authClient.useSession();
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const name = "Portflection";
   const homeUrl = "/";
@@ -35,42 +40,49 @@ export default function Navbar() {
     { text: "Dashboard", href: "/dashboard" },
   ];
 
+  const Logo = () => (
+    <Link
+      href={homeUrl}
+      className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal text-black dark:text-white"
+    >
+      <Image
+        src="/assets/logo.png"
+        alt="Portflection Logo"
+        width={24}
+        height={24}
+        className="object-contain"
+      />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="font-semibold leading-none"
+      >
+        {name}
+      </motion.span>
+    </Link>
+  );
+
   return (
     <header className="sticky top-0 z-50 -mb-4 px-4 pb-4">
       <div className="fade-bottom bg-background/15 absolute left-0 h-24 w-full backdrop-blur-lg"></div>
       <div className="max-w-container relative mx-auto">
         <NavbarComponent>
           <NavbarLeft>
-            <Link
-              href={homeUrl}
-              className="flex items-center gap-2 text-2xl font-bold"
-            >
-              {name}
-            </Link>
-            {/* <div className="hidden md:flex items-center space-x-6">
-              <Link
-                href="/templates"
-                className="hover:text-red-500 dark:hover:text-pink-400"
-              >
-                Templates
-              </Link>
-              <Link
-                href="/pricing"
-                className="hover:text-red-500 dark:hover:text-pink-400"
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/dashboard"
-                className="hover:text-red-500 dark:hover:text-pink-400"
-              >
-                Dashboard
-              </Link>
-            </div> */}
+            <Logo />
           </NavbarLeft>
           <NavbarRight>
             <div className="hidden md:block">
-              <AuthButtons />
+              <div className="hidden md:flex items-center space-x-6">
+                {isHydrated && data && (
+                  <Link
+                    href="/dashboard"
+                    className="hover:text-red-500 dark:hover:text-pink-400"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+                {isHydrated && <AuthButtons />}
+              </div>
             </div>
             <ThemeToggle />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -90,7 +102,7 @@ export default function Navbar() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right">
-                <SheetTitle>Hello</SheetTitle>
+                <SheetTitle>Menu</SheetTitle>
                 <nav className="grid gap-6 text-lg font-medium">
                   <Link
                     href={homeUrl}
@@ -109,9 +121,11 @@ export default function Navbar() {
                       {link.text}
                     </Link>
                   ))}
-                  <div className="pt-4">
-                    <AuthButtons />
-                  </div>
+                  {isHydrated && (
+                    <div className="pt-4">
+                      <AuthButtons />
+                    </div>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>

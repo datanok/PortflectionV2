@@ -166,7 +166,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm w-full">
+          {/* <Card className="shadow-sm w-full">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Top Country</CardTitle>
               <Globe className="h-4 w-4" />
@@ -183,7 +183,7 @@ export default function DashboardPage() {
                   : "No country data"}
               </p>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="shadow-sm w-full">
             <CardHeader className="flex flex-row items-center justify-between pb-2">

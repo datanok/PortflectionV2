@@ -37,6 +37,7 @@ import { authClient } from "../../auth-client";
 import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 import { motion } from "motion/react";
+import Image from "next/image";
 
 const mainItems = [
   {
@@ -45,8 +46,7 @@ const mainItems = [
     icon: LayoutDashboard,
     isActive: true,
   },
-  
-]
+];
 const navItems = [
   {
     title: "Dashboard",
@@ -77,18 +77,25 @@ const navItems = [
 export const Logo = () => {
   return (
     <Link
-      href="#"
-      className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
+    href="#"
+    className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal text-black dark:text-white"
+  >
+    <Image
+      src="/assets/logo.png"
+      alt="Portflection Logo"
+      width={24}
+      height={24}
+      className="object-contain"
+    />
+    <motion.span
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="font-semibold leading-none"
     >
-      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black dark:text-white"
-      >
-        Portflection
-      </motion.span>
-    </Link>
+      Portflection
+    </motion.span>
+  </Link>
+  
   );
 };
 export const LogoIcon = () => {
@@ -97,8 +104,14 @@ export const LogoIcon = () => {
       href="#"
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
     >
-      <div className="h-5 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" />
-    </Link>
+      <Image
+      src="/assets/logo.png"
+      alt="Portflection Logo"
+      width={24}
+      height={24}
+      className="object-contain"
+    />
+   </Link>
   );
 };
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

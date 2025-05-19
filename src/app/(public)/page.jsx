@@ -9,16 +9,22 @@ import React from "react";
 
 const page = () => {
   return (
-    <div className="relative">
-      {/* Background Grid */}
+<div className="relative w-full overflow-hidden">
+  {/* Background Grid (optional, can be absolutely positioned) */}
 
-      {/* Hero Section */}
-      <Hero />
+  <section className="px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24 max-w-[1440px] mx-auto">
+    <Hero />
+  </section>
 
-      {/* Features Section */}
-      <FeaturesSection />
-      <FAQ />
-    </div>
+  <section className="px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24 max-w-[1440px] mx-auto mt-16">
+    <FeaturesSection />
+  </section>
+
+  <section className="px-4 sm:px-6 md:px-10 lg:px-16 xl:px-24 max-w-[1440px] mx-auto mt-16 mb-24">
+    <FAQ />
+  </section>
+</div>
+
   );
 };
 

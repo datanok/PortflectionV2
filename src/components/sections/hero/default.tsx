@@ -33,23 +33,23 @@ export default function PortflectionHero({
       <span className="text-muted-foreground">
         Porflectin Beta is now available!
       </span>
-      <a href="/signup" className="flex items-center gap-1 text-red-400">
-        Join waitlist
+      <a href="/sign-in" className="flex items-center gap-1 text-red-400">
+        Join Now
         <ArrowRightIcon className="size-3" />
       </a>
     </Badge>
   ),
   buttons = [
     {
-      href: "/create",
+      href: "/dashboard/portfolios/new",
       text: "Create Your Portfolio",
       variant: "default",
       iconRight: <ArrowRightIcon className="ml-2 size-4" />,
     },
     {
-      href: "/templates",
+      href: "/dashboard",
       text: "Explore Templates",
-      variant: "glow",
+      variant: "outline",
       icon: <Sparkles className="mr-2 size-4" />,
     },
   ],

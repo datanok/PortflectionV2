@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 const settingsSections = [
-  { key: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
+  // { key: "profile", label: "Profile", icon: <User className="w-4 h-4" /> },
   { key: "account", label: "Account", icon: <Lock className="w-4 h-4" /> },
   { key: "appearance", label: "Appearance", icon: <Palette className="w-4 h-4" /> },
   { key: "notifications", label: "Notifications", icon: <Bell className="w-4 h-4" /> },
@@ -34,7 +34,7 @@ const sectionDescriptions = {
 };
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(settingsSections[0].key);
   const [showSidebar, setShowSidebar] = useState(false);
   
   const toggleSidebar = () => {

@@ -6,6 +6,11 @@ import { Toaster } from "@/components/ui/sonner";
 export const metadata: Metadata = {
   title: "Portflection",
   description: "Build and manage your portfolios with ease.",
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon-16x16.png',
+  },
 };
 type RootLayoutProps = {
   children: React.ReactNode;

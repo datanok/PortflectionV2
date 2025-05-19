@@ -28,6 +28,7 @@ export default function EditPortfolioPage(props: { params: Promise<{ id: string 
         }
         const data = await res.json();
         const mergedData = data && data.extraData ? { ...data, ...data.extraData } : data;
+        console.log(mergedData);
         setDefaultValues(mergedData);
       } catch (err: any) {
         if (err.message === "Forbidden") {

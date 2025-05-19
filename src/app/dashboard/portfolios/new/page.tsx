@@ -11,7 +11,7 @@ import {
   createPortfolioAction,
   updatePortfolioAction,
 } from "../actions";
-
+import LoadingButton from "@/components/ui/loading-button";
 // UI Components
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -156,7 +156,7 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
       ...baseDefaults,
     },
   };
-
+console.log("idhar")
   return typeDefaults[portfolioType];
 };
 
@@ -193,24 +193,26 @@ export default function PortfolioBuilder({
 
   const form = useForm<PortfolioFormData>({
     resolver: zodResolver(getSchemaForType(portfolioType)),
-    defaultValues: getDefaultValues(portfolioType),
+    defaultValues: editMode ? defaultValues : getDefaultValues(portfolioType),
   });
-
+console.log(editMode,"asdas")
   const { control, handleSubmit, trigger, formState, reset, getValues } = form;
 
   // Update the form schema when portfolio type changes
   useEffect(() => {
-    const currentTheme = getValues("theme");
-    form.reset({
-      ...getDefaultValues(portfolioType),
-      theme: currentTheme || {
-        primary: COLOR_SCHEMES[0].primary,
-        secondary: COLOR_SCHEMES[0].secondary,
-      },
-      portfolioType: portfolioType,
-    });
-    form.setValue("portfolioType", portfolioType);
-  }, [portfolioType, form, getValues]);
+    if (!editMode) {
+      const currentTheme = getValues("theme");
+      form.reset({
+        ...getDefaultValues(portfolioType),
+        theme: currentTheme || {
+          primary: COLOR_SCHEMES[0].primary,
+          secondary: COLOR_SCHEMES[0].secondary,
+        },
+        portfolioType: portfolioType,
+      });
+      form.setValue("portfolioType", portfolioType);
+    }
+  }, [portfolioType, editMode]);
 
   // Handle portfolio type change with proper form reset
   const handlePortfolioTypeChange = useCallback(
@@ -469,8 +471,6 @@ export default function PortfolioBuilder({
               <div>
                 {step > 1 && (
                   <Button
-                    type="button"
-                    variant="outline"
                     onClick={prevStep}
                     size="sm"
                   >
@@ -479,7 +479,8 @@ export default function PortfolioBuilder({
                 )}
               </div>
 
-              <Button
+              <LoadingButton
+                pending={isSubmitting}
                 type={step < 4 ? "button" : "submit"}
                 onClick={step < 4 ? nextStep : handleSubmit(onSubmit)}
                 size="sm"
@@ -490,7 +491,7 @@ export default function PortfolioBuilder({
                   : editMode
                   ? "Update Portfolio"
                   : "Create Portfolio"}
-              </Button>
+              </LoadingButton>
             </div>
           </CardFooter>
         </Card>

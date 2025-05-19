@@ -2,7 +2,7 @@ import { betterFetch } from "@better-fetch/fetch";
 import { NextResponse, type NextRequest } from "next/server";
 import { Session } from "../auth";
 
-const authRoutes = ["/", "/sign-in", "/sign-up"];
+const authRoutes = ["/sign-in", "/sign-up"]; // Removed / from auth routes since it should be public
 const passwordRoutes = ["/reset-password", "/forgot-password"];
 const adminRoutes = ["/admin"];
 
@@ -48,5 +48,7 @@ export default async function authMiddleware(request: NextRequest) {
 
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$|portfolio).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|.*\\.png$|portfolio|privacy-policy).*)',
+  ],
 };

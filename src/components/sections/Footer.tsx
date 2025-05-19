@@ -23,7 +23,7 @@ export default function FooterSection({
   name = "Portflection",
   copyright = "© 2025 Portflection. All rights reserved.",
   policies = [
-    { text: "Privacy Policy", href: "/privacy" },
+    { text: "Privacy Policy", href: "/privacy-policy" },
     { text: "Terms of Service", href: "/terms" },
   ],
   showModeToggle = true,
@@ -61,7 +61,7 @@ export default function FooterSection({
             {/* Social Media Icons */}
             <div className="flex gap-3">
               <a
-                href="https://twitter.com"
+                href="https://x.com/tanmay_P_"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:scale-110 transition-transform"
@@ -81,7 +81,7 @@ export default function FooterSection({
                 />
               </a>
               <a
-                href="https://github.com"
+                href="https://github.com/datanok"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:scale-110 transition-transform"

@@ -16,45 +16,45 @@ const FAQ = () => {
     {
       question: "What is Portflection?",
       answer:
-        "Portflection is an easy-to-use portfolio builder that helps you create and showcase your work online effortlessly.",
+        "Portflection is an easy-to-use portfolio builder that helps professionals create and showcase their work using modern, customizable templates tailored for developers, designers, content creators, and business consultants.",
     },
     {
-      question: "Do I need coding skills to use Portflection?",
+      question: "What types of portfolios can I create?",
       answer:
-        "No! Portflection is designed for everyone. You can create a stunning portfolio without any coding knowledge.",
+        "You can easily build portfolios for developers, designers, content creators, and business consultants — each with ready-to-use layouts and features designed specifically for your profession.",
     },
     {
-      question: "How do I create my portfolio?",
+      question: "How customizable is my portfolio?",
       answer:
-        "Simply sign up, fill out a form, select a template, and generate your portfolio in one click.",
+        "Portflection makes customization simple. Choose your colors, fonts, and layout options with an intuitive editor and see your changes in real time—no coding needed.",
     },
     {
-      question: "Is Portflection free to use?",
+      question: "What features are included in my portfolio?",
       answer:
-        "Yes! We offer a free plan with core features. Premium templates and advanced customization may require an upgrade.",
+        "With just a few clicks, you can add projects, skills, education, certifications, testimonials, and more. Business portfolios support detailed case studies with impact metrics.",
     },
     {
-      question: "Can I track analytics for my portfolio?",
+      question: "Can I track my portfolio's performance?",
       answer:
-        "Yes! Your dashboard provides insights into portfolio views, engagement, and other key metrics.",
+        "Yes! Our user-friendly dashboard makes it easy to view analytics such as portfolio views, engagement metrics, and track your professional growth over time.",
     },
     {
-      question: "Is my portfolio mobile-friendly?",
+      question: "Is my portfolio responsive?",
       answer:
-        "Absolutely! All templates are responsive and optimized for both desktop and mobile devices.",
+        "Absolutely. Every template is fully responsive and automatically optimized for mobile, tablet, and desktop—no extra setup required.",
     },
     {
       question: "How secure is my data?",
       answer:
-        "We take security seriously. Your data is encrypted, and you have full control over privacy settings.",
+        "Your data is encrypted and stored securely. You have full control over privacy settings and can easily manage who sees your portfolio.",
     },
     {
       question: "Where can I get support?",
       answer:
-        "You can reach out via support@portflection.com, join our Discord community, or check our help center.",
+        "You can reach us at support@portflection.com, explore our Help Center, or join our friendly community for quick help and inspiration.",
     },
   ];
-
+  
   return (
     <section className="max-w-7xl mx-auto py-16 text-center">
       <h2 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
