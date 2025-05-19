@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Github, ExternalLink, ChevronDown, ChevronUp, Sparkles, Code } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import SectionHeader from "./SectionHeader";
+import Image from "next/image";
 
 // Pattern component for image fallback
 const PatternFallback = ({ theme }) => {
@@ -77,7 +78,7 @@ const ProjectCard = ({
       {/* Image Section */}
       <div className="relative h-48 sm:h-56 w-full overflow-hidden">
         {image && !imageError ? (
-          <img
+          <Image
             src={image}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

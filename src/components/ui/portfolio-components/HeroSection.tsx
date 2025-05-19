@@ -6,6 +6,7 @@ import { HiSparkles } from 'react-icons/hi';
 import SocialIcon from './SocialIcons';
 import { Theme } from '@/app/types/portfolio';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 const FloatingParticles = dynamic(() => import('./FloatingParticles'), { ssr: false });
 
 interface HeroSectionProps {
@@ -310,7 +311,7 @@ const FuturisticHeroSection = ({
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-transparent to-black opacity-20" />
                   
                   {profileImage ? (
-                    <img
+                    <Image
                       src={profileImage}
                       alt={name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
