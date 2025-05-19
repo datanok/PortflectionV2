@@ -301,7 +301,7 @@ const ProjectSection = ({ portfolioItems, theme }) => {
       }}
       id="projects"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 ">
         <SectionHeader
           title="Projects"
           subtitle="Check out some of my recent work"

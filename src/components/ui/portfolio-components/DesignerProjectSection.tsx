@@ -189,7 +189,7 @@ const DesignerProjectSection = ({ portfolioItems, theme }) => {
     <section className="py-16" style={{
       backgroundColor: theme?.muted,
     }}>
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4 sm:px-6">
         <SectionHeader 
         title="Projects"
           subtitle="Crafting meaningful digital experiences through thoughtful design" 
