@@ -78,7 +78,7 @@ const ProjectCard = ({
       {/* Image Section */}
       <div className="relative h-48 sm:h-56 w-full overflow-hidden">
         {image && !imageError ? (
-          <Image
+          <img
             src={image}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -298,7 +298,6 @@ const ProjectSection = ({ portfolioItems, theme }) => {
     <section
       style={{
         backgroundColor: theme?.muted || '#e6fffa',
-        padding: '2rem 1rem'
       }}
       id="projects"
     >

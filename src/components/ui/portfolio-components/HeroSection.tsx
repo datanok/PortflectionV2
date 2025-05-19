@@ -42,6 +42,11 @@ const FuturisticHeroSection = ({
   theme,
 }: HeroSectionProps) => {
   const [scrolled, setScrolled] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const handleError = () => {
+    setImageError(true); // Set the error state when image fails to load
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -310,22 +315,19 @@ const FuturisticHeroSection = ({
                 >
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-transparent to-black opacity-20" />
                   
-                  {profileImage ? (
-                    <Image
+                  {imageError || !profileImage ? (
+                    <div className="w-full h-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-4xl font-bold text-light">
+                      {name.charAt(0).toUpperCase()} {/* Show the first letter of the name */}
+                    </div>
+                  ) : (
+                    <img
                       src={profileImage}
                       alt={name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      onError={(e) => {
-                        const img = e.target as HTMLImageElement;
-                        img.src = '/default-avatar.png';
-                      }}
+                      onError={handleError} // Call the handleError function when the image fails to load
                     />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-4xl font-bold text-light">
-                      {name.charAt(0)}
-                    </div>
                   )}
-                  
+
                   {/* Shine effect on hover */}
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-700"

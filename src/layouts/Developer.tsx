@@ -4,232 +4,387 @@ import dynamic from "next/dynamic";
 import { usePortfolioData } from "@/components/PortfolioProvider";
 import { FONT_MAP } from "@/lib/fontMap";
 import { getDefaultTheme } from "@/types/theme";
-import { useCallback, useMemo } from "react";
-import { memo } from "react";
+import { useCallback, useMemo, memo, useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CertificationsSection } from "@/components/ui/portfolio-components/CertificationsSection";
 import { publishPortfolioAction } from "@/app/dashboard/portfolios/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+// Create skeleton loaders
+const TimelineSkeleton = () => (
+  <div className="space-y-4 w-full">
+    <Skeleton className="h-12 w-full" />
+    <Skeleton className="h-40 w-full" />
+    <Skeleton className="h-40 w-full" />
+  </div>
+);
 
+const EducationSkeleton = () => (
+  <div className="space-y-4 w-full">
+    <Skeleton className="h-12 w-3/4" />
+    <Skeleton className="h-32 w-full" />
+  </div>
+);
 
+const ProjectSectionSkeleton = () => (
+  <div className="grid gap-4">
+    <Skeleton className="h-12 w-3/4" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Skeleton className="h-64 w-full" />
+      <Skeleton className="h-64 w-full" />
+    </div>
+  </div>
+);
 
+const HeroSkeleton = () => (
+  <div className="space-y-4 w-full">
+    <Skeleton className="h-16 w-1/2" />
+    <Skeleton className="h-8 w-3/4" />
+    <Skeleton className="h-12 w-1/3" />
+  </div>
+);
+
+const SkillsSkeleton = () => (
+  <div className="space-y-4 w-full">
+    <Skeleton className="h-12 w-1/3" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+    </div>
+  </div>
+);
+
+const NavbarSkeleton = () => (
+  <div className="flex justify-between items-center w-full p-4">
+    <Skeleton className="h-8 w-32" />
+    <div className="flex space-x-4">
+      <Skeleton className="h-6 w-16" />
+      <Skeleton className="h-6 w-16" /> 
+      <Skeleton className="h-6 w-16" />
+    </div>
+  </div>
+);
+
+const SocialIconSkeleton = () => (
+  <div className="flex space-x-2">
+    <Skeleton className="h-8 w-8 rounded-full" />
+    <Skeleton className="h-8 w-8 rounded-full" />
+    <Skeleton className="h-8 w-8 rounded-full" />
+  </div>
+);
+
+// Dynamic imports with memoized loading components
 const ExperienceTimeline = dynamic(
   () => import("@/components/ui/portfolio-components/Experience-card").then(mod => ({ 
     default: mod.ExperienceTimeline 
   })),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="space-y-4 w-full">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-40 w-full" />
-        <Skeleton className="h-40 w-full" />
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <TimelineSkeleton /> }
 );
 
 const EducationSection = dynamic(
   () => import("@/components/ui/portfolio-components/Education-section"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="space-y-4 w-full">
-        <Skeleton className="h-12 w-3/4" />
-        <Skeleton className="h-32 w-full" />
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <EducationSkeleton /> }
 );
 
 const DeveloperProjectSection = dynamic(
   () => import("@/components/ui/portfolio-components/DeveloperProjectSection"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="grid gap-4">
-        <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <ProjectSectionSkeleton /> }
 );
 
 const DesignerProjectSection = dynamic(
   () => import("@/components/ui/portfolio-components/DesignerProjectSection"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="grid gap-4">
-        <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <ProjectSectionSkeleton /> }
 );
 
 const BusinessProjectSection = dynamic(
   () => import("@/components/ui/portfolio-components/BusinessProjectSection"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="grid gap-4">
-        <Skeleton className="h-12 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-64 w-full" />
-        </div>
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <ProjectSectionSkeleton /> }
 );
 
 const HeroSection = dynamic(
   () => import("@/components/ui/portfolio-components/HeroSection"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="space-y-4 w-full">
-        <Skeleton className="h-16 w-1/2" />
-        <Skeleton className="h-8 w-3/4" />
-        <Skeleton className="h-12 w-1/3" />
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <HeroSkeleton /> }
 );
 
 const SkillsSection = dynamic(
   () => import("@/components/ui/portfolio-components/SkillsSection"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="space-y-4 w-full">
-        <Skeleton className="h-12 w-1/3" />
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-          <Skeleton className="h-16 w-full" />
-        </div>
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <SkillsSkeleton /> }
 );
 
 const PortfolioNavbar = dynamic(
   () => import("@/components/ui/portfolio-components/PortfolioNavbar").then(mod => ({
     default: mod.PortfolioNavbar
   })),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="flex justify-between items-center w-full p-4">
-        <Skeleton className="h-8 w-32" />
-        <div className="flex space-x-4">
-          <Skeleton className="h-6 w-16" />
-          <Skeleton className="h-6 w-16" /> 
-          <Skeleton className="h-6 w-16" />
-        </div>
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <NavbarSkeleton /> }
 );
 
 const SocialIcon = dynamic(
   () => import("@/components/ui/portfolio-components/SocialIcons"),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="flex space-x-2">
-        <Skeleton className="h-8 w-8 rounded-full" />
-        <Skeleton className="h-8 w-8 rounded-full" />
-        <Skeleton className="h-8 w-8 rounded-full" />
-      </div>
-    )
-  }
+  { ssr: false, loading: () => <SocialIconSkeleton /> }
 );
 
-
-
+// Memoize components that don't need to re-render frequently
 const MemoizedSocialIcon = memo(SocialIcon);
+MemoizedSocialIcon.displayName = 'MemoizedSocialIcon';
 
-export default function Developer({isPreview}: {isPreview: boolean}) {
+const MemoizedHeroSection = memo(HeroSection);
+MemoizedHeroSection.displayName = 'MemoizedHeroSection';
+
+const MemoizedSkillsSection = memo(SkillsSection);
+MemoizedSkillsSection.displayName = 'MemoizedSkillsSection';
+
+const MemoizedExperienceTimeline = memo(ExperienceTimeline);
+MemoizedExperienceTimeline.displayName = 'MemoizedExperienceTimeline';
+
+const MemoizedEducationSection = memo(EducationSection);
+MemoizedEducationSection.displayName = 'MemoizedEducationSection';
+
+const MemoizedCertificationsSection = memo(CertificationsSection);
+MemoizedCertificationsSection.displayName = 'MemoizedCertificationsSection';
+
+const MemoizedPortfolioNavbar = memo(PortfolioNavbar);
+MemoizedPortfolioNavbar.displayName = 'MemoizedPortfolioNavbar';
+
+// Memoize the project section components
+const MemoizedDeveloperProjectSection = memo(DeveloperProjectSection);
+MemoizedDeveloperProjectSection.displayName = 'MemoizedDeveloperProjectSection';
+
+const MemoizedDesignerProjectSection = memo(DesignerProjectSection);
+MemoizedDesignerProjectSection.displayName = 'MemoizedDesignerProjectSection';
+
+const MemoizedBusinessProjectSection = memo(BusinessProjectSection);
+MemoizedBusinessProjectSection.displayName = 'MemoizedBusinessProjectSection';
+
+// Publish button component - with explicit error handling
+const PublishButton = memo(({ id, handlePublish }) => {
+  const onClick = useCallback(() => {
+    if (!id) {
+      toast.error("Portfolio ID is missing");
+      return;
+    }
+    handlePublish(id);
+  }, [id, handlePublish]);
+
+  return (
+    <button
+      onClick={onClick}
+      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+      Publish
+    </button>
+  );
+});
+PublishButton.displayName = 'PublishButton';
+
+// Share button component - with explicit error handling
+const ShareButton = memo(({ id, theme }) => {
+  const onClick = useCallback(() => {
+    if (!id) {
+      toast.error("Portfolio ID is missing");
+      return;
+    }
+    
+    try {
+      console.log("hi")
+      const shareUrl = `${window.location.origin}/portfolio/${id}`;
+      navigator.clipboard.writeText(shareUrl);
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+      toast.error("Failed to copy link");
+    }
+  }, [id]);
+
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        backgroundColor: theme?.primary || "#4F46E5",
+        color: theme?.light || "#FFFFFF",
+        padding: "8px 16px",
+        borderRadius: "25px",
+        border: `1px solid ${theme?.primary || "#4F46E5"}`,
+        fontFamily: theme?.fontBody || "sans-serif",
+      }}
+    >
+      Share
+    </button>
+  );
+});
+ShareButton.displayName = 'ShareButton';
+
+// Footer component with displayName
+const Footer = memo(({ name, socials, theme }) => (
+  <footer
+    className="py-10 px-6 border-t"
+    style={{
+      backgroundColor: theme?.dark || "#111827",
+      color: theme?.light || "#f9fafb",
+      fontFamily: theme?.fontBody || "Lato",
+      borderColor: theme?.accent || "#374151"
+    }}
+  >
+    <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Left: Branding */}
+      <div className="space-y-2 text-center md:text-left">
+        <h2 className="text-xl font-semibold tracking-tight">Portflection</h2>
+        <p className="text-sm opacity-70">
+          Crafted with purpose. Built to showcase you.
+        </p>
+        <p className="text-xs opacity-50 mt-1">
+          © {new Date().getFullYear()} by {name || 'Portfolio Owner'}
+        </p>
+      </div>
+
+      {/* Center: Socials */}
+      {socials && Object.keys(socials).length > 0 && (
+        <div className="flex flex-col items-center md:items-start">
+          <h3 className="text-sm font-medium mb-2">Connect</h3>
+          <div className="flex flex-wrap gap-3">
+            {Object.entries(socials).map(([platform, url]) => (
+              <MemoizedSocialIcon key={platform} type={platform} url={url} theme={theme} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Right: CTA or Credit */}
+      <div className="text-center md:text-right space-y-2">
+        <p className="text-sm opacity-70">
+          Built with <span style={{ color: theme?.primary || "#4F46E5" }}>Portflection</span>
+        </p>
+        <a
+          href="https://portflection.com"
+          className="inline-block text-xs underline hover:opacity-80 transition-opacity"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Visit Portflection →
+        </a>
+      </div>
+    </div>
+  </footer>
+));
+Footer.displayName = 'Footer';
+
+const Developer = ({ isPreview }) => {
+  // Hook calls must be in the exact same order on every render
   const portfolio = usePortfolioData();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  
+  // Wait until component is mounted to render
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  // Memoize all values that should be stable between renders
   const {
-    name,
-    title,
-    about,
-    profileImage,
-    location,
-    email,
-    socials,
-    theme: portfolioTheme,
-    portfolioType,
-  } = portfolio;
-  
-  type ExtraData = {
-  experience: any[],
-  education: any[],
-  skills: any[],
-  certifications: any[],
-  portfolioItems: any[],
-  };    
- const githubLink = 'githubLink' in portfolio ? portfolio.githubLink : '';
-  const extraData = 'extraData' in portfolio ? portfolio.extraData : {};
-  
-  
-  const theme = useMemo(() => {
-    return {
-      ...getDefaultTheme(),
-      ...portfolioTheme
+    id = '',
+    name = '',
+    title = '',
+    about = '',
+    profileImage = '',
+    location = '',
+    email = '',
+    socials = {},
+    theme: portfolioTheme = {},
+    portfolioType = 'developer',
+    githubLink = '',
+    extraData = {}
+  } = useMemo(() => {
+    if (!portfolio) return {};
+    
+    // Safely extract portfolio data with fallbacks
+    const baseData = {
+      id: portfolio.id || '',
+      name: portfolio.name || '',
+      title: portfolio.title || '',
+      about: portfolio.about || '',
+      profileImage: portfolio.profileImage || '',
+      location: portfolio.location || '',
+      email: portfolio.email || '',
+      socials: portfolio.socials || {},
+      theme: portfolio.theme || {},
+      portfolioType: portfolio.portfolioType || 'developer',
     };
-  }, [portfolioTheme]);
-console.log(portfolio);
+    
+    // Handle optional properties
+    const githubLink = 'githubLink' in portfolio ? portfolio.githubLink : '';
+    const extraData = 'extraData' in portfolio ? portfolio.extraData : {};
+    
+    return {
+      ...baseData,
+      githubLink,
+      extraData
+    };
+  }, [portfolio]);
+
+  // Extract extra data with default values - must be a separate memo to avoid conditional hooks
   const {
     experience = [],
     education = [],
     skills = [],
     portfolioItems = [],
     certifications = [],
-  } = extraData as ExtraData;
-  const memoizedProjectSectionMap = useMemo(() => ({
-    developer: DeveloperProjectSection,
-    designer: DesignerProjectSection,
-    businessConsulting: BusinessProjectSection,
+  } = useMemo(() => extraData || {}, [extraData]);
+
+  // Memoize the theme to prevent unnecessary recalculations
+  const theme = useMemo(() => ({
+    ...getDefaultTheme(),
+    ...portfolioTheme
+  }), [portfolioTheme]);
+
+  // Memoize project section component mapping - with stable references
+  const projectSectionMap = useMemo(() => ({
+    developer: MemoizedDeveloperProjectSection,
+    designer: MemoizedDesignerProjectSection,
+    businessConsulting: MemoizedBusinessProjectSection,
   }), []);
-  const getProjectSection = useCallback(() => {
-    return memoizedProjectSectionMap[portfolioType] || DeveloperProjectSection;
-  }, [portfolioType, memoizedProjectSectionMap]);
 
-  const ProjectSectionComponent = getProjectSection();
+  // Memoize the component selection function
+  const ProjectSectionComponent = useMemo(() => {
+    const defaultComponent = MemoizedDeveloperProjectSection;
+    if (!portfolioType) return defaultComponent;
+    return projectSectionMap[portfolioType] || defaultComponent;
+  }, [portfolioType, projectSectionMap]);
 
+  // Safely memoize fonts to prevent recalculation
   const headingFont = useMemo(() => {
-    return FONT_MAP[portfolio.theme.fontHeading] || FONT_MAP["Montserrat"];
-  }, [portfolio.theme.fontHeading]);
+    const fontName = portfolioTheme?.fontHeading || "Montserrat";
+    return FONT_MAP[fontName] || FONT_MAP["Montserrat"];
+  }, [portfolioTheme?.fontHeading]);
 
   const bodyFont = useMemo(() => {
-    return FONT_MAP[portfolio.theme.fontBody] || FONT_MAP["Lato"];
-  }, [portfolio.theme.fontBody]);
+    const fontName = portfolioTheme?.fontBody || "Lato";
+    return FONT_MAP[fontName] || FONT_MAP["Lato"];
+  }, [portfolioTheme?.fontBody]);
 
-  const handlePublish = async (portfolioId: string) => {
+  // Memoize the publish handler with error handling
+  const handlePublish = useCallback(async (portfolioId) => {
+    if (!portfolioId) {
+      toast.error("Portfolio ID is missing");
+      return;
+    }
+    
     try {
-      await publishPortfolioAction(portfolioId); // you should have portfolioId
+      console.log("Publishing portfolio with ID:", portfolioId);
+      await publishPortfolioAction(portfolioId);
       router.push(`/portfolio/${portfolioId}`);
     } catch (err) {
-      console.error(err);
-      alert("Failed to publish portfolio");
+      console.error("Failed to publish portfolio:", err);
+      toast.error("Failed to publish portfolio");
     }
-  };
+  }, [router]);
+
+  // Bail early if not mounted yet
+  if (!mounted) {
+    return null; // Return nothing during SSR to prevent hydration mismatch
+  }
+
   return (
     <div
       style={{
@@ -237,142 +392,78 @@ console.log(portfolio);
         color: theme?.body || "#1a202c",
         minHeight: "100vh",
       }}
-      className={`${bodyFont.variable} ${headingFont.variable} scroll-smooth`}
+      className={`${bodyFont?.variable || ''} ${headingFont?.variable || ''} scroll-smooth`}
     >
+      {/* Action Button */}
+      <div className="fixed top-4 right-4 z-50">
+        {isPreview ? (
+          <PublishButton id={id} handlePublish={handlePublish} />
+        ) : (
+          <ShareButton id={id} theme={theme} />
+        )}
+      </div>
+
       {/* Navbar */}
-      {isPreview && (
-  <div className="fixed top-4 right-4 z-50">
-    <button
-      onClick={() => handlePublish(portfolio.id)}
-      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-    >
-      Publish
-    </button>
-  </div>
-)}
-{!isPreview && (
-  <div className="fixed top-4 right-4 z-50">
-    <button
-      onClick={() => {
-        const shareUrl = `${window.location.origin}/portfolio/${portfolio.id}`;
-        navigator.clipboard.writeText(shareUrl);
-        toast.success("Link copied to clipboard!");
-      }}
-      style={{
-        backgroundColor: theme?.primary,
-        color: theme?.light,
-        padding: "8px 16px",
-        borderRadius: "25px",
-        border: `1px solid ${theme?.primary}`,
-        fontFamily: theme?.fontBody,
-      }}
-    >
-      Share
-    </button>
-  </div>
-)}
-
-
-      <PortfolioNavbar theme={theme} name={name} />
+      <MemoizedPortfolioNavbar theme={theme} name={name || ''} />
 
       {/* Hero Section */}
       <section id="hero" className="scroll-mt-16">
-        <HeroSection
-          name={name}
-          title={title}
-          about={about}
-          email={email}
-          githubLink={githubLink}
-          location={location}
-          profileImage={profileImage}
-          socials={socials}
+        <MemoizedHeroSection
+          name={name || ''}
+          title={title || ''}
+          about={about || ''}
+          email={email || ''}
+          githubLink={githubLink || ''}
+          location={location || ''}
+          profileImage={profileImage || ''}
+          socials={socials || {}}
           theme={theme}
-          portfolioType={portfolioType}
+          portfolioType={portfolioType || 'developer'}
         />
       </section>
 
       {/* Projects Section */}
-      <section id="portfolioItems" className="container mx-auto scroll-mt-16">
-        <ProjectSectionComponent portfolioItems={portfolioItems} theme={theme} />
+      <section id="portfolioItems" className="scroll-mt-16">
+        <ProjectSectionComponent portfolioItems={portfolioItems || []} theme={theme} />
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="container mx-auto scroll-mt-16">
-        <SkillsSection skills={skills} theme={theme} />
+      <section id="skills" className="scroll-mt-16">
+        <MemoizedSkillsSection skills={skills || []} theme={theme} />
       </section>
 
       {/* Experience Section */}
       <section
         id="experience"
-        className="container mx-auto scroll-mt-16"
+        className="scroll-mt-16"
         style={{ backgroundColor: theme?.muted || "#edf2f7" }}
       >
-        <ExperienceTimeline theme={theme} experience={experience} />
+        <MemoizedExperienceTimeline theme={theme} experience={experience || []} />
       </section>
 
       {/* Education Section */}
-      <section id="education" className="container mx-auto scroll-mt-16">
-        <EducationSection education={education} theme={theme} />
+      <section id="education" className="scroll-mt-16">
+        <MemoizedEducationSection education={education || []} theme={theme} />
       </section>
 
       {/* Certifications Section */}
-      {certifications.length > 0 && (
-      <section id="certifications" className="container mx-auto scroll-mt-16">
-        <CertificationsSection certifications={certifications} theme={theme} />
-      </section>
+      {certifications && certifications.length > 0 && (
+        <section id="certifications" className="scroll-mt-16">
+          <MemoizedCertificationsSection certifications={certifications} theme={theme} />
+        </section>
       )}
 
       {/* Footer */}
-      <footer
-  className="py-10 px-6 border-t"
-  style={{
-    backgroundColor: theme?.dark || "#111827",
-    color: theme?.light || "#f9fafb",
-    fontFamily: theme?.fontBody || "Lato",
-    borderColor: theme?.accent || "#374151"
-  }}
->
-  <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-    {/* Left: Branding */}
-    <div className="space-y-2 text-center md:text-left">
-      <h2 className="text-xl font-semibold tracking-tight">Portflection</h2>
-      <p className="text-sm opacity-70">
-        Crafted with purpose. Built to showcase you.
-      </p>
-      <p className="text-xs opacity-50 mt-1">
-        © {new Date().getFullYear()} by {name}
-      </p>
-    </div>
-
-    {/* Center: Socials */}
-    {socials && Object.keys(socials).length > 0 && (
-      <div className="flex flex-col items-center md:items-start">
-        <h3 className="text-sm font-medium mb-2">Connect</h3>
-        <div className="flex flex-wrap gap-3">
-          {Object.entries(socials).map(([platform, url]) => (
-            <MemoizedSocialIcon key={platform} type={platform} url={url} theme={theme} />
-          ))}
-        </div>
-      </div>
-    )}
-
-    {/* Right: CTA or Credit */}
-    <div className="text-center md:text-right space-y-2">
-      <p className="text-sm opacity-70">
-        Built with <span style={{ color: theme?.primary }}>Portflection</span>
-      </p>
-      <a
-        href="https://portflection.com"
-        className="inline-block text-xs underline hover:opacity-80 transition-opacity"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Visit Portflection →
-      </a>
-    </div>
-  </div>
-</footer>
-
+      <Footer name={name || ''} socials={socials || {}} theme={theme} />
     </div>
   );
-}
+};
+
+// Add displayName to the main Developer component
+Developer.displayName = 'Developer';
+
+// Fix debugging issues with memo components
+const MemoizedDeveloper = memo(Developer);
+MemoizedDeveloper.displayName = 'MemoizedDeveloper';
+
+export default MemoizedDeveloper;

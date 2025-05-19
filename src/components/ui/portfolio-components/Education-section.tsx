@@ -105,7 +105,7 @@ export default function EducationSection({ education, theme }: EducationSectionP
                         }}
                       >
                         {edu.logo ? (
-                          <Image 
+                          <img 
                             src={edu.logo} 
                             alt={`${edu.institution} logo`} 
                             className="w-8 h-8 object-contain" 

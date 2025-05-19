@@ -5,7 +5,7 @@ const SectionHeader = ({ title, subtitle, theme }) => (
   <div className="mb-10">
     <h2 className="text-3xl font-bold tracking-tight mb-2" style={{ 
       fontFamily: theme.fontHeading, 
-      color: theme.dark 
+      color: theme.primary 
     }}>
       {title}
     </h2>
@@ -189,7 +189,7 @@ const DesignerProjectSection = ({ portfolioItems, theme }) => {
     <section className="py-16" style={{
       backgroundColor: theme?.muted,
     }}>
-      <div className="container mx-auto px-8">
+      <div className="container mx-auto">
         <SectionHeader 
         title="Projects"
           subtitle="Crafting meaningful digital experiences through thoughtful design" 

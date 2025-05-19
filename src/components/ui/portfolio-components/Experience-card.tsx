@@ -86,7 +86,7 @@ export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProp
                   }}
                 >
                   {job.logo ? (
-                    <Image 
+                    <img
                       src={job.logo} 
                       alt={`${job.company} logo`} 
                       className="w-6 h-6 object-contain rounded-sm" 
@@ -111,7 +111,7 @@ export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProp
                       }}
                     >
                       {job.logo ? (
-                        <Image 
+                        <img
                           src={job.logo} 
                           alt={`${job.company} logo`} 
                           className="w-6 h-6 object-contain rounded-sm" 
