@@ -25,14 +25,15 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { CustomCalendar } from "../comp-497";
 
 interface CareerTabProps {
   form: UseFormReturn<PortfolioFormData>;
   trigger: UseFormTrigger<PortfolioFormData>;
 }
 
-const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
-  const { control} = form;
+const CareerTab: React.FC<CareerTabProps> = ({ form, trigger }) => {
+  const { control } = form;
 
   const {
     fields: experienceFields,
@@ -55,12 +56,12 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
 
   const handleAddWorkExperience = async () => {
     const isValid = await trigger("experience"); // Validate all experience entries
-    
+
     if (!isValid) {
       toast.error("Please fill in all required fields correctly");
       return;
     }
-    
+
     addExperience({
       company: "",
       position: "",
@@ -75,14 +76,14 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
   const handleAddEducation = async () => {
     // Validate entire form
     const isValid = await trigger("education");
-    
+
     if (!isValid) {
       toast.error("Please fill in all required fields correctly");
       return;
     }
-    
+
     // Additional check before adding
-   
+
     // Add a new education entry only if the last one is valid
     addEducation({
       institution: "",
@@ -159,8 +160,8 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                 )}
               />
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Start Date */}
               <FormField
                 control={control}
                 name={`experience.${index}.startDate`}
@@ -186,18 +187,12 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
+                      <PopoverContent className="w-auto min-w-[250px] p-0" align="start">
+                        <CustomCalendar
+                          selected={field.value ? new Date(field.value) : undefined}
                           onSelect={(date) =>
-                            field.onChange(
-                              date ? format(date, "yyyy-MM-dd") : ""
-                            )
+                            field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                           }
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -205,6 +200,8 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                   </FormItem>
                 )}
               />
+
+              {/* End Date */}
               {!form.watch(`experience.${index}.current`) && (
                 <FormField
                   control={control}
@@ -231,18 +228,12 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={
-                              field.value ? new Date(field.value) : undefined
-                            }
+                        <PopoverContent className="w-auto min-w-[250px] p-0" align="start">
+                          <CustomCalendar
+                            selected={field.value ? new Date(field.value) : undefined}
                             onSelect={(date) =>
-                              field.onChange(
-                                date ? format(date, "yyyy-MM-dd") : ""
-                              )
+                              field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                             }
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
@@ -252,6 +243,7 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                 />
               )}
             </div>
+
 
             <FormField
               control={control}
@@ -441,6 +433,7 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Start Date */}
               <FormField
                 control={control}
                 name={`education.${index}.startDate`}
@@ -466,18 +459,12 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
+                      <PopoverContent className="w-auto min-w-[250px] p-0" align="start">
+                        <CustomCalendar
+                          selected={field.value ? new Date(field.value) : undefined}
                           onSelect={(date) =>
-                            field.onChange(
-                              date ? format(date, "yyyy-MM-dd") : ""
-                            )
+                            field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                           }
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -486,6 +473,7 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                 )}
               />
 
+              {/* End Date */}
               {!form.watch(`education.${index}.current`) && (
                 <FormField
                   control={control}
@@ -512,18 +500,12 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={
-                              field.value ? new Date(field.value) : undefined
-                            }
+                        <PopoverContent className="w-auto min-w-[250px] p-0" align="start">
+                          <CustomCalendar
+                            selected={field.value ? new Date(field.value) : undefined}
                             onSelect={(date) =>
-                              field.onChange(
-                                date ? format(date, "yyyy-MM-dd") : ""
-                              )
+                              field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                             }
-                            initialFocus
                           />
                         </PopoverContent>
                       </Popover>
@@ -533,6 +515,7 @@ const CareerTab: React.FC<CareerTabProps> = ({ form,trigger }) => {
                 />
               )}
             </div>
+
 
             <FormField
               control={control}

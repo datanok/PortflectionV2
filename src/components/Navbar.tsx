@@ -34,10 +34,10 @@ export default function Navbar() {
 
   const name = "Portflection";
   const homeUrl = "/";
-  const mobileLinks = [
-    { text: "Templates", href: "/templates" },
-    { text: "Pricing", href: "/pricing" },
-    { text: "Dashboard", href: "/dashboard" },
+  const navLinks = [
+    // { text: "Templates", href: "/templates" },
+    // { text: "Pricing", href: "/pricing" },
+    { text: "Dashboard", href: "/dashboard", authRequired: true },
   ];
 
   const Logo = () => (
@@ -63,28 +63,33 @@ export default function Navbar() {
   );
 
   return (
-    <header className="sticky top-0 z-50 -mb-4 px-4 pb-4">
-      <div className="fade-bottom bg-background/15 absolute left-0 h-24 w-full backdrop-blur-lg"></div>
-      <div className="max-w-container relative mx-auto">
-        <NavbarComponent>
+    <header className="sticky top-0 z-50 w-full px-4 pb-4 -mb-4">
+      <div className="absolute left-0 w-full h-24 bg-background/15 backdrop-blur-lg"></div>
+      <div className="relative mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
+        <NavbarComponent className="py-2">
           <NavbarLeft>
             <Logo />
           </NavbarLeft>
-          <NavbarRight>
-            <div className="hidden md:block">
-              <div className="hidden md:flex items-center space-x-6">
-                {isHydrated && data && (
+          <NavbarRight className="flex items-center space-x-2 sm:space-x-4">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-6">
+              {navLinks.map((link, index) => (
+                (!link.authRequired || (isHydrated && data)) && (
                   <Link
-                    href="/dashboard"
-                    className="hover:text-red-500 dark:hover:text-pink-400"
+                    key={index}
+                    href={link.href}
+                    className="text-sm font-medium transition-colors hover:text-primary"
                   >
-                    Dashboard
+                    {link.text}
                   </Link>
-                )}
-                {isHydrated && <AuthButtons />}
-              </div>
+                )
+              ))}
+              {isHydrated && <AuthButtons />}
             </div>
+
             <ThemeToggle />
+
+            {/* Mobile Navigation */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button
@@ -101,34 +106,59 @@ export default function Navbar() {
                   <span className="sr-only">Toggle navigation menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right">
-                <SheetTitle>Menu</SheetTitle>
-                <nav className="grid gap-6 text-lg font-medium">
+
+              <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm px-6 py-6 flex flex-col">
+                {/* Logo */}
+                <div className="mb-6">
                   <Link
                     href={homeUrl}
-                    className="flex items-center gap-2 text-xl font-bold"
+                    className="flex items-center gap-2 text-sm font-normal text-black dark:text-white"
                     onClick={() => setIsOpen(false)}
                   >
-                    <span>{name}</span>
-                  </Link>
-                  {mobileLinks.map((link, index) => (
-                    <Link
-                      key={index}
-                      href={link.href}
-                      className="text-muted-foreground hover:text-foreground"
-                      onClick={() => setIsOpen(false)}
+                    <Image
+                      src="/assets/logo.png"
+                      alt="Portflection Logo"
+                      width={24}
+                      height={24}
+                      className="object-contain"
+                    />
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="font-semibold leading-none"
                     >
-                      {link.text}
-                    </Link>
+                      {name}
+                    </motion.span>
+                  </Link>
+                </div>
+
+                {/* Sheet Title (Optional) */}
+                <SheetTitle className="text-lg">Menu</SheetTitle>
+
+                {/* Navigation */}
+                <nav className="mt-6 flex flex-col gap-4 text-base font-medium">
+                  {navLinks.map((link, index) => (
+                    (!link.authRequired || (isHydrated && data)) && (
+                      <Link
+                        key={index}
+                        href={link.href}
+                        className="text-muted-foreground hover:text-foreground transition-colors py-2"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {link.text}
+                      </Link>
+                    )
                   ))}
+
                   {isHydrated && (
-                    <div className="pt-4">
+                    <div className="pt-4 mt-2 border-t">
                       <AuthButtons />
                     </div>
                   )}
                 </nav>
               </SheetContent>
             </Sheet>
+
           </NavbarRight>
         </NavbarComponent>
       </div>
