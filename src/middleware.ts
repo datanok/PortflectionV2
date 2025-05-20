@@ -2,15 +2,15 @@ import { betterFetch } from "@better-fetch/fetch";
 import { NextResponse, type NextRequest } from "next/server";
 import { Session } from "../auth";
 
-const authRoutes = ["/sign-in", "/sign-up"]; // Removed / from auth routes since it should be public
+const authRoutes = ["/sign-in", "/sign-up"];
 const passwordRoutes = ["/reset-password", "/forgot-password"];
 const adminRoutes = ["/admin"];
 
 export default async function authMiddleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
 
-  // ✅ Exclude /portfolio routes early
-  if (pathName.startsWith("/portfolio")) {
+  // ✅ Allow public access to portfolio routes and root
+  if (pathName === "/" || pathName.startsWith("/portfolio")) {
     return NextResponse.next();
   }
 
@@ -45,7 +45,6 @@ export default async function authMiddleware(request: NextRequest) {
 
   return NextResponse.next();
 }
-
 
 export const config = {
   matcher: [
