@@ -1,0 +1,24 @@
+# https://www.robotstxt.org/robotstxt.html
+
+# Global rules for all crawlers
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /dashboard/
+
+# Crawl-delay: 10  # Uncomment and adjust if needed to limit crawl rate
+
+# Host directive (not all crawlers support this)
+Host: https://www.portflection.com
+
+# Sitemap location
+Sitemap: https://www.portflection.com/sitemap.xml
+
+# Common web crawlers with specific rules (uncomment and modify as needed)
+# User-agent: Googlebot
+# Allow: /*.js
+# Allow: /*.css
+
+# User-agent: Bingbot
+# Crawl-delay: 10
