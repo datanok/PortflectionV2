@@ -4,7 +4,7 @@ import { getCountryFromIP } from "@/lib/ip-utils"; // ← new import
 
 export async function POST(req: NextRequest) {
   try {
-    const { id, userId } = await req.json();
+    const { id, userId, utmSource } = await req.json();
     if (!id) {
       return NextResponse.json({ error: "Missing portfolio ID" }, { status: 400 });
     }
@@ -29,24 +29,26 @@ export async function POST(req: NextRequest) {
     let ip = req.headers.get("x-forwarded-for")?.split(",")[0] || null;
     if (ip && ip.startsWith("::ffff:")) ip = ip.substring(7); // IPv4-mapped IPv6
 
-    // Get country from IP using IP2Location
     const country = ip ? getCountryFromIP(ip) : null;
 
-    const referrer = req.headers.get("referer") || null;
+    const rawReferer = req.headers.get("referer") || null;
 
-    // Save the view
+    const refererDomain = rawReferer ? new URL(rawReferer).hostname : null;
+    const isOwnDomain = refererDomain === "portflection.com";
+
+    const referrerToStore = utmSource ?? (isOwnDomain ? null : rawReferer);
+
     await prisma.portfolioView.create({
       data: {
         portfolioId: id,
         ip,
         country,
-        referrer,
+        referrer:referrerToStore,
         userAgent,
         isBot,
       },
     });
 
-    // Increment the view count
     await prisma.portfolio.update({
       where: { id },
       data: { views: { increment: 1 } },

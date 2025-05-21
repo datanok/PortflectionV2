@@ -19,23 +19,26 @@ export default function PortfolioClientPage({
 
   useEffect(() => {
     if (isPending || !portfolioData.id) return;
-
-    // Only track views if NOT preview mode (you can skip counting views for preview)
+  
     if (!isPreview) {
       const cookieName = `portfolio_viewed_${portfolioData.id}`;
       if (!document.cookie.includes(cookieName)) {
         const userId = data?.user?.id;
-
+  
+        const urlParams = new URLSearchParams(window.location.search);
+        const utmSource = urlParams.get("utm_source");
+  
         fetch("/api/portfolio/view", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: portfolioData.id, userId }),
+          body: JSON.stringify({ id: portfolioData.id, userId, utmSource }),
         });
-
-        document.cookie = `${cookieName}=1; path=/; max-age=604800`; // 1 week
+  
+        document.cookie = `${cookieName}=1; path=/; max-age=600`; // 10 minutes
       }
     }
   }, [portfolioData.id, data?.user?.id, isPending, isPreview]);
+  
 
   // If preview and user session not loaded or user does not own portfolio, show message or redirect
   if (isPreview && !isPending && (!data || data.user.id !== portfolioData.userId)) {

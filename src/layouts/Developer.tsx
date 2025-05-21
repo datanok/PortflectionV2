@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { usePortfolioData } from "@/components/PortfolioProvider";
+import { PortfolioData, usePortfolioData } from "@/components/PortfolioProvider";
 import { FONT_MAP } from "@/lib/fontMap";
 import { getDefaultTheme } from "@/types/theme";
 import { useCallback, useMemo, memo, useState, useEffect } from "react";
@@ -19,6 +19,12 @@ const TimelineSkeleton = () => (
     <Skeleton className="h-40 w-full" />
   </div>
 );
+
+const ShareDialogSkeleton = () => (
+  <div className="space-y-4 w-full">
+    <Skeleton className="h-12 w-full" />
+  </div>
+) 
 
 const EducationSkeleton = () => (
   <div className="space-y-4 w-full">
@@ -126,6 +132,11 @@ const SocialIcon = dynamic(
   { ssr: false, loading: () => <SocialIconSkeleton /> }
 );
 
+const ShareDialog = dynamic(
+  () => import("@/components/ui/portfolio-components/ShareDialog"),
+  { ssr: false, loading: () => <ShareDialogSkeleton /> }
+);
+
 // Memoize components that don't need to re-render frequently
 const MemoizedSocialIcon = memo(SocialIcon);
 MemoizedSocialIcon.displayName = 'MemoizedSocialIcon';
@@ -188,7 +199,6 @@ const ShareButton = memo(({ id, theme }) => {
     }
     
     try {
-      console.log("hi")
       const shareUrl = `${window.location.origin}/portfolio/${id}`;
       navigator.clipboard.writeText(shareUrl);
       toast.success("Link copied to clipboard!");
@@ -217,7 +227,7 @@ const ShareButton = memo(({ id, theme }) => {
 ShareButton.displayName = 'ShareButton';
 
 // Footer component with displayName
-const Footer = memo(({ name, socials, theme }) => (
+const Footer = memo(({ name, socials, theme }: { name: string; socials: any; theme: any }) => (
   <footer
     className="py-10 px-6 border-t"
     style={{
@@ -272,7 +282,7 @@ Footer.displayName = 'Footer';
 
 const Developer = ({ isPreview }) => {
   // Hook calls must be in the exact same order on every render
-  const portfolio = usePortfolioData();
+  const portfolio: PortfolioData = usePortfolioData();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   
@@ -371,11 +381,9 @@ const Developer = ({ isPreview }) => {
     }
     
     try {
-      console.log("Publishing portfolio with ID:", portfolioId);
       await publishPortfolioAction(portfolioId);
       router.push(`/portfolio/${portfolioId}`);
     } catch (err) {
-      console.error("Failed to publish portfolio:", err);
       toast.error("Failed to publish portfolio");
     }
   }, [router]);
@@ -399,7 +407,7 @@ const Developer = ({ isPreview }) => {
         {isPreview ? (
           <PublishButton id={id} handlePublish={handlePublish} />
         ) : (
-          <ShareButton id={id} theme={theme} />
+          <ShareDialog portfolioId={id} theme={theme} />
         )}
       </div>
 
