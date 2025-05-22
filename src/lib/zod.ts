@@ -210,7 +210,7 @@ const basePortfolioSchema = z.object({
     .optional(),
 });
 const developerPortfolioSchema = basePortfolioSchema.extend({
-
+  
   linkedin: z
   .string()
   .url("Please provide a valid LinkedIn URL")

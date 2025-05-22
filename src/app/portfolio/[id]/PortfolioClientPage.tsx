@@ -19,6 +19,7 @@ export default function PortfolioClientPage({
 
   useEffect(() => {
     if (isPending || !portfolioData.id) return;
+    
   
     if (!isPreview) {
       const cookieName = `portfolio_viewed_${portfolioData.id}`;
@@ -34,7 +35,7 @@ export default function PortfolioClientPage({
           body: JSON.stringify({ id: portfolioData.id, userId, utmSource }),
         });
   
-        document.cookie = `${cookieName}=1; path=/; max-age=600`; // 10 minutes
+        // document.cookie = `${cookieName}=1; path=/; max-age=600`; // 10 minutes
       }
     }
   }, [portfolioData.id, data?.user?.id, isPending, isPreview]);

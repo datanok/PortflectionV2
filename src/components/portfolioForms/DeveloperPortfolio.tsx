@@ -66,7 +66,7 @@ const SocialLinks = <T extends FieldValues>({
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
+          {/* <FormField
             control={control}
             name="githubLink"
             render={({ field }) => (
@@ -80,9 +80,9 @@ const SocialLinks = <T extends FieldValues>({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
-          <FormField
+          {/* <FormField
             control={control}
             name="linkedinLink"
             render={({ field }) => (
@@ -97,7 +97,7 @@ const SocialLinks = <T extends FieldValues>({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
 
           <FormField
             control={control}

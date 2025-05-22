@@ -46,7 +46,6 @@ export default function AnalyticsDashboard() {
         const result = await response.json();
   
         if (!response.ok) {
-          console.log(result)
           setError(result.error || "Failed to fetch analytics.");
           return;
         }
@@ -367,10 +366,10 @@ export default function AnalyticsDashboard() {
           </div>
   
           {/* Export button */}
-          <button className="text-sm font-medium flex items-center text-muted-foreground hover:bg-muted px-2 py-1 rounded-md">
+          {/* <button className="text-sm font-medium flex items-center text-muted-foreground hover:bg-muted px-2 py-1 rounded-md">
             <Download className="h-4 w-4 mr-1" />
             Export
-          </button>
+          </button> */}
         </div>
       </div>
   

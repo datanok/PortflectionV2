@@ -53,7 +53,6 @@ const PortfolioTypeForm: React.FC<PortfolioTypeFormProps> = ({
       "portfolioType",
       portfolioType as PortfolioFormData["portfolioType"]
     );
-    console.log(portfolioType);
   }, [portfolioType, form]);
 
   const portfolioTypes = [

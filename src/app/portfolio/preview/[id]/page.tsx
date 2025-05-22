@@ -13,7 +13,6 @@ export default async function PortfolioPreviewPage(props: { params: Promise<{ id
   if (!session) redirect("/login");
 
   const portfolioData = await getUserPortfolioData(params.id);
-  console.log(portfolioData,"asd")
 
   // If no portfolio or user does not own it or is not authorized
   if (

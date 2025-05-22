@@ -156,7 +156,6 @@ const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
       ...baseDefaults,
     },
   };
-console.log("idhar")
   return typeDefaults[portfolioType];
 };
 
@@ -195,7 +194,6 @@ export default function PortfolioBuilder({
     resolver: zodResolver(getSchemaForType(portfolioType)),
     defaultValues: editMode ? defaultValues : getDefaultValues(portfolioType),
   });
-console.log(editMode,"asdas")
   const { control, handleSubmit, trigger, formState, reset, getValues } = form;
 
   // Update the form schema when portfolio type changes
