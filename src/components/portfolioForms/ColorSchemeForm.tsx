@@ -1,26 +1,38 @@
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Controller, useWatch } from "react-hook-form";
 import { cn } from "@/lib/utils";
-import { COLOR_SCHEMES } from "./types/ColorSchemes";
+import { getColorSchemesForLayout, LayoutType } from "./types/ColorSchemes";
 import { useState, useEffect } from "react";
 import { ColorScheme } from "@/app/types/portfolio";
 import { FONT_MAP } from "@/lib/fontMap";
 
 interface ColorSchemeFormProps {
   control: any;
+  layoutType?: LayoutType;
 }
 
-const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ control }) => {
+const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ 
+  control, 
+  layoutType 
+}) => {
+  // Get color schemes for the current layout type
+  console.log(layoutType,"layoutType");
+  const colorSchemes = getColorSchemesForLayout(layoutType);
+  
   // Watch the 'theme' field to reflect changes in the preview
   const selectedScheme = useWatch({ control, name: "theme" });
-  const [defaultScheme, setDefaultScheme] = useState(COLOR_SCHEMES[0]);
+  const [defaultScheme, setDefaultScheme] = useState<ColorScheme | null>(null);
 
-  // Ensure we have a scheme to display initially
+  // Set default scheme when layout changes or on initial load
   useEffect(() => {
-    if (!selectedScheme && COLOR_SCHEMES.length > 0) {
-      setDefaultScheme(COLOR_SCHEMES[0]);
+    if (colorSchemes.length > 0) {
+      if (!selectedScheme || !colorSchemes.some(s => s.name === selectedScheme.name)) {
+        setDefaultScheme(colorSchemes[0]);
+      } else {
+        setDefaultScheme(selectedScheme);
+      }
     }
-  }, [selectedScheme]);
+  }, [colorSchemes, selectedScheme]);
 
   const displayScheme = selectedScheme || defaultScheme;
 
@@ -41,7 +53,7 @@ const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ control }) => {
             control={control}
             render={({ field }) => (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[500px] md:max-h-[600px] pr-2">
-                {COLOR_SCHEMES.map((scheme, index) => (
+                {colorSchemes.map((scheme, index) => (
                   <Card
                     key={index}
                     className={cn(

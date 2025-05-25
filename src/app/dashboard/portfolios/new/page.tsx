@@ -244,8 +244,6 @@ export default function PortfolioBuilder({
   const portfolioValidationFields = useMemo(() => {
     return VALIDATION_RULES[portfolioType] || [];
   }, [portfolioType]);
-  
-  console.log(layoutType)
 
   // Handle step navigation and validation
   const nextStep = useCallback(async () => {
@@ -334,7 +332,7 @@ export default function PortfolioBuilder({
   
 
         if (editMode && portfolioId) {
-          console.log(formData,"Editing portfolio");
+      
           const result  = await updatePortfolioAction({
             ...formData,
             id: portfolioId,
@@ -446,7 +444,7 @@ export default function PortfolioBuilder({
           </div>
         );
       case 4:
-        return <ColorSchemeForm control={control} />;
+        return <ColorSchemeForm control={control} layoutType={form.watch("layoutType")} />;
       case 5:
         return <PreviewTab form={form} portfolioType={portfolioType} />;
       default:
