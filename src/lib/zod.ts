@@ -82,6 +82,7 @@ const basePortfolioSchema = z.object({
     ),
   location: z.string().max(50).optional(),
   portfolioType : z.enum(["developer", "designer", "contentCreator","businessConsulting"]),
+  layoutType : z.enum(["classic", "minimal"]).default("classic"),
 
   skills: z.array(z.string().min(1, "Please enter at least one skill")),
 
@@ -208,6 +209,7 @@ const basePortfolioSchema = z.object({
       })
     )
     .optional(),
+  
 });
 const developerPortfolioSchema = basePortfolioSchema.extend({
   

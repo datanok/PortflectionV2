@@ -49,6 +49,7 @@ export async function createPortfolioAction(data: Prisma.PortfolioCreateInput) {
   if (!session?.user?.id) throw new Error("Unauthorized");
   const { portfolioType = "developer", ...body } = data;
 
+
   // Split scalar and extra fields
   const scalarFields = [
     "name",
@@ -65,6 +66,7 @@ export async function createPortfolioAction(data: Prisma.PortfolioCreateInput) {
     "socials",
     "theme",
     "portfolioType",
+    "layoutType", // Add layout to scalar fields
   ];
   const prismaData: Prisma.PortfolioCreateInput = {
     portfolioType,
@@ -105,7 +107,7 @@ export async function updatePortfolioAction(data: any) {
 
   if (!session?.user?.id) throw new Error("Unauthorized");
   const { id, portfolioType = "developer", ...body } = data;
-
+  console.log(body,"body");
   if (!id) throw new Error("Portfolio ID is required");
   await verifyPortfolioOwnership(id, session.user.id);
 
@@ -132,6 +134,7 @@ export async function updatePortfolioAction(data: any) {
     "socials",
     "theme",
     "portfolioType",
+    "layoutType", // Keeping this for backward compatibility
   ];
   const prismaData: Record<string, any> = { portfolioType, updatedAt: new Date() };
   const extraData: Record<string, any> = {};
@@ -143,6 +146,7 @@ export async function updatePortfolioAction(data: any) {
     }
   }
   prismaData.extraData = extraData;
+  console.log(prismaData,"prismaData");
   const portfolio = await prisma.portfolio.update({
     where: { id },
     data: prismaData,

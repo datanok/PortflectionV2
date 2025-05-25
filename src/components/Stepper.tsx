@@ -19,6 +19,10 @@ const VerticalStepper: React.FC<VerticalStepperProps> = ({
   currentStep = 1,
   steps = [
     {
+      title: "Choose Layout",
+      description: "Select a layout style for your portfolio",
+    },
+    {
       title: "Choose Portfolio Type",
       description: "Select the type of portfolio you want to create",
     },
@@ -106,8 +110,8 @@ const VerticalStepper: React.FC<VerticalStepperProps> = ({
                   {step.description}
                 </p>
 
-                {/* Render tab names if on step 2 */}
-                {currentStep === 2 && index === 1 && tabList.length > 0 && (
+                {/* Render tab names if on step 3 (Enter Your Details) */}
+                {currentStep === 3 && index === 2 && tabList.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {tabList.map((tab) => (
                       <span

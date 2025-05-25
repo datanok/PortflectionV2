@@ -19,12 +19,16 @@ const navLinks = [
   { name: "Education", href: "#education", icon: <FaGraduationCap /> },
 ];
 
-type Props = {
-  theme: any;
-  name?: string;
-};
+// Import the Theme type from the theme module
+import { Theme } from "@/types/theme";
 
-export const PortfolioNavbar = ({ theme}: Props) => {
+// Define the component's props
+export interface PortfolioNavbarProps {
+  theme: Theme;
+  name?: string;
+}
+
+export const PortfolioNavbar = ({ theme, name = 'Portfolio' }: PortfolioNavbarProps) => {
   // Client-side only state initialization to prevent hydration errors
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -77,7 +81,7 @@ export const PortfolioNavbar = ({ theme}: Props) => {
 
   const scrollToSection = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
-    const section = document.querySelector(id);
+    const section = document.getElementById(id.substring(1));
     if (section) {
       section.scrollIntoView({ behavior: "smooth" });
       setIsMenuOpen(false);
@@ -201,9 +205,9 @@ export const PortfolioNavbar = ({ theme}: Props) => {
 
 
           <div className="flex justify-between items-center mb-4">
-            <span className="font-semibold" style={{ color: theme?.primary || defaultPrimary }}>
-              Menu
-            </span>
+            <div className="text-lg font-bold tracking-tight" style={{ color: theme.primary }}>
+              {name}
+            </div>
             <button
               onClick={() => setIsMenuOpen(false)}
               className="text-lg font-bold"

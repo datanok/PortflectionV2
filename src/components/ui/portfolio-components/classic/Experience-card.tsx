@@ -41,7 +41,7 @@ const itemVariants = {
   }
 };
 
-export function ExperienceTimeline({ experience, theme }: ExperienceTimelineProps) {
+export default function ExperienceTimeline({ experience, theme }: ExperienceTimelineProps) {
   return (
     <section
       className="py-20"

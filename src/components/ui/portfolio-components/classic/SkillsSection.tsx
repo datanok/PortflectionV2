@@ -206,6 +206,7 @@ const SkillsSection = ({
   sectionTitle = "Skills & Expertise",
   sectionSubtitle = "Technologies and tools I specialize in",
   badgeText = "Technical Proficiency",
+
   
   // Preset types that adjust default categories based on profession
   presetType = "developer", // Options: "developer", "designer", "manager", "marketer", "custom"
@@ -231,6 +232,8 @@ const SkillsSection = ({
   }
 }) => {
   const [animateItems, setAnimateItems] = useState(false);
+  
+  console.log("SkillsSection", skills);
   
   // Animation timing - only run once on mount
   useEffect(() => {

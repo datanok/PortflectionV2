@@ -6,7 +6,7 @@ import { FONT_MAP } from "@/lib/fontMap";
 import { getDefaultTheme } from "@/types/theme";
 import { useCallback, useMemo, memo, useState, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CertificationsSection } from "@/components/ui/portfolio-components/CertificationsSection";
+import { CertificationsSection } from "@/components/ui/portfolio-components/classic/CertificationsSection";
 import { publishPortfolioAction } from "@/app/dashboard/portfolios/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -84,56 +84,56 @@ const SocialIconSkeleton = () => (
 
 // Dynamic imports with memoized loading components
 const ExperienceTimeline = dynamic(
-  () => import("@/components/ui/portfolio-components/Experience-card").then(mod => ({ 
+  () => import("@/components/ui/portfolio-components/classic/Experience-card").then(mod => ({ 
     default: mod.ExperienceTimeline 
   })),
   { ssr: false, loading: () => <TimelineSkeleton /> }
 );
 
 const EducationSection = dynamic(
-  () => import("@/components/ui/portfolio-components/Education-section"),
+  () => import("@/components/ui/portfolio-components/classic/Education-section"),
   { ssr: false, loading: () => <EducationSkeleton /> }
 );
 
 const DeveloperProjectSection = dynamic(
-  () => import("@/components/ui/portfolio-components/DeveloperProjectSection"),
+  () => import("@/components/ui/portfolio-components/classic/DeveloperProjectSection"),
   { ssr: false, loading: () => <ProjectSectionSkeleton /> }
 );
 
 const DesignerProjectSection = dynamic(
-  () => import("@/components/ui/portfolio-components/DesignerProjectSection"),
+  () => import("@/components/ui/portfolio-components/classic/DesignerProjectSection"),
   { ssr: false, loading: () => <ProjectSectionSkeleton /> }
 );
 
 const BusinessProjectSection = dynamic(
-  () => import("@/components/ui/portfolio-components/BusinessProjectSection"),
+  () => import("@/components/ui/portfolio-components/classic/BusinessProjectSection"),
   { ssr: false, loading: () => <ProjectSectionSkeleton /> }
 );
 
 const HeroSection = dynamic(
-  () => import("@/components/ui/portfolio-components/HeroSection"),
+  () => import("@/components/ui/portfolio-components/classic/HeroSection"),
   { ssr: false, loading: () => <HeroSkeleton /> }
 );
 
 const SkillsSection = dynamic(
-  () => import("@/components/ui/portfolio-components/SkillsSection"),
+  () => import("@/components/ui/portfolio-components/classic/SkillsSection"),
   { ssr: false, loading: () => <SkillsSkeleton /> }
 );
 
 const PortfolioNavbar = dynamic(
-  () => import("@/components/ui/portfolio-components/PortfolioNavbar").then(mod => ({
+  () => import("@/components/ui/portfolio-components/classic/PortfolioNavbar").then(mod => ({
     default: mod.PortfolioNavbar
   })),
   { ssr: false, loading: () => <NavbarSkeleton /> }
 );
 
 const SocialIcon = dynamic(
-  () => import("@/components/ui/portfolio-components/SocialIcons"),
+  () => import("@/components/ui/portfolio-components/classic/SocialIcons"),
   { ssr: false, loading: () => <SocialIconSkeleton /> }
 );
 
 const ShareDialog = dynamic(
-  () => import("@/components/ui/portfolio-components/ShareDialog"),
+  () => import("@/components/ui/portfolio-components/classic/ShareDialog"),
   { ssr: false, loading: () => <ShareDialogSkeleton /> }
 );
 

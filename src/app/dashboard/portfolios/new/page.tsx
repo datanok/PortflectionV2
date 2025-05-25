@@ -49,6 +49,7 @@ import DummyDataAlert from "@/components/portfolioForms/DummyDataAlert";
 import { z, ZodType } from "zod";
 import { COLOR_SCHEMES } from "@/components/portfolioForms/types/ColorSchemes";
 import { PortfolioType } from "@/app/types/portfolio";
+import { LayoutTypeForm, type LayoutTypeFormValues } from "@/components/forms/LayoutTypeForm";
 import { Prisma } from "@prisma/client";
 import { authClient } from "../../../../../auth-client";
 
@@ -178,8 +179,8 @@ export default function PortfolioBuilder({
 }: PortfolioBuilderProps = {}) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-
   const [currentTab, setCurrentTab] = useState<TabType>("personal");
+  const [layoutType, setLayoutType] = useState<'classic' | 'minimal'>('classic');
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [isDummyDataAlertOpen, setIsDummyDataAlertOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -190,11 +191,19 @@ export default function PortfolioBuilder({
     editMode ? (defaultValues?.portfolioType as PortfolioType) : "developer"
   );
 
-  const form = useForm<PortfolioFormData>({
+  const form = useForm<PortfolioFormData & { layoutType: 'classic' | 'minimal' }>({
     resolver: zodResolver(getSchemaForType(portfolioType)),
-    defaultValues: editMode ? defaultValues : getDefaultValues(portfolioType),
+    defaultValues: {
+      ...(editMode ? defaultValues : getDefaultValues(portfolioType)),
+      layoutType: editMode ? (defaultValues?.layoutType as 'classic' | 'minimal' | undefined) || 'classic' : 'classic',
+    },
   });
-  const { control, handleSubmit, trigger, formState, reset, getValues } = form;
+  const { control, handleSubmit, trigger, formState, reset, getValues, watch, setValue } = form;
+
+  const handleLayoutTypeSelect = (values: { layoutType: 'classic' | 'minimal' }) => {
+    setValue('layoutType', values.layoutType, { shouldDirty: true });
+    nextStep();
+  };
 
   // Update the form schema when portfolio type changes
   useEffect(() => {
@@ -210,7 +219,7 @@ export default function PortfolioBuilder({
       });
       form.setValue("portfolioType", portfolioType);
     }
-  }, [portfolioType, editMode]);
+  }, [portfolioType, editMode, form, getValues]);
 
   // Handle portfolio type change with proper form reset
   const handlePortfolioTypeChange = useCallback(
@@ -235,19 +244,28 @@ export default function PortfolioBuilder({
   const portfolioValidationFields = useMemo(() => {
     return VALIDATION_RULES[portfolioType] || [];
   }, [portfolioType]);
+  
+  console.log(layoutType)
 
-  // Handle color scheme selection
+  // Handle step navigation and validation
   const nextStep = useCallback(async () => {
     let isValid = true;
 
-    const currentIndex = tabs.indexOf(currentTab);
-  
-    if (step === 2) {
-      // Validate only the current tab's fields
-      const fieldsToValidate =
-        currentTab === "portfolio"
-          ? portfolioValidationFields
-          : VALIDATION_RULES[currentTab];
+    // Handle validation based on current step
+    if (step === 1) {
+      // For layout selection step
+      isValid = await trigger("layoutType" as any);
+      if (!isValid) return;
+    } else if (step === 2) {
+      // For portfolio type selection
+      isValid = await trigger("portfolioType" as any);
+      if (!isValid) return;
+    } else if (step === 3) {
+      // For tabbed form (personal, career, contact, portfolio)
+      const currentIndex = tabs.indexOf(currentTab);
+      const fieldsToValidate = currentTab === "portfolio"
+        ? portfolioValidationFields
+        : VALIDATION_RULES[currentTab];
   
       if (fieldsToValidate && fieldsToValidate.length > 0) {
         isValid = await trigger(fieldsToValidate as any);
@@ -255,32 +273,42 @@ export default function PortfolioBuilder({
   
       if (!isValid) return;
       
+      // If there are more tabs, move to next tab instead of step
       if (currentIndex < tabs.length - 1) {
-        // Move to next tab, NOT next step
         setCurrentTab(tabs[currentIndex + 1] as any);
         return;
       }
-  
-      // If currentTab is the last tab and valid, allow step increment
-    } else if (step === 3) {
+    } else if (step === 4) {
+      // For theme selection
       isValid = await trigger("theme" as any);
       if (!isValid) return;
     }
-  
-    // Only proceed to next step if validation passed
-    setStep((prev) => prev + 1);
+
+    setStep((prev) => Math.min(prev + 1, 5));
   }, [step, currentTab, portfolioValidationFields, trigger, tabs, setCurrentTab, setStep]);
   
   const prevStep = useCallback(() => {
-    const currentIndex = tabs.indexOf(currentTab);
-  
-    if (step === 2 && currentIndex > 0) {
-      // Go back one tab within step 2
-      setCurrentTab(tabs[currentIndex - 1] as any);
-    } else {
-      // Go back one step (e.g., from 3 to 2 or from 2 to 1 if already at first tab)
-      setStep((prev) => Math.max(prev - 1, 1));
+    if (step === 3) {
+      // Handle tab navigation within the details step
+      const currentIndex = tabs.indexOf(currentTab);
+      if (currentIndex > 0) {
+        // Go to previous tab
+        setCurrentTab(tabs[currentIndex - 1] as any);
+        return;
+      }
     }
+    
+    // Go to previous step (minimum step is 1)
+    setStep((prev) => {
+      const prevStep = Math.max(prev - 1, 1);
+      
+      // If going back to the tabbed step, set the last tab
+      if (prevStep === 3) {
+        setCurrentTab(tabs[tabs.length - 1] as any);
+      }
+      
+      return prevStep;
+    });
   }, [step, currentTab, tabs, setCurrentTab, setStep]);
   
 
@@ -294,27 +322,34 @@ export default function PortfolioBuilder({
   };
   // Handle form submission with toast feedback
   const onSubmit = useCallback(
-    async (data: PortfolioFormData) => {
+    async (data: PortfolioFormData & { layoutType: 'classic' | 'minimal' }) => {
       setIsSubmitting(true);
       try {
+        const { layoutType, extraData, ...formData } = data;
+        formData.userId = session?.user?.id;
+        formData.isPublished = true;
+        
+        formData.layoutType = layoutType;
+        
+  
+
         if (editMode && portfolioId) {
-          const result = await updatePortfolioAction({
-            ...data,
+          console.log(formData,"Editing portfolio");
+          const result  = await updatePortfolioAction({
+            ...formData,
             id: portfolioId,
           });
           toast.success("Portfolio updated successfully!");
           router.push(`/portfolio/${result.id}`);
         } else {
-          // Add required fields for creation
-          const portfolioData = {
-            ...data,
+          const result = await createPortfolioAction({
+            ...formData,
             user: {
               connect: {
                 id: session?.user?.id || ''
               }
             }
-          };
-          const result = await createPortfolioAction(portfolioData as Prisma.PortfolioCreateInput);
+          } as Prisma.PortfolioCreateInput);
           toast.success("Portfolio created successfully!");
           router.push(`/portfolio/${result.id}`);
         }
@@ -328,13 +363,20 @@ export default function PortfolioBuilder({
         );
       }
     },
-    [router, editMode, portfolioId, session]
+    [router, editMode, portfolioId, session, layoutType]
   );
 
   // Render each step content
   const renderStepContent = () => {
     switch (step) {
       case 1:
+        return (
+          <LayoutTypeForm 
+            onNext={handleLayoutTypeSelect} 
+            form={form}
+          />
+        );
+      case 2:
         return (
           <PortfolioTypeForm
             form={form}
@@ -344,7 +386,7 @@ export default function PortfolioBuilder({
             nextStep={nextStep}
           />
         );
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <Tabs
@@ -403,9 +445,9 @@ export default function PortfolioBuilder({
             </Tabs>
           </div>
         );
-      case 3:
-        return <ColorSchemeForm control={control} />;
       case 4:
+        return <ColorSchemeForm control={control} />;
+      case 5:
         return <PreviewTab form={form} portfolioType={portfolioType} />;
       default:
         return null;
@@ -471,6 +513,7 @@ export default function PortfolioBuilder({
                   <Button
                     onClick={prevStep}
                     size="sm"
+                    variant="outline"
                   >
                     Previous
                   </Button>
@@ -479,13 +522,13 @@ export default function PortfolioBuilder({
 
               <LoadingButton
                 pending={isSubmitting}
-                type={step < 4 ? "button" : "submit"}
-                onClick={step < 4 ? nextStep : handleSubmit(onSubmit)}
+                type={step < 5 ? "button" : "submit"}
+                onClick={step < 5 ? nextStep : handleSubmit(onSubmit)}
                 size="sm"
                 disabled={isSubmitting}
               >
-                {step < 4
-                  ? "Next Step"
+                {step < 5
+                  ? step === 1 ? "Next: Choose Portfolio Type" : "Next Step"
                   : editMode
                   ? "Update Portfolio"
                   : "Create Portfolio"}

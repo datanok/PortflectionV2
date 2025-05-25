@@ -89,6 +89,7 @@ model Portfolio {
 
   socials          Json?     // Array of { type: string; url: string; username: string }
   theme            Json?
+  layoutType           String         @default("classic") // Options: wavy, minimal, classic
   extraData        Json?
 
   createdAt        DateTime @default(now())

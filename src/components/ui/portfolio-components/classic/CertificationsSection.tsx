@@ -31,7 +31,7 @@ const itemVariants = {
   }
 };
 
-export function CertificationsSection({ certifications, theme }: CertificationsSectionProps) {
+export default function CertificationsSection({ certifications, theme }: CertificationsSectionProps) {
   return (
     <section
       className="py-20"

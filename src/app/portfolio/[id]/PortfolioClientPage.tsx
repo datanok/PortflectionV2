@@ -1,9 +1,9 @@
 "use client";
-import dynamic from "next/dynamic";
 import { Suspense, useEffect } from "react";
-import LoadingPortfolio from "@/components/ui/loading-portfolio";
 import { PortfolioDataProvider } from "@/components/PortfolioProvider";
 import { authClient } from "../../../../auth-client";
+import { PortfolioLayout } from "@/layouts";
+import { LayoutType } from "@/types/layout";
 
 export default function PortfolioClientPage({
   portfolioData,
@@ -15,12 +15,10 @@ export default function PortfolioClientPage({
   isPreview?: boolean;
 }) {
   const { data, isPending } = authClient.useSession();
-  const type = (portfolioType?.charAt(0).toUpperCase() + portfolioType?.slice(1)) || "Developer";
 
   useEffect(() => {
     if (isPending || !portfolioData.id) return;
     
-  
     if (!isPreview) {
       const cookieName = `portfolio_viewed_${portfolioData.id}`;
       if (!document.cookie.includes(cookieName)) {
@@ -34,31 +32,30 @@ export default function PortfolioClientPage({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: portfolioData.id, userId, utmSource }),
         });
-  
-        // document.cookie = `${cookieName}=1; path=/; max-age=600`; // 10 minutes
       }
     }
   }, [portfolioData.id, data?.user?.id, isPending, isPreview]);
   
-
   // If preview and user session not loaded or user does not own portfolio, show message or redirect
   if (isPreview && !isPending && (!data || data.user.id !== portfolioData.userId)) {
     return <p>You are not authorized to preview this portfolio.</p>;
   }
 
-  const PortfolioTemplate = dynamic(
-    () => import(`@/layouts/Developer.tsx`),
-    {
-      loading: () => <LoadingPortfolio type={portfolioType} />,
-      ssr: false,
-    }
-  );
+  // Get layout from portfolio data, default to 'classic' if not set
+  console.log(portfolioData,"portfolioData");
+  const layoutType = (portfolioData.layoutType || 'classic') as LayoutType;
 
   return (
-    <Suspense fallback={<LoadingPortfolio type={portfolioType} />}>
-      <PortfolioDataProvider value={portfolioData} type={portfolioType as 'developer' | 'designer' | 'contentCreator' | 'businessConsulting' | 'base'}>
-        <PortfolioTemplate  isPreview={isPreview}/>
-      </PortfolioDataProvider>
-    </Suspense>
+    <PortfolioDataProvider 
+      value={{
+        ...portfolioData,
+        portfolioType: portfolioType as 'developer' | 'designer' | 'contentCreator' | 'businessConsulting' | 'base'
+      }}
+    >
+      <PortfolioLayout 
+        layoutType={layoutType}
+        isPreview={isPreview} 
+      />
+    </PortfolioDataProvider>
   );
 }

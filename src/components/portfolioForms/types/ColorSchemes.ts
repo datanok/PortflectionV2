@@ -98,4 +98,75 @@ export const COLOR_SCHEMES = [
       body: "#e5e7eb",
     },
   ];
-  
+  export const MINIMAL_COLOR_SCHEMES = [
+    {
+      name: "Midnight Blue",
+      primary: "#0F172A",
+      secondary: "#3B82F6", 
+      background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
+      card: "rgba(30, 41, 59, 0.4)",
+      cardHover: "rgba(30, 41, 59, 0.6)",
+      muted: "rgba(51, 65, 85, 0.3)",
+      accent: "#60A5FA",
+      body: "#F1F5F9",
+      bodySecondary: "#CBD5E1",
+      border: "rgba(51, 65, 85, 0.2)",
+      glass: "rgba(15, 23, 42, 0.8)"
+    },
+    {
+      name: "Forest Depth",
+      primary: "#064E3B",
+      secondary: "#10B981",
+      background: "linear-gradient(135deg, #064E3B 0%, #065F46 100%)",
+      card: "rgba(6, 95, 70, 0.4)",
+      cardHover: "rgba(6, 95, 70, 0.6)",
+      muted: "rgba(52, 211, 153, 0.1)",
+      accent: "#34D399",
+      body: "#ECFDF5",
+      bodySecondary: "#A7F3D0",
+      border: "rgba(52, 211, 153, 0.2)",
+      glass: "rgba(6, 78, 59, 0.8)"
+    },
+    {
+      name: "Royal Purple",
+      primary: "#581C87",
+      secondary: "#A855F7",
+      background: "linear-gradient(135deg, #581C87 0%, #7C3AED 100%)",
+      card: "rgba(139, 92, 246, 0.15)",
+      cardHover: "rgba(139, 92, 246, 0.25)",
+      muted: "rgba(196, 181, 253, 0.1)",
+      accent: "#C4B5FD",
+      body: "#FAF5FF",
+      bodySecondary: "#DDD6FE",
+      border: "rgba(196, 181, 253, 0.2)",
+      glass: "rgba(88, 28, 135, 0.8)"
+    },
+    {
+      name: "Monochrome Elite",
+      primary: "#0A0A0A",
+      secondary: "#525252",
+      background: "linear-gradient(135deg, #0A0A0A 0%, #171717 100%)",
+      card: "rgba(38, 38, 38, 0.6)",
+      cardHover: "rgba(38, 38, 38, 0.8)",
+      muted: "rgba(115, 115, 115, 0.1)",
+      accent: "#737373",
+      body: "#FAFAFA",
+      bodySecondary: "#D4D4D4",
+      border: "rgba(115, 115, 115, 0.2)",
+      glass: "rgba(10, 10, 10, 0.9)"
+    },
+    {
+      name: "Sunset Glow",
+      primary: "#9A3412",
+      secondary: "#F97316",
+      background: "linear-gradient(135deg, #9A3412 0%, #EA580C 100%)",
+      card: "rgba(234, 88, 12, 0.15)",
+      cardHover: "rgba(234, 88, 12, 0.25)",
+      muted: "rgba(251, 146, 60, 0.1)",
+      accent: "#FB923C",
+      body: "#FFFBEB",
+      bodySecondary: "#FED7AA",
+      border: "rgba(251, 146, 60, 0.2)",
+      glass: "rgba(154, 52, 18, 0.8)"
+    }
+  ];
