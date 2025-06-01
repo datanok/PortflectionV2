@@ -51,6 +51,18 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
           "Implemented new processes that reduced costs",
         ],
       },
+      {
+        company: "Meta Inc  .",
+        position: "Senior Software Engineer",
+        startDate: "2022-01-01",
+        endDate: "",
+        current: true,
+        description: "Developing and maintaining high-performance software applications",
+        achievements: [
+          "Led the development of a scalable and secure authentication system",
+          "Optimized performance by implementing caching strategies",
+        ],
+      }
     ],
     education: [
       {
@@ -61,6 +73,23 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
         endDate: "2019-06-01",
         current: false,
         description: "Graduated with honors",
+      },
+      {
+        institution: "Harvard University",
+        degree: "Bachelor of Science",
+        field: "Computer Science",
+        startDate: "2019-09-01",
+        endDate: "2023-06-01",
+        current: false,
+        description: "Graduated with honors",
+      },
+    ],
+    certifications: [
+      {
+        name: "Certified Software Engineer",
+        issuingOrganization: "Tech Innovations Inc.",
+        issueDate: "2020-01-01",
+        credentialUrl: "https://www.techinnovations.com/certification",
       },
     ],
   };
@@ -105,6 +134,17 @@ export const generateDummyPortfolioData = (type: PortfolioType): ExtendedPortfol
         technologies: ["Node.js", "TypeScript", "GitHub Actions"],
         githubLink: "https://github.com/alexjohnson/cli-tool",
         liveDemo: "",
+        roles: ["Developer", "Maintainer"],
+        challenges: "Cross-platform compatibility",
+        learnings: "Learned packaging and publishing npm packages",
+      },
+      {
+        title: "E-commerce Platform",
+        description:
+          "Built a full-stack e-commerce solution with React frontend and Node.js backend",
+        technologies: ["React", "Node.js", "MongoDB", "Stripe API", "AWS"],
+        githubLink: "https://github.com/alexjohnson/ecommerce-platform",
+        liveDemo: "https://ecommerce.alexjohnson.dev",
         roles: ["Developer", "Maintainer"],
         challenges: "Cross-platform compatibility",
         learnings: "Learned packaging and publishing npm packages",

@@ -1,49 +1,66 @@
 "use server";
-import sgMail from "@sendgrid/mail";
 
 export async function sendEmail({
   to,
   subject,
-  text,
+  template,
+  VERIFICATION_URL,
+  name,
 }: {
   to: string;
   subject: string;
-  text: string;
+  template: string;
+  VERIFICATION_URL: string;
+  name: string;
 }) {
-  if (!process.env.SENDGRID_API_KEY) {
-    throw new Error("SENDGRID_API_KEY environment variable is not set");
-  }
-  if (!process.env.EMAIL_FROM) {
-    throw new Error("EMAIL_FROM environment variable is not set");
-  }
-
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-  const message = {
-    to: to.toLowerCase().trim(),
-    from: process.env.EMAIL_FROM,
-    subject: subject.trim(),
-    text: text.trim(),
-  };
-
   try {
-    const [response] = await sgMail.send(message);
+    // Sanitize and prepare final template content
+    const finalTemplate = template
+      .replace(/{{VERIFICATION_URL}}/g, VERIFICATION_URL)
+      .replace(/{{name}}/g, name); // Example name fallback from email
 
-    if (response.statusCode !== 202) {
-      throw new Error(
-        `SendGrid API returned status code ${response.statusCode}`
-      );
+
+    const emailData = {
+      to: to.trim(),
+      subject: subject.trim(),
+      template: finalTemplate.trim(),
+      VERIFICATION_URL: VERIFICATION_URL.trim(),
+      name: name.trim(),
+    };
+
+    const requestBody = JSON.stringify(emailData);
+
+
+    const res = await fetch("http://localhost:3001/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: requestBody,
+      cache: "no-store",
+    });
+
+    const responseText = await res.text();
+
+    let responseData;
+    try {
+      responseData = responseText ? JSON.parse(responseText) : {};
+    } catch (e) {
+      console.error("Failed to parse JSON response:", e);
+      responseData = {};
     }
 
-    return {
-      success: true,
-      messageId: response.headers["x-message-id"],
-    };
+    if (!res.ok) {
+      throw new Error(responseData.error || `HTTP error! status: ${res.status}`);
+    }
+
+    return { success: true, message: "Email job queued successfully" };
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("Error in sendEmail:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       success: false,
-      message: "Failed to send email. Please try again later.",
+      message: `Failed to send email: ${errorMessage}`,
     };
   }
 }

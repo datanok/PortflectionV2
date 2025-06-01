@@ -2,6 +2,8 @@ import { memo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { usePortfolioData } from "@/components/PortfolioProvider";
 import { ColorScheme } from "@/components/portfolioForms/types/ColorSchemes";
+import { ArrowUp } from "lucide-react";
+import { BaseLayout } from "./BaseLayout";
 
 // Import minimal components
 import { Navbar } from "@/components/ui/portfolio-components/minimal/Navbar";
@@ -10,6 +12,7 @@ import { About } from "@/components/ui/portfolio-components/minimal/About";
 import { Projects } from "@/components/ui/portfolio-components/minimal/Projects";
 import { Contact } from "@/components/ui/portfolio-components/minimal/Contact";
 import { Footer } from "@/components/ui/portfolio-components/minimal/Footer";
+import Experience from "@/components/ui/portfolio-components/minimal/Experience";
 
 interface MinimalLayoutProps {
   isPreview?: boolean;
@@ -77,25 +80,26 @@ const MinimalLayout = ({ isPreview = false }: MinimalLayoutProps) => {
     background: portfolioData.theme?.background || '#ffffff',
     card: portfolioData.theme?.card || '#ffffff',
     muted: portfolioData.theme?.muted || '#f8fafc',
-    border: portfolioData.theme?.border || '#e2e8f0',
-    body: portfolioData.theme?.body || '#1e293b',
-    bodySecondary: portfolioData.theme?.bodySecondary || '#64748b',
-    glass: portfolioData.theme?.glass || 'rgba(255, 255, 255, 0.8)',
-    ...portfolioData.theme
+    fontHeading: portfolioData.theme?.fontHeading || "Inter",
+    fontBody: portfolioData.theme?.fontBody || "Inter",
+    body: portfolioData.theme?.body || "#064e3b"
+    
   };
 
   // Map the portfolio data to the expected format
-  const projects: Project[] = (portfolioData as any).projects?.map((p: any) => ({
+  console.log(portfolioData.extraData, "projects");
+  const projects: Project[] = (portfolioData as any).extraData?.portfolioItems?.map((p: any) => ({
     id: p.id || Math.random().toString(36).substr(2, 9),
     title: p.title || 'Project',
     description: p.description || '',
-    tech: p.tech || [],
-    github: p.github,
-    demo: p.demo,
+    technologies: Array.isArray(p.technologies) ? p.technologies : (Array.isArray(p.tech) ? p.tech : []),
+    type: p.type,
+    githubUrl: p.github,
+    liveUrl: p.demo,
     image: p.image
   })) || [];
-
-  const experience: ExperienceItem[] = portfolioData.experience?.map((exp: any) => ({
+console.log(portfolioData.extraData,"experience");
+  const experience: ExperienceItem[] = portfolioData.extraData?.experience?.map((exp: any) => ({
     company: exp.company || 'Company',
     position: exp.position || 'Position',
     startDate: exp.startDate || new Date().toISOString(),
@@ -105,7 +109,7 @@ const MinimalLayout = ({ isPreview = false }: MinimalLayoutProps) => {
     achievements: exp.achievements || []
   })) || [];
 
-  const education: EducationItem[] = portfolioData.education?.map((edu: any) => ({
+  const education: EducationItem[] = portfolioData.extraData?.education?.map((edu: any) => ({
     institution: edu.institution || 'Institution',
     degree: edu.degree || 'Degree',
     field: edu.field,
@@ -115,7 +119,7 @@ const MinimalLayout = ({ isPreview = false }: MinimalLayoutProps) => {
     description: edu.description
   })) || [];
 
-  const formattedCertifications = ((portfolioData as any).certifications || []).map((cert: any) => ({
+  const formattedCertifications = portfolioData.extraData?.certifications?.map((cert: any) => ({
     id: cert.id || '',
     name: cert.name || '',
     issuer: cert.issuer || '',
@@ -143,74 +147,104 @@ const MinimalLayout = ({ isPreview = false }: MinimalLayoutProps) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar 
-        name={portfolioData.name || 'Your Name'}
-        activeSection={activeSection}
-        onNavClick={handleNavClick}
-        theme={theme}
-        onThemeToggle={() => {}}
-        isDarkMode={false}
-      />
-      
-      <main className="flex-1">
-        <div id="hero">
-          <Hero 
-            name={portfolioData.name || 'Your Name'}
-            title={portfolioData.title || 'Your Title'}
-            about={portfolioData.about || 'A short bio about yourself'}
-            profileImage={portfolioData.profileImage}
-            location={portfolioData.location}
-            socials={portfolioData.socials || {}}
-            theme={theme}
-            onViewProjects={handleViewProjects}
-            onContactClick={handleContactClick}
-          />
-        </div>
+    <BaseLayout 
+      theme={{
+        fontHeading: theme.fontHeading,
+        fontBody: theme.fontBody,
+        background: theme.background,
+        body: theme.body
+      }}
+    >
+      <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
+        <Navbar 
+          name={portfolioData.name || 'Your Name'}
+          activeSection={activeSection}
+          onNavClick={handleNavClick}
+          theme={theme}
+        />
         
-        <div id="about">
-          <About 
-            about={portfolioData.about || ''}
-            skills={portfolioData.skills || []}
-            experience={experience}
-            education={education}
-            certifications={formattedCertifications}
-            theme={theme}
-          />
-        </div>
-        
-        {projects.length > 0 && (
-          <div id="projects">
-            <Projects 
-              projects={projects.map(p => ({
-                ...p,
-                tags: p.tech || [],
-                githubUrl: p.github,
-                liveUrl: p.demo
-              }))} 
+        <main className="flex-1">
+          <div id="hero">
+            <Hero 
+              name={portfolioData.name || 'Your Name'}
+              title={portfolioData.title || 'Your Title'}
+              about={portfolioData.about || 'A short bio about yourself'}
+              email={portfolioData.email}
+              githubLink={portfolioData.socials?.github}
+              linkedinLink={portfolioData.socials?.linkedin}
+              personalWebsite={portfolioData.socials?.website}
+              location={portfolioData.location}
+              profileImage={portfolioData.profileImage}
+              portfolioType="minimal"
+              socials={portfolioData.socials || {}}
               theme={theme}
-              onViewAll={handleViewProjects}
+              onViewProjects={handleViewProjects}
+              onContactClick={handleContactClick}
             />
           </div>
-        )}
+          <div id="experience">
+            <Experience   
+              experiences={experience}
+              theme={theme}
+            />
+          </div>
+          <div id="about">
+            <About 
+              about={portfolioData.about || ''}
+              skills={portfolioData.skills || []}
+              experience={experience}
+              education={education}
+              certifications={formattedCertifications}
+              theme={theme}
+            />
+          </div>
+          
+          {projects.length > 0 && (
+            <div id="projects">
+              <Projects 
+                projects={projects.map(p => ({
+                  ...p,
+                  tags: p.tech || [],
+                  githubUrl: p.github,
+                  liveUrl: p.demo
+                }))} 
+                theme={theme}
+                onViewAll={handleViewProjects}
+              />
+            </div>
+          )}
+          
+          <div id="contact">
+            <Contact 
+              email={portfolioData.email || ''}
+              theme={theme}
+              onContactClick={handleContactClick}
+            />
+          </div>
+        </main>
         
-        <div id="contact">
-          <Contact 
-            email={portfolioData.email || ''}
-            theme={theme}
-            onContactClick={handleContactClick}
-          />
-        </div>
-      </main>
-      
-      <Footer 
-        name={portfolioData.name || 'Your Name'}
-        theme={theme}
-        showScrollTop={showScrollTop}
-        onScrollTop={handleScrollTop}
-      />
-    </div>
+        <Footer 
+          name={portfolioData.name || 'Your Name'}
+          theme={theme}
+          showScrollTop={showScrollTop}
+          onScrollTop={handleScrollTop}
+        />
+        {showScrollTop && (
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="fixed bottom-8 right-8 p-3 rounded-full shadow-lg transition-all hover:scale-110"
+            style={{
+              backgroundColor: theme.primary,
+              color: 'white'
+            }}
+          >
+            <ArrowUp className="w-6 h-6" />
+          </button>
+        )}
+      </div>
+    </BaseLayout>
   );
 };
 

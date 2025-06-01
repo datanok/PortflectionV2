@@ -16,9 +16,9 @@ export default function AuthButtons() {
       <Link href="/sign-in">
         <Button>Sign In</Button>
       </Link>
-      {/* <Link href="/sign-up">
+      <Link href="/sign-up">
         <Button>Sign Up</Button>
-      </Link> */}
+      </Link>
     </div>
   ) : (
     <div className="flex items-center gap-2">
