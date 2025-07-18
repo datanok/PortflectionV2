@@ -10,17 +10,17 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e5e7eb;          /* Tailwind gray-200 */
+  background: #e5e7eb; /* Tailwind gray-200 */
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;          /* Tailwind gray-300 */
+  background: #cbd5e1; /* Tailwind gray-300 */
 }
 html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;          /* Tailwind slate-700 */
+  background: #334155; /* Tailwind slate-700 */
 }
 html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;          /* Tailwind slate-600 */
+  background: #475569; /* Tailwind slate-600 */
 }
 @keyframes float-particle {
   from {
@@ -150,7 +150,9 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
   /* Card & Popover */
   --card: oklch(100% 0 0); /* Pure white */
-  --card-foreground: oklch(15% 0.01 285); /* Slightly lighter than foreground for better contrast */
+  --card-foreground: oklch(
+    15% 0.01 285
+  ); /* Slightly lighter than foreground for better contrast */
   --popover: oklch(99% 0.001 17); /* Slightly off-white */
   --popover-foreground: oklch(15% 0.01 285);
 
@@ -168,7 +170,9 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 
   /* Destructive */
   --destructive: oklch(55% 0.25 27); /* Deep red-orange */
-  --destructive-foreground: oklch(0.577 0.245 27.325); /* High contrast for alerts */
+  --destructive-foreground: oklch(
+    0.577 0.245 27.325
+  ); /* High contrast for alerts */
 
   /* Borders & Inputs */
   --border: oklch(88% 0.005 285);
@@ -247,15 +251,19 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   --sidebar-ring: oklch(50% 0.02 285);
 }
 
-body::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(to right, #80808012 1px, transparent 1px),
-    linear-gradient(to bottom, #80808012 1px, transparent 1px);
-  background-size: 24px 24px;
-  pointer-events: none;
-  z-index: -10;
+html,
+body {
+  height: 100%;
+  position: relative;
+}
+
+body {
+  background-image: linear-gradient(
+      rgba(128, 128, 128, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
 }
 
 @layer base {

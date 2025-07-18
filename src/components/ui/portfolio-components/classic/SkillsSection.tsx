@@ -168,7 +168,7 @@ const CategoryHeader = memo(({ icon, name, theme }) => {
       </div>
       <h3 
         className="text-xl font-semibold"
-        style={{ color: theme.body, fontFamily: theme.fontHeading }}
+        style={{ color: theme.primary, fontFamily: theme.fontHeading }}
       >
         {name}
       </h3>
@@ -185,7 +185,7 @@ const Skill = memo(({ skill, theme, icon, delay }) => {
       className="flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300 hover:shadow-md hover:-translate-y-1"
       style={{
         background: `linear-gradient(135deg, ${theme.background}, ${theme.card})`,
-        color: theme.body,
+        color: theme.primary,
         fontFamily: theme.fontBody,
         border: `1px solid ${theme.accent}`,
         transitionDelay: `${delay}ms`,
@@ -194,7 +194,7 @@ const Skill = memo(({ skill, theme, icon, delay }) => {
       <div className="text-sm" style={{ color: theme.primary }}>
         {icon}
       </div>
-      <span className="font-medium">{skill}</span>
+      <span className="font-medium" style={{ color: theme.primary }}>{skill}</span>
     </div>
   );
 });
@@ -233,8 +233,7 @@ const SkillsSection = ({
 }) => {
   const [animateItems, setAnimateItems] = useState(false);
   
-  console.log("SkillsSection", skills);
-  
+
   // Animation timing - only run once on mount
   useEffect(() => {
     const animationTimer = setTimeout(() => setAnimateItems(true), 300);
@@ -373,7 +372,7 @@ const SkillsSection = ({
         </div>
       </div>
       
-      <div className="container max-w-6xl mx-auto px-4 relative z-10" style={{ color: theme.body }}>
+      <div className="container max-w-6xl mx-auto px-4 relative z-10" style={{ color: theme.primary }}>
         <SectionHeader
           title={sectionTitle}
           subtitle={sectionSubtitle}

@@ -109,7 +109,7 @@ const getSchemaForType = (type: PortfolioType): ZodType => {
 
 const getDefaultValues = <T extends keyof PortfolioDefaultValueMap>(
   portfolioType: T,
-  colorScheme = COLOR_SCHEMES[0]
+  colorScheme = COLOR_SCHEMES.classic[0]
 ): PortfolioDefaultValueMap[T] => {
   const baseDefaults = {
     name: "",
@@ -212,8 +212,8 @@ export default function PortfolioBuilder({
       form.reset({
         ...getDefaultValues(portfolioType),
         theme: currentTheme || {
-          primary: COLOR_SCHEMES[0].primary,
-          secondary: COLOR_SCHEMES[0].secondary,
+          primary: COLOR_SCHEMES.classic[0].primary,
+          secondary: COLOR_SCHEMES.classic[0].secondary,
         },
         portfolioType: portfolioType,
       });
@@ -229,8 +229,8 @@ export default function PortfolioBuilder({
         {
           ...getDefaultValues(newType),
           theme: getValues("theme") || {
-            primary: COLOR_SCHEMES[0].primary,
-            secondary: COLOR_SCHEMES[0].secondary,
+            primary: COLOR_SCHEMES.classic[0].primary,
+            secondary: COLOR_SCHEMES.classic[0].secondary,
           },
           portfolioType: newType,
         },

@@ -78,46 +78,49 @@ export const COLOR_SCHEMES = {
     },
     {
       name: "Elegant Grey",
-      primary: "#718096",
-      secondary: "#f56565",
-      dark: "#2d3748",
-      light: "#f7fafc",
-      background: "#f1f5f9",
-      card: "#e2e8f0",
-      muted: "#edf2f7",
-      accent: "#a0aec0",
+      primary: "#6B7280",        // Tailwind gray-500 (cool gray)
+      secondary: "#EF4444",      // Tailwind red-500 (punchy red)
+      dark: "#1F2937",           // Deep slate blue-gray
+      light: "#F9FAFB",          // Very soft white
+      background: "#F3F4F6",     // Tailwind gray-100
+      card: "#E5E7EB",           // Tailwind gray-200
+      muted: "#E0E0E0",          // Light muted neutral
+      accent: "#9CA3AF",         // Tailwind gray-400
       fontHeading: "Merriweather",
       fontBody: "Lato",
-      body: "#1a202c",
+      body: "#111827",           // True slate
     },
+    
     {
-      name: "Dark Mode",
-      primary: "#6366f1",
-      secondary: "#8b5cf6",
-      dark: "#111827",
-      light: "#e5e7eb",
-      background: "#1f2937",
-      card: "#374151",
-      muted: "#4b5563",
-      accent: "#5eead4",
+      name: "Dark Prism",
+      primary: "#818CF8",        // Tailwind indigo-400
+      secondary: "#A78BFA",      // Tailwind violet-400
+      dark: "#F9FAFB",           // Light in a dark theme
+      light: "#1F2937",          // Base canvas
+      background: "#111827",     // Deep navy
+      card: "#1E293B",           // Slightly elevated panel
+      muted: "#374151",          // Dark muted
+      accent: "#5EEAD4",         // Tailwind teal-300 (pops well on dark)
       fontHeading: "Inter",
       fontBody: "Roboto",
-      body: "#e5e7eb",
+      body: "#F3F4F6",           // Light gray for text
     },
+    
     {
-      name: "Midnight Blue",
-      primary: "#60a5fa",
-      secondary: "#34d399",
-      dark: "#0f172a",
-      light: "#e2e8f0",
-      background: "#1e293b",
-      card: "#334155",
-      muted: "#475569",
-      accent: "#f472b6",
+      name: "Midnight Bloom",
+      primary: "#60A5FA",        // Sky blue (Tailwind blue-400)
+      secondary: "#34D399",      // Emerald green (Tailwind emerald-400)
+      dark: "#F1F5F9",           // Light for dark base
+      light: "#0F172A",          // Midnight navy
+      background: "#1E293B",     // Deep slate
+      card: "#334155",           // Panel slate
+      muted: "#475569",          // Muted gray-blue
+      accent: "#F472B6",         // Rose pink (Tailwind pink-400)
       fontHeading: "Outfit",
       fontBody: "Source Sans Pro",
-      body: "#e5e7eb",
-    },
+      body: "#E5E7EB",           // Light gray
+    }
+    
   ],
   minimal: [
     {

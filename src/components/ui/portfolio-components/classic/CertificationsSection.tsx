@@ -80,13 +80,13 @@ export default function CertificationsSection({ certifications, theme }: Certifi
                       </h3>
                     </div>
 
-                    <div className="text-sm opacity-80">
+                    <div className="text-sm opacity-80" style={{ color: theme?.primary }}>
                       <p style={{ fontFamily: theme?.fontBody || "Roboto" }}>
                         Issued by <strong>{cert.issuingOrganization}</strong>
                       </p>
                     </div>
 
-                    <div className="flex items-center text-sm opacity-70">
+                    <div className="flex items-center text-sm opacity-70" style={{ color: theme?.primary }}>
                       <CalendarCheck2 className="w-4 h-4 mr-2" />
                       {new Date(cert.issueDate).toLocaleDateString(undefined, {
                         year: "numeric",

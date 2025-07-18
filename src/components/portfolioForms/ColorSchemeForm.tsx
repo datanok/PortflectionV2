@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Controller, useWatch } from "react-hook-form";
 import { cn } from "@/lib/utils";
-import { getColorSchemesForLayout, LayoutType } from "./types/ColorSchemes";
-import { useState, useEffect } from "react";
+import { getColorSchemesForLayout, LayoutType, COLOR_SCHEMES } from "./types/ColorSchemes";
+import { useState, useEffect, useMemo } from "react";
 import { ColorScheme } from "@/app/types/portfolio";
 import { FONT_MAP } from "@/lib/fontMap";
 
@@ -13,11 +13,12 @@ interface ColorSchemeFormProps {
 
 const ColorSchemeForm: React.FC<ColorSchemeFormProps> = ({ 
   control, 
-  layoutType 
+  layoutType = 'classic' // Default to 'classic' if not provided
 }) => {
   // Get color schemes for the current layout type
-  console.log(layoutType,"layoutType");
-  const colorSchemes = getColorSchemesForLayout(layoutType);
+  const colorSchemes = useMemo(() => {
+    return getColorSchemesForLayout(layoutType);
+  }, [layoutType]);
   
   // Watch the 'theme' field to reflect changes in the preview
   const selectedScheme = useWatch({ control, name: "theme" });

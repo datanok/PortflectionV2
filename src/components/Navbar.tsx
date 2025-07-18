@@ -63,17 +63,22 @@ export default function Navbar() {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full px-4 pb-4 -mb-4">
-      <div className="absolute left-0 w-full h-24 bg-background/15 backdrop-blur-lg"></div>
-      <div className="relative mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
-        <NavbarComponent className="py-2">
-          <NavbarLeft>
-            <Logo />
-          </NavbarLeft>
-          <NavbarRight className="flex items-center space-x-2 sm:space-x-4">
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
-              {navLinks.map((link, index) => (
+    <header className="sticky top-0 z-50 w-full bg-transparent backdrop-blur-md px-4 pb-4 -mb-4">
+    <div className="absolute inset-0 bg-background/15 backdrop-blur-lg z-[-1]" />
+  
+    <div className="relative mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
+      <NavbarComponent className="py-3 flex items-center justify-between">
+        {/* Left Side: Logo */}
+        <NavbarLeft>
+          <Logo />
+        </NavbarLeft>
+  
+        {/* Right Side: Navigation */}
+        <NavbarRight className="flex items-center space-x-2 sm:space-x-4">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            {navLinks.map(
+              (link, index) =>
                 (!link.authRequired || (isHydrated && data)) && (
                   <Link
                     key={index}
@@ -83,31 +88,32 @@ export default function Navbar() {
                     {link.text}
                   </Link>
                 )
-              ))}
-              {isHydrated && <AuthButtons />}
-            </div>
-
-            <ThemeToggle />
-
-            {/* Mobile Navigation */}
+            )}
+            {isHydrated && <AuthButtons />}
+          </nav>
+  
+          {/* Theme Toggle */}
+          <ThemeToggle />
+  
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="shrink-0 md:hidden"
+                  className="shrink-0"
                   onClick={() => setIsOpen(!isOpen)}
                 >
-                  {isOpen ? (
-                    <X className="size-5" />
-                  ) : (
-                    <Menu className="size-5" />
-                  )}
+                  {isOpen ? <X className="size-5" /> : <Menu className="size-5" />}
                   <span className="sr-only">Toggle navigation menu</span>
                 </Button>
               </SheetTrigger>
-
-              <SheetContent side="right" className="w-full max-w-xs sm:max-w-sm px-6 py-6 flex flex-col">
+  
+              <SheetContent
+                side="right"
+                className="w-full max-w-xs sm:max-w-sm px-6 py-6 flex flex-col"
+              >
                 {/* Logo */}
                 <div className="mb-6">
                   <Link
@@ -131,25 +137,24 @@ export default function Navbar() {
                     </motion.span>
                   </Link>
                 </div>
-
-                {/* Sheet Title (Optional) */}
+  
                 <SheetTitle className="text-lg">Menu</SheetTitle>
-
-                {/* Navigation */}
+  
                 <nav className="mt-6 flex flex-col gap-4 text-base font-medium">
-                  {navLinks.map((link, index) => (
-                    (!link.authRequired || (isHydrated && data)) && (
-                      <Link
-                        key={index}
-                        href={link.href}
-                        className="text-muted-foreground hover:text-foreground transition-colors py-2"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {link.text}
-                      </Link>
-                    )
-                  ))}
-
+                  {navLinks.map(
+                    (link, index) =>
+                      (!link.authRequired || (isHydrated && data)) && (
+                        <Link
+                          key={index}
+                          href={link.href}
+                          className="text-muted-foreground hover:text-foreground transition-colors py-2"
+                          onClick={() => setIsOpen(false)}
+                        >
+                          {link.text}
+                        </Link>
+                      )
+                  )}
+  
                   {isHydrated && (
                     <div className="pt-4 mt-2 border-t">
                       <AuthButtons />
@@ -158,10 +163,11 @@ export default function Navbar() {
                 </nav>
               </SheetContent>
             </Sheet>
-
-          </NavbarRight>
-        </NavbarComponent>
-      </div>
-    </header>
+          </div>
+        </NavbarRight>
+      </NavbarComponent>
+    </div>
+  </header>
+  
   );
 }

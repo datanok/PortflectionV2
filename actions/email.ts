@@ -31,7 +31,7 @@ export async function sendEmail({
     const requestBody = JSON.stringify(emailData);
 
 
-    const res = await fetch("http://localhost:3001/send", {
+    const res = await fetch(`${process.env.EMAIL_WORKER_URL}/send`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
