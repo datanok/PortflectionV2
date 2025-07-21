@@ -29,41 +29,47 @@ export async function generateMetadata({
     profileImage,
   } = portfolioData;
 
-  const normalizedTitle = title.toLowerCase();
-  const normalizedType = portfolioType.toLowerCase();
+  // Add null checks to prevent errors
+  const safeTitle = title || "";
+  const safePortfolioType = portfolioType || "Professional";
+
+  const normalizedTitle = safeTitle.toLowerCase();
+  const normalizedType = safePortfolioType.toLowerCase();
 
   const shouldIncludeType = !normalizedTitle.includes(normalizedType);
 
   const readableTitle = shouldIncludeType
-    ? `${name} – ${title} ${portfolioType} Portfolio`
-    : `${name} – ${title} Portfolio`;
+    ? `${name} – ${safeTitle} ${safePortfolioType} Portfolio`
+    : `${name} – ${safeTitle} Portfolio`;
 
   const description =
     about ||
-    `View ${name}'s ${portfolioType.toLowerCase()} portfolio featuring their projects, skills, and experience.`;
+    `View ${name}'s ${safePortfolioType.toLowerCase()} portfolio featuring their projects, skills, and experience.`;
 
   return {
-    title: readableTitle, // Remove the extra template literal wrapping
+    title: readableTitle,
     description,
     openGraph: {
       title: readableTitle,
       description,
-      images: profileImage ? [{ url: profileImage, alt: `${name}'s profile photo` }] : undefined,
+      images: profileImage
+        ? [{ url: profileImage, alt: `${name}'s profile photo` }]
+        : undefined,
       type: "profile",
       siteName: "Portflection",
       locale: "en_US",
-      url: `https://portflection.com/portfolio/${id}`, // Add canonical URL
+      url: `https://portflection.com/portfolio/${id}`,
     },
     twitter: {
       card: "summary_large_image",
       title: readableTitle,
       description,
-      images: profileImage ? [profileImage] : undefined, // Twitter images can be simpler
+      images: profileImage ? [profileImage] : undefined,
       creator: "@portflection",
       site: "@portflection",
     },
     alternates: {
-      canonical: `https://portflection.com/portfolio/${id}`, // SEO canonical URL
+      canonical: `https://portflection.com/portfolio/${id}`,
     },
     robots: {
       index: true,
@@ -72,18 +78,52 @@ export async function generateMetadata({
   };
 }
 // Main page component
-export default async function PortfolioPage(props: { params: Promise<{ id: string }> }) {
+export default async function PortfolioPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   const params = await props.params;
   const portfolioData = await getUserPortfolioData(params.id);
-  
+
   if (!portfolioData) notFound();
 
-  const { portfolioType } = portfolioData;
+  // Transform old portfolio data format to new format
+  const transformedPortfolioData = {
+    id: (portfolioData as any).id || params.id,
+    name:
+      (portfolioData as any).name ||
+      (portfolioData as any).title ||
+      "Untitled Portfolio",
+    slug: (portfolioData as any).slug || (portfolioData as any).id || params.id,
+    description: (portfolioData as any).description,
+    theme: (portfolioData as any).theme,
+    components:
+      (portfolioData as any).components || (portfolioData as any).layout || [],
+    userId: (portfolioData as any).userId,
+    isPublic:
+      (portfolioData as any).isPublished ||
+      (portfolioData as any).isPublic ||
+      false,
+    portfolioType: (portfolioData as any).portfolioType || "developer",
+    // Legacy fields for backward compatibility
+    title: (portfolioData as any).title,
+    email: (portfolioData as any).email,
+    phone: (portfolioData as any).phone,
+    location: (portfolioData as any).location,
+    about: (portfolioData as any).about,
+    profileImage: (portfolioData as any).profileImage,
+    contactForm: (portfolioData as any).contactForm,
+    linkedinLink: (portfolioData as any).linkedinLink,
+    personalWebsite: (portfolioData as any).personalWebsite,
+    socials: (portfolioData as any).socials,
+    layoutType: (portfolioData as any).layoutType,
+    extraData: (portfolioData as any).extraData,
+    user: (portfolioData as any).user,
+  };
 
   return (
     <PortfolioClientPage
-      portfolioData={portfolioData}
-      portfolioType={portfolioType}
+      portfolioData={transformedPortfolioData}
+      portfolioType={transformedPortfolioData.portfolioType}
     />
   );
 }

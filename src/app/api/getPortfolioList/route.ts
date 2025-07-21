@@ -1,27 +1,18 @@
 // Optimized GET API endpoint
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { betterFetch } from "@better-fetch/fetch";
-import { Session } from "../../../../auth";
+import { auth } from "../../../../auth";
 
 // Authentication middleware
-const authenticateUser = async (req: NextRequest): Promise<Session | null> => {
+const authenticateUser = async (req: NextRequest) => {
   try {
-    const { data: session } = await betterFetch<Session>(
-      "/api/auth/get-session",
-      {
-        baseURL: process.env.BETTER_AUTH_URL,
-        headers: {
-          cookie: req.headers.get("cookie") || "",
-        },
-        // Add caching to avoid repeated auth calls
-        cache: "force-cache",
-      }
-    );
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
 
     return session;
   } catch (error) {
-    console.error("Authentication error:", error);
+    console.error("❌ Authentication error:", error);
     return null;
   }
 };

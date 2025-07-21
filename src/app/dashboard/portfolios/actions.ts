@@ -25,8 +25,12 @@ export async function deletePortfolioAction(id: string) {
   await verifyPortfolioOwnership(id, session.user.id);
 
   // Verify ownership before deletion
-  const existingPortfolio = await prisma.portfolio.findUnique({
-    where: { id, userId: session.user.id },
+  const existingPortfolio = await prisma.portfolio.findFirst({
+    where: {
+      id,
+      userId: session.user.id,
+      slug: { not: null }, // Filter out portfolios with null slugs
+    },
   });
   if (!existingPortfolio) {
     throw new Error("Portfolio not found or access denied");
@@ -49,6 +53,14 @@ export async function createPortfolioAction(data: Prisma.PortfolioCreateInput) {
   if (!session?.user?.id) throw new Error("Unauthorized");
   const { portfolioType = "developer", ...body } = data;
 
+  // Generate a slug from the name if not provided
+  const slug =
+    data.slug ||
+    data.name
+      ?.toLowerCase()
+      .replace(/[^a-z0-9-]/g, "-")
+      .replace(/-+/g, "-") ||
+    "untitled-portfolio";
 
   // Split scalar and extra fields
   const scalarFields = [
@@ -71,14 +83,16 @@ export async function createPortfolioAction(data: Prisma.PortfolioCreateInput) {
   const prismaData: Prisma.PortfolioCreateInput = {
     portfolioType,
     name: data.name,
+    slug: slug,
+    layout: data.layout || [], // Default empty layout
     title: data.title,
     email: data.email,
     createdAt: new Date(),
     updatedAt: new Date(),
     user: {
       connect: {
-        id: session.user.id
-      }
+        id: session.user.id,
+      },
     },
   };
   const extraData: Record<string, any> = {};
@@ -107,14 +121,17 @@ export async function updatePortfolioAction(data: any) {
 
   if (!session?.user?.id) throw new Error("Unauthorized");
   const { id, portfolioType = "developer", ...body } = data;
-  console.log(body,"body");
+  console.log(body, "body");
   if (!id) throw new Error("Portfolio ID is required");
   await verifyPortfolioOwnership(id, session.user.id);
 
-
   // Verify ownership
-  const existingPortfolio = await prisma.portfolio.findUnique({
-    where: { id, userId: session.user.id },
+  const existingPortfolio = await prisma.portfolio.findFirst({
+    where: {
+      id,
+      userId: session.user.id,
+      slug: { not: null }, // Filter out portfolios with null slugs
+    },
   });
   if (!existingPortfolio)
     throw new Error("Portfolio not found or access denied");
@@ -136,7 +153,10 @@ export async function updatePortfolioAction(data: any) {
     "portfolioType",
     "layoutType", // Keeping this for backward compatibility
   ];
-  const prismaData: Record<string, any> = { portfolioType, updatedAt: new Date() };
+  const prismaData: Record<string, any> = {
+    portfolioType,
+    updatedAt: new Date(),
+  };
   const extraData: Record<string, any> = {};
   for (const key in body) {
     if (scalarFields.includes(key)) {
@@ -146,7 +166,7 @@ export async function updatePortfolioAction(data: any) {
     }
   }
   prismaData.extraData = extraData;
-  console.log(prismaData,"prismaData");
+  console.log(prismaData, "prismaData");
   const portfolio = await prisma.portfolio.update({
     where: { id },
     data: prismaData,
@@ -167,8 +187,12 @@ export async function publishPortfolioAction(portfolioId: string) {
   if (!portfolioId) throw new Error("Portfolio ID is required");
 
   // Verify ownership
-  const existingPortfolio = await prisma.portfolio.findUnique({
-    where: { id: portfolioId, userId: session.user.id },
+  const existingPortfolio = await prisma.portfolio.findFirst({
+    where: {
+      id: portfolioId,
+      userId: session.user.id,
+      slug: { not: null }, // Filter out portfolios with null slugs
+    },
   });
 
   if (!existingPortfolio)

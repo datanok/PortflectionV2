@@ -1,23 +1,17 @@
 import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { betterFetch } from '@better-fetch/fetch';
-import { Session } from '../../../../auth';
+import { auth } from "../../../../auth";
 
 // Authentication middleware
-const authenticateUser = async (req: NextRequest): Promise<Session | null> => {
+const authenticateUser = async (req: NextRequest) => {
   try {
-    const { data: session } = await betterFetch<Session>('/api/auth/get-session', {
-      baseURL: process.env.BETTER_AUTH_URL,
-      headers: {
-        cookie: req.headers.get('cookie') || '',
-      },
-      // Add caching to avoid repeated auth calls
-      cache: 'force-cache', 
+    const session = await auth.api.getSession({
+      headers: req.headers,
     });
-    
+
     return session;
   } catch (error) {
-    console.error('Authentication error:', error);
+    console.error("❌ Authentication error:", error);
     return null;
   }
 };
@@ -25,44 +19,46 @@ const authenticateUser = async (req: NextRequest): Promise<Session | null> => {
 export async function GET(req: NextRequest) {
   try {
     const session = await authenticateUser(req);
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     const userId = session.user.id;
     const searchParams = req.nextUrl.searchParams;
-    
+
     // Get all portfolios for this user
     const userPortfolios = await prisma.portfolio.findMany({
       where: { userId },
-      select: { 
+      select: {
         id: true,
         name: true, // Assuming there's a name field, include relevant fields
-        views: true
+        views: true,
       },
-      orderBy: { createdAt: 'asc' } // Order by creation date
+      orderBy: { createdAt: "asc" }, // Order by creation date
     });
-    
+
     if (userPortfolios.length === 0) {
-      return NextResponse.json({
-        error: {
-          code: "NO_PORTFOLIOS",
-          message: "You haven't created any portfolios yet."
-        }
-      }, { status: 404 });
-      
+      return NextResponse.json(
+        {
+          error: {
+            code: "NO_PORTFOLIOS",
+            message: "You haven't created any portfolios yet.",
+          },
+        },
+        { status: 404 }
+      );
     }
-    
+
     // Extract all portfolio IDs
-    const portfolioIds = userPortfolios.map(portfolio => portfolio.id);
-    
+    const portfolioIds = userPortfolios.map((portfolio) => portfolio.id);
+
     const period = searchParams.get("period") || "7days"; // default to last 7 days
-    
+
     // Calculate date range based on period
     const now = new Date();
     let startDate = new Date();
-    
+
     switch (period) {
       case "24h":
         startDate.setDate(now.getDate() - 1);
@@ -84,80 +80,83 @@ export async function GET(req: NextRequest) {
     }
 
     // Calculate total views across all portfolios
-    const totalViews = userPortfolios.reduce((sum, portfolio) => sum + (portfolio.views || 0), 0);
+    const totalViews = userPortfolios.reduce(
+      (sum, portfolio) => sum + (portfolio.views || 0),
+      0
+    );
 
     // Get views over time for all portfolios
     const viewsOverTime = await prisma.portfolioView.groupBy({
-      by: ['timestamp', 'portfolioId'],
+      by: ["timestamp", "portfolioId"],
       where: {
         portfolioId: { in: portfolioIds },
-        timestamp: { gte: startDate }
+        timestamp: { gte: startDate },
       },
       _count: {
-        id: true
+        id: true,
       },
       orderBy: {
-        timestamp: 'asc'
-      }
+        timestamp: "asc",
+      },
     });
 
     // Get views by country for all portfolios
     const viewsByCountry = await prisma.portfolioView.groupBy({
-      by: ['country', 'portfolioId'],
+      by: ["country", "portfolioId"],
       where: {
         portfolioId: { in: portfolioIds },
         timestamp: { gte: startDate },
-        country: { not: null }
+        country: { not: null },
       },
       _count: {
-        id: true
+        id: true,
       },
       orderBy: {
         _count: {
-          id: 'desc'
-        }
-      }
+          id: "desc",
+        },
+      },
     });
 
     // Get views by referrer for all portfolios
     const viewsByReferrer = await prisma.portfolioView.groupBy({
-      by: ['referrer', 'portfolioId'],
+      by: ["referrer", "portfolioId"],
       where: {
         portfolioId: { in: portfolioIds },
         timestamp: { gte: startDate },
-        referrer: { not: null }
+        referrer: { not: null },
       },
       _count: {
-        id: true
+        id: true,
       },
       orderBy: {
         _count: {
-          id: 'desc'
-        }
+          id: "desc",
+        },
       },
-      take: 20 // Increased to account for multiple portfolios
+      take: 20, // Increased to account for multiple portfolios
     });
 
     // Get bot vs human traffic for all portfolios
     const botTraffic = await prisma.portfolioView.groupBy({
-      by: ['isBot', 'portfolioId'],
+      by: ["isBot", "portfolioId"],
       where: {
         portfolioId: { in: portfolioIds },
-        timestamp: { gte: startDate }
+        timestamp: { gte: startDate },
       },
       _count: {
-        id: true
-      }
+        id: true,
+      },
     });
 
     // Recent visitors for all portfolios
     const recentVisitors = await prisma.portfolioView.findMany({
       where: {
         portfolioId: { in: portfolioIds },
-        timestamp: { gte: startDate }
+        timestamp: { gte: startDate },
       },
       orderBy: {
-        timestamp: 'desc'
+        timestamp: "desc",
       },
       take: 50,
       select: {
@@ -166,15 +165,15 @@ export async function GET(req: NextRequest) {
         country: true,
         referrer: true,
         userAgent: true,
-        isBot: true
-      }
+        isBot: true,
+      },
     });
 
     // Process the data to organize it by portfolio
     const portfolioData = {};
-    
+
     // Initialize data structure for each portfolio
-    userPortfolios.forEach(portfolio => {
+    userPortfolios.forEach((portfolio) => {
       portfolioData[portfolio.id] = {
         id: portfolio.id,
         name: portfolio.name || `Portfolio ${portfolio.id}`,
@@ -183,56 +182,56 @@ export async function GET(req: NextRequest) {
         viewsByCountry: [],
         viewsByReferrer: [],
         botTraffic: [],
-        recentVisitors: []
+        recentVisitors: [],
       };
     });
-    
+
     // Populate views over time
-    viewsOverTime.forEach(view => {
+    viewsOverTime.forEach((view) => {
       const portfolioId = view.portfolioId;
       if (portfolioData[portfolioId]) {
         portfolioData[portfolioId].viewsOverTime.push({
           timestamp: view.timestamp,
-          count: view._count.id
+          count: view._count.id,
         });
       }
     });
-    
+
     // Populate views by country
-    viewsByCountry.forEach(view => {
+    viewsByCountry.forEach((view) => {
       const portfolioId = view.portfolioId;
       if (portfolioData[portfolioId]) {
         portfolioData[portfolioId].viewsByCountry.push({
           country: view.country,
-          count: view._count.id
+          count: view._count.id,
         });
       }
     });
-    
+
     // Populate views by referrer
-    viewsByReferrer.forEach(view => {
+    viewsByReferrer.forEach((view) => {
       const portfolioId = view.portfolioId;
       if (portfolioData[portfolioId]) {
         portfolioData[portfolioId].viewsByReferrer.push({
           referrer: view.referrer,
-          count: view._count.id
+          count: view._count.id,
         });
       }
     });
-    
+
     // Populate bot traffic
-    botTraffic.forEach(view => {
+    botTraffic.forEach((view) => {
       const portfolioId = view.portfolioId;
       if (portfolioData[portfolioId]) {
         portfolioData[portfolioId].botTraffic.push({
           isBot: view.isBot,
-          count: view._count.id
+          count: view._count.id,
         });
       }
     });
-    
+
     // Populate recent visitors
-    recentVisitors.forEach(visitor => {
+    recentVisitors.forEach((visitor) => {
       const portfolioId = visitor.portfolioId;
       if (portfolioData[portfolioId]) {
         portfolioData[portfolioId].recentVisitors.push({
@@ -240,7 +239,7 @@ export async function GET(req: NextRequest) {
           country: visitor.country,
           referrer: visitor.referrer,
           userAgent: visitor.userAgent,
-          isBot: visitor.isBot
+          isBot: visitor.isBot,
         });
       }
     });
@@ -253,72 +252,92 @@ export async function GET(req: NextRequest) {
       viewsByReferrer: {},
       botTraffic: {
         bot: 0,
-        human: 0
-      }
+        human: 0,
+      },
     };
-    
+
     // Aggregate views over time
-    viewsOverTime.forEach(view => {
-      const timestamp = view.timestamp.toISOString().split('T')[0]; // Get just the date part
+    viewsOverTime.forEach((view) => {
+      const timestamp = view.timestamp.toISOString().split("T")[0]; // Get just the date part
       if (!aggregatedStats.viewsOverTime[timestamp]) {
         aggregatedStats.viewsOverTime[timestamp] = 0;
       }
       aggregatedStats.viewsOverTime[timestamp] += view._count.id;
     });
-    
+
     // Aggregate views by country
-    viewsByCountry.forEach(view => {
+    viewsByCountry.forEach((view) => {
       if (!aggregatedStats.viewsByCountry[view.country]) {
         aggregatedStats.viewsByCountry[view.country] = 0;
       }
-      aggregatedStats.viewsByCountry[view.country] = (aggregatedStats.viewsByCountry[view.country] || 0) + Number(view._count?.id || 0);
+      aggregatedStats.viewsByCountry[view.country] =
+        (aggregatedStats.viewsByCountry[view.country] || 0) +
+        Number(view._count?.id || 0);
     });
-    
+
     // Aggregate views by referrer
-    viewsByReferrer.forEach(view => {
+    viewsByReferrer.forEach((view) => {
       if (!aggregatedStats.viewsByReferrer[view.referrer]) {
         aggregatedStats.viewsByReferrer[view.referrer] = 0;
       }
-      aggregatedStats.viewsByReferrer[view.referrer] = (aggregatedStats.viewsByReferrer[view.referrer] || 0) + Number(view._count?.id || 0);
+      aggregatedStats.viewsByReferrer[view.referrer] =
+        (aggregatedStats.viewsByReferrer[view.referrer] || 0) +
+        Number(view._count?.id || 0);
     });
-    
+
     // Aggregate bot traffic
-    botTraffic.forEach(view => {
+    botTraffic.forEach((view) => {
       if (view.isBot) {
-        aggregatedStats.botTraffic.bot = (aggregatedStats.botTraffic.bot || 0) + Number(view._count?.id || 0);
+        aggregatedStats.botTraffic.bot =
+          (aggregatedStats.botTraffic.bot || 0) + Number(view._count?.id || 0);
       } else {
-        aggregatedStats.botTraffic.human = (aggregatedStats.botTraffic.human || 0) + Number(view._count?.id || 0);
+        aggregatedStats.botTraffic.human =
+          (aggregatedStats.botTraffic.human || 0) +
+          Number(view._count?.id || 0);
       }
-    }); 
+    });
 
     // Convert aggregated stats objects to arrays for easier consumption
     const formattedAggregatedStats = {
       totalViews: aggregatedStats.totalViews,
-      viewsOverTime: Object.entries(aggregatedStats.viewsOverTime).map(([date, count]) => ({ 
-        date, 
-        count 
-      })).sort((a, b) => a.date.localeCompare(b.date)),
-      viewsByCountry: Object.entries(aggregatedStats.viewsByCountry).map(([country, count]) => ({ 
-        country, 
-        count: Number(count) 
-      })).sort((a, b) => Number(b.count) - Number(a.count)),
-      viewsByReferrer: Object.entries(aggregatedStats.viewsByReferrer).map(([referrer, count]) => ({ 
-        referrer, 
-        count: Number(count) 
-      })).sort((a, b) => Number(b.count) - Number(a.count)).slice(0, 10),
+      viewsOverTime: Object.entries(aggregatedStats.viewsOverTime)
+        .map(([date, count]) => ({
+          date,
+          count,
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date)),
+      viewsByCountry: Object.entries(aggregatedStats.viewsByCountry)
+        .map(([country, count]) => ({
+          country,
+          count: Number(count),
+        }))
+        .sort((a, b) => Number(b.count) - Number(a.count)),
+      viewsByReferrer: Object.entries(aggregatedStats.viewsByReferrer)
+        .map(([referrer, count]) => ({
+          referrer,
+          count: Number(count),
+        }))
+        .sort((a, b) => Number(b.count) - Number(a.count))
+        .slice(0, 10),
       botTraffic: [
         { isBot: true, count: aggregatedStats.botTraffic.bot },
-        { isBot: false, count: aggregatedStats.botTraffic.human }
-      ]
+        { isBot: false, count: aggregatedStats.botTraffic.human },
+      ],
     };
 
     return NextResponse.json({
-      portfolios: userPortfolios.map(p => ({ id: p.id, name: p.name || `Portfolio ${p.id}` })),
+      portfolios: userPortfolios.map((p) => ({
+        id: p.id,
+        name: p.name || `Portfolio ${p.id}`,
+      })),
       portfolioData,
-      aggregatedStats: formattedAggregatedStats
+      aggregatedStats: formattedAggregatedStats,
     });
   } catch (error) {
-    console.error('Analytics API error:', error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Analytics API error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

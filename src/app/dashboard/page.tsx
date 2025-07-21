@@ -11,8 +11,28 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FolderIcon, FileTextIcon, BarChart3Icon, Trash2, ChevronRight, Pencil, Loader2, Info, Plus, Globe, ArrowUpRight, User, Bot } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  FolderIcon,
+  FileTextIcon,
+  BarChart3Icon,
+  Trash2,
+  ChevronRight,
+  Pencil,
+  Loader2,
+  Info,
+  Plus,
+  Globe,
+  ArrowUpRight,
+  User,
+  Bot,
+} from "lucide-react";
 import { deletePortfolioAction } from "./portfolios/actions";
 import { toast } from "sonner";
 import {
@@ -28,6 +48,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { PortfolioListCard } from "@/components/PortfolioListCard";
+import { listPortfolios } from "@/actions/portfolio-actions";
 
 interface Portfolio {
   id: string;
@@ -36,6 +57,12 @@ interface Portfolio {
   updatedAt?: string;
   views?: number;
   isPublished?: boolean;
+  slug?: string;
+  description?: string;
+  stats?: {
+    components: number;
+    totalViews: number;
+  };
 }
 
 interface AnalyticsData {
@@ -52,20 +79,47 @@ export default function DashboardPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [portfolioListLoading, setPortfolioListLoading] = useState(true);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(
+    null
+  );
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(null);
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(
+    null
+  );
 
   // Load portfolios
   useEffect(() => {
-    fetch("/api/getPortfolioList?limit=3")
-      .then((res) => res.json())
-      .then((data) => {
-        setPortfolioList(data.portfolios || []);
-        setTotalCount(data.totalCount || 0);
+    async function loadPortfolios() {
+      try {
+        const result = await listPortfolios({
+          page: 1,
+          limit: 3,
+          sortBy: "updatedAt",
+          sortOrder: "desc",
+          status: "all",
+        });
+        setPortfolioList(
+          result.portfolios.map((p) => ({
+            id: p.id,
+            title: p.name,
+            type: p.portfolioType,
+            updatedAt: p.updatedAt.toString(),
+            isPublished: p.isPublic,
+            slug: p.slug,
+            description: p.description,
+            views: p.views,
+            stats: p.stats,
+          }))
+        );
+        setTotalCount(result.pagination.totalCount);
+      } catch (error) {
+        console.error("Failed to load portfolios:", error);
+        toast.error("Failed to load portfolios");
+      } finally {
         setPortfolioListLoading(false);
-      })
-      .catch(() => setPortfolioListLoading(false));
+      }
+    }
+    loadPortfolios();
   }, []);
 
   // Load analytics data
@@ -97,16 +151,21 @@ export default function DashboardPage() {
   // Calculate human vs bot traffic percentages
   const getTrafficPercentages = () => {
     if (!analyticsData?.botTraffic) return { human: 0, bot: 0 };
-    
-    const totalTraffic = analyticsData.botTraffic.reduce((sum, item) => sum + item.count, 0);
+
+    const totalTraffic = analyticsData.botTraffic.reduce(
+      (sum, item) => sum + item.count,
+      0
+    );
     if (totalTraffic === 0) return { human: 0, bot: 0 };
-    
-    const botTraffic = analyticsData.botTraffic.find(item => item.isBot)?.count || 0;
-    const humanTraffic = analyticsData.botTraffic.find(item => !item.isBot)?.count || 0;
-    
+
+    const botTraffic =
+      analyticsData.botTraffic.find((item) => item.isBot)?.count || 0;
+    const humanTraffic =
+      analyticsData.botTraffic.find((item) => !item.isBot)?.count || 0;
+
     return {
       human: (humanTraffic / totalTraffic) * 100,
-      bot: (botTraffic / totalTraffic) * 100
+      bot: (botTraffic / totalTraffic) * 100,
     };
   };
 
@@ -217,7 +276,15 @@ export default function DashboardPage() {
             setSelectedPortfolioId(id);
             setOpenDeleteDialog(true);
           }}
-          onView={(id) => router.push(`portfolio/${id}`)}
+          onView={(id) => {
+            // Find the portfolio to get its slug
+            const portfolio = portfolioList.find((p) => p.id === id);
+            if (portfolio?.isPublished && portfolio?.slug) {
+              router.push(`/portfolio/${portfolio.slug}`);
+            } else {
+              router.push(`/portfolio/preview/${id}`);
+            }
+          }}
           onCreate={() => router.push("/dashboard/portfolios/new")}
         />
       </div>

@@ -21,7 +21,7 @@ interface FooterProps {
 
 export default function FooterSection({
   name = "Portflection",
-  copyright = "© 2025 Portflection. All rights reserved.",
+  copyright = `© ${new Date().getFullYear()} Portflection. All rights reserved.`,
   policies = [
     { text: "Privacy Policy", href: "/privacy-policy" },
     { text: "Terms of Service", href: "/terms" },
@@ -129,7 +129,7 @@ export default function FooterSection({
             <div style={{ color: "var(--muted-foreground)" }}>
               Made with <span style={{ color: "var(--brand)" }}>❤️</span> by{" "}
               <span style={{ fontWeight: 600, color: "var(--brand)" }}>
-                Tanmay
+                Portflection
               </span>
             </div>
             <div className="flex items-center gap-4">

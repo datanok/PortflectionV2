@@ -1,92 +1,70 @@
-import { betterFetch } from '@better-fetch/fetch';
-import { NextRequest } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextRequest } from "next/server";
+import prisma from "@/lib/prisma";
+import { auth } from "../../auth";
 
-interface Session {
-  session: {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    userId: string;
-    expiresAt: Date;
-    token: string;
-    ipAddress?: string;
-    userAgent?: string;
-    impersonatedBy?: string;
-  };
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-    image?: string;
-    role: string;
-    emailVerified: Date | null;
-  };
-}
+// Use the Better Auth session type directly
+type Session = typeof auth.$Infer.Session;
 
-export const authenticateUser = async (req: NextRequest): Promise<Session | null> => {
+export const authenticateUser = async (
+  req: NextRequest
+): Promise<Session | null> => {
   try {
-    const { data: sessionData, error } = await betterFetch<Session>('/api/auth/get-session', {
-      baseURL: process.env.BETTER_AUTH_URL,
-      headers: {
-        cookie: req.headers.get('cookie') ?? '',
-      },
-      cache: 'force-cache',
+    const cookie = req.headers.get("cookie");
+    console.log(
+      "🔍 Authenticating user with cookie:",
+      cookie ? "Present" : "Missing"
+    );
+
+    // Use Better Auth API directly instead of betterFetch
+    const session = await auth.api.getSession({
+      headers: req.headers,
     });
 
-    if (error) {
-      // Handle different error formats
-      let errorMessage = 'Authentication error';
-      
-      if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error && typeof error === 'object') {
-        if ('message' in error && typeof error.message === 'string') {
-          errorMessage = error.message;
-        } else if ('statusText' in error && typeof error.statusText === 'string') {
-          errorMessage = error.statusText;
-        }
-      }
-      
-      if (errorMessage.toLowerCase().includes('expired')) {
-        console.warn('Session expired');
-      } else {
-        console.warn('Authentication error:', errorMessage);
-      }
+    console.log("📊 Session response:", {
+      hasData: !!session,
+      session: session,
+    });
+
+    if (!session) {
+      console.warn("⚠️ No session data received");
       return null;
     }
 
-    if (!sessionData) {
-      console.warn('No session data received');
-      return null;
+    console.log("✅ Authentication successful for user:", session.user.email);
+    return session;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("❌ Authentication failed:", error.message);
+    } else {
+      console.error("❌ Unknown authentication error:", error);
     }
-
-    return sessionData;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error('Authentication fetch failed:', error.message);
-      } else {
-        console.error('Unknown authentication error:', error);
-      }
-      return null;
-    }
-  };
-  
-
+    return null;
+  }
+};
 
 /**
  * Throws an error if the portfolio doesn't exist or the user doesn't own it.
  */
-export async function verifyPortfolioOwnership(portfolioId: string, userId: string) {
-  const portfolio = await prisma.portfolio.findUnique({
-    where: { id: portfolioId },
-  });
+export async function verifyPortfolioOwnership(
+  portfolioId: string,
+  userId: string
+) {
+  try {
+    const portfolio = await prisma.portfolio.findFirst({
+      where: {
+        id: portfolioId,
+        slug: { not: null }, // Filter out portfolios with null slugs
+      },
+    });
 
-if(!portfolio)
-  throw new Error('Portfolio not found');
+    if (!portfolio) throw new Error("Portfolio not found");
 
-if(portfolio.userId !== userId)
-  throw new Error('Access denied. Edit your own portfolio.');
+    if (portfolio.userId !== userId)
+      throw new Error("Access denied. Edit your own portfolio.");
 
-  return portfolio;
+    return portfolio;
+  } catch (error) {
+    console.error("Error in verifyPortfolioOwnership:", error);
+    throw new Error("Portfolio not found or access denied");
+  }
 }
