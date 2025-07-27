@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback, useMemo } from "react";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import { getComponent, componentRegistry } from "@/lib/portfolio/registry";
 import {
@@ -14,6 +14,20 @@ import {
   ChevronRight,
   MoveUp,
   MoveDown,
+  Save,
+  RotateCcw,
+  Sparkles,
+  Layers,
+  Zap,
+  User,
+  Globe,
+  Mail,
+  Github,
+  Linkedin,
+  ExternalLink,
+  ToggleLeft,
+  ToggleRight,
+  Code,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +35,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -34,7 +50,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ContentEditor from "./ContentEditor";
+import ColorPanel from "./ColorPanel";
 
 interface PropertyPanelProps {
   component: PortfolioComponent | null;
@@ -53,11 +77,78 @@ export default function PropertyPanel({
   onMoveUp,
   onMoveDown,
 }: PropertyPanelProps) {
-  // Use component ID to maintain tab state per component
   const [activeTab, setActiveTab] = useState("content");
   const [componentTabStates, setComponentTabStates] = useState<
     Record<string, string>
   >({});
+  const [saveMode, setSaveMode] = useState(false);
+  const [showLivePreview, setShowLivePreview] = useState(true);
+
+  // Debounce refs for color updates
+  const debounceRefs = useRef<Record<string, NodeJS.Timeout>>({});
+
+  // Centralized color state - moved before early return
+  const colorState = useMemo(
+    () => ({
+      background: component?.styles?.backgroundColor || "#ffffff",
+      text: component?.styles?.textColor || "#111827",
+      primary: component?.styles?.primaryColor || "#3b82f6",
+      secondary: component?.styles?.secondaryColor || "#6b7280",
+    }),
+    [component?.styles]
+  );
+
+  // --- DYNAMIC COLOR KEYS EXTRACTION ---
+  // Get defaultStyles from the registry for the selected variant
+  const defaultStyles = useMemo(() => {
+    if (!component) return {};
+    const config = getComponent(component.type as any, component.variant);
+    return config?.defaultStyles || {};
+  }, [component?.type, component?.variant, component]);
+
+  // Dynamically extract color keys from defaultStyles
+  const colorKeys = useMemo(() => {
+    return Object.keys(defaultStyles).filter((key) =>
+      key.toLowerCase().includes("color")
+    );
+  }, [defaultStyles]);
+
+  // Map registry color keys to user-friendly keys for ColorPanel
+  const colorKeyMap = {
+    backgroundColor: "background",
+    textColor: "text",
+    primaryColor: "primary",
+    secondaryColor: "secondary",
+  };
+
+  // Build colors object for ColorPanel dynamically
+  const colors = useMemo(() => {
+    const result: Record<string, string> = {};
+    colorKeys.forEach((key) => {
+      const friendlyKey = colorKeyMap[key] || key;
+      result[friendlyKey] =
+        component?.styles?.[key] ?? defaultStyles[key] ?? "";
+    });
+    return result;
+  }, [colorKeys, component?.styles, defaultStyles]);
+
+  // setColors for ColorPanel (dynamic)
+  const setColors = useCallback(
+    (updater: (colors: any) => any) => {
+      if (!component) return;
+      const newColors = updater(colors);
+      const updatedStyles = { ...component.styles };
+      Object.entries(newColors).forEach(([friendlyKey, value]) => {
+        // Find the registry key for this friendlyKey
+        const registryKey =
+          Object.entries(colorKeyMap).find(([, v]) => v === friendlyKey)?.[0] ||
+          friendlyKey;
+        updatedStyles[registryKey] = value;
+      });
+      handleChange("styles", updatedStyles);
+    },
+    [component, colors]
+  );
 
   // Update active tab when component changes, but preserve tab state per component
   React.useEffect(() => {
@@ -77,20 +168,167 @@ export default function PropertyPanel({
     }
   };
 
+  // Group style keys
+  const styleGroups = useMemo(() => {
+    const groups: Record<string, string[]> = {
+      Colors: [],
+      Spacing: [],
+      Typography: [],
+      Other: [],
+    };
+    Object.keys(defaultStyles).forEach((key) => {
+      if (key.toLowerCase().includes("color")) groups.Colors.push(key);
+      else if (
+        key.toLowerCase().includes("padding") ||
+        key.toLowerCase().includes("margin")
+      )
+        groups.Spacing.push(key);
+      else if (
+        [
+          "fontSize",
+          "fontWeight",
+          "textAlign",
+          "lineHeight",
+          "letterSpacing",
+        ].includes(key)
+      )
+        groups.Typography.push(key);
+      else groups.Other.push(key);
+    });
+    return groups;
+  }, [defaultStyles]);
+
+  // Render a style field based on key and value
+  const renderStyleField = (key: string) => {
+    // Skip color fields, handled by ColorPanel
+    if (colorKeys.includes(key)) return null;
+    const value = component.styles?.[key] ?? defaultStyles[key] ?? "";
+    // Color picker
+    if (key.toLowerCase().includes("color")) {
+      return (
+        <div key={key} className="mb-4">
+          <Label className="text-xs text-muted-foreground">{key}</Label>
+          <div className="flex gap-2 mt-1 items-center">
+            <Input
+              type="color"
+              value={value}
+              onChange={(e) => handleStyleChange(key, e.target.value)}
+              className="w-12 h-8 p-1"
+            />
+            <Input
+              value={value}
+              onChange={(e) => handleStyleChange(key, e.target.value)}
+              className="flex-1 h-8"
+            />
+          </div>
+        </div>
+      );
+    }
+    // Number input for spacing
+    if (
+      key.toLowerCase().includes("padding") ||
+      key.toLowerCase().includes("margin")
+    ) {
+      return (
+        <div key={key} className="mb-4">
+          <Label className="text-xs text-muted-foreground">{key}</Label>
+          <Input
+            type="number"
+            value={value}
+            onChange={(e) => handleStyleChange(key, e.target.value)}
+            className="h-8"
+          />
+        </div>
+      );
+    }
+    // Typography selects
+    if (key === "fontSize") {
+      return (
+        <div key={key} className="mb-4">
+          <Label className="text-xs text-muted-foreground">Font Size</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-8 mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sm">Small</SelectItem>
+              <SelectItem value="base">Base</SelectItem>
+              <SelectItem value="lg">Large</SelectItem>
+              <SelectItem value="xl">Extra Large</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    if (key === "fontWeight") {
+      return (
+        <div key={key} className="mb-4">
+          <Label className="text-xs text-muted-foreground">Font Weight</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-8 mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="semibold">Semibold</SelectItem>
+              <SelectItem value="bold">Bold</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    if (key === "textAlign") {
+      return (
+        <div key={key} className="mb-4">
+          <Label className="text-xs text-muted-foreground">Text Align</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-8 mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Left</SelectItem>
+              <SelectItem value="center">Center</SelectItem>
+              <SelectItem value="right">Right</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    // Default to text input
+    return (
+      <div key={key} className="mb-4">
+        <Label className="text-xs text-muted-foreground">{key}</Label>
+        <Input
+          value={value}
+          onChange={(e) => handleStyleChange(key, e.target.value)}
+          className="h-8"
+        />
+      </div>
+    );
+  };
+
   if (!component) {
     return (
-      <div className="w-full lg:w-80 xl:w-96 p-4 bg-white border-l border-gray-200 min-h-0">
-        <div className="flex items-center gap-2 mb-4">
-          <Settings className="w-5 h-5 text-gray-500" />
-          <h2 className="text-lg font-semibold text-gray-700">Properties</h2>
-        </div>
-        <div className="text-center py-8">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <Eye className="w-8 h-8 text-gray-400" />
+      <div className="w-full lg:w-80 xl:w-96 bg-gradient-to-b from-background to-muted/20 border-l border-border min-h-screen flex flex-col">
+        <div className="p-6 text-center">
+          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-2xl flex items-center justify-center">
+            <Eye className="w-10 h-10 text-primary/60" />
           </div>
-          <p className="text-sm text-gray-500 mb-2">No component selected</p>
-          <p className="text-xs text-gray-400">
-            Select a component to edit its properties
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            No Component Selected
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            Select a component from the canvas to edit its properties
           </p>
         </div>
       </div>
@@ -125,25 +363,15 @@ export default function PropertyPanel({
 
   const availableVariants = getAvailableVariants();
 
-  // Debug: Log component info
-  console.log("PropertyPanel - Component:", {
-    type: component.type,
-    variant: component.variant,
-    availableVariants: availableVariants,
-    componentConfig: componentConfig,
-  });
   const handleChange = (field: string, value: any) => {
     if (field === "variant") {
-      // When changing variant, preserve user changes and only merge with defaults for missing properties
       try {
         const newVariantConfig = getComponent(component.type as any, value);
         if (newVariantConfig) {
-          // Merge defaultProps with existing props, but ensure all required props are present
           const mergedProps = {
-            ...newVariantConfig.defaultProps, // Start with new variant defaults
-            ...component.props, // Override with existing user props (preserves user changes)
+            ...newVariantConfig.defaultProps,
+            ...component.props,
           };
-          // Ensure all keys from defaultProps are present
           for (const key of Object.keys(newVariantConfig.defaultProps)) {
             if (mergedProps[key] === undefined || mergedProps[key] === "") {
               mergedProps[key] = newVariantConfig.defaultProps[key];
@@ -151,31 +379,32 @@ export default function PropertyPanel({
           }
 
           const mergedStyles = {
-            ...newVariantConfig.defaultStyles, // Start with new variant defaults
-            ...component.styles, // Override with existing user styles (preserves user changes)
+            ...newVariantConfig.defaultStyles,
+            ...component.styles,
           };
 
           onUpdate(component.id, {
+            ...component,
             variant: value,
             props: mergedProps,
             styles: mergedStyles,
           });
         } else {
-          // Fallback if variant config not found
-          onUpdate(component.id, { variant: value });
+          onUpdate(component.id, { ...component, variant: value });
         }
       } catch (error) {
         console.error("Error updating variant:", error);
-        onUpdate(component.id, { variant: value });
+        onUpdate(component.id, { ...component, variant: value });
       }
     } else {
-      onUpdate(component.id, { [field]: value });
+      onUpdate(component.id, {
+        ...component,
+        [field]: value,
+      });
     }
   };
 
   const handlePropChange = (key: string, value: any) => {
-    console.log(`PropertyPanel: Updating prop ${key} to`, value);
-    console.log(`PropertyPanel: Current props:`, component.props);
     handleChange("props", {
       ...component.props,
       [key]: value,
@@ -183,401 +412,368 @@ export default function PropertyPanel({
   };
 
   const handleStyleChange = (key: string, value: any) => {
-    console.log(`PropertyPanel: Updating style ${key} to`, value);
-    console.log(`PropertyPanel: Current styles:`, component.styles);
     handleChange("styles", {
       ...component.styles,
       [key]: value,
     });
   };
 
-  const tabs = [
-    { id: "content", label: "Content", icon: Type },
-    { id: "style", label: "Style", icon: Palette },
-    { id: "layout", label: "Layout", icon: Layout },
-    { id: "advanced", label: "Advanced", icon: Settings },
-  ];
+  // Debounced style change for color inputs
+  const debouncedStyleChange = (key: string, value: any) => {
+    if (debounceRefs.current[key]) {
+      clearTimeout(debounceRefs.current[key]);
+    }
+    debounceRefs.current[key] = setTimeout(() => {
+      handleStyleChange(key, value);
+    }, 200);
+  };
+
+  const handleSave = () => {
+    // Save to localStorage or backend
+    localStorage.setItem(
+      `portfolio-${component.id}-colors`,
+      JSON.stringify(colorState)
+    );
+    // Show success feedback
+  };
+
+  const getComponentIcon = (type: string) => {
+    const icons: Record<string, any> = {
+      hero: Zap,
+      about: User,
+      skills: Sparkles,
+      projects: Layers,
+      experience: Globe,
+      education: Mail,
+      testimonials: User,
+      contact: Mail,
+      navbar: Layout,
+      footer: Layout,
+      custom: Settings,
+    };
+    return icons[type] || Settings;
+  };
+
+  const ComponentIcon = getComponentIcon(component.type || "");
 
   return (
-    <div className="w-full lg:w-80 xl:w-96 bg-white border-l border-gray-200 min-h-screen overflow-scroll flex flex-col">
+    <div className="w-full sm:w-72 lg:w-80 xl:w-96 bg-gradient-to-b from-background to-muted/20 border-l border-border flex flex-col relative z-10">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="p-4 border-b border-border bg-gradient-to-r from-background to-muted/30">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              {component.type
-                ? component.type.charAt(0).toUpperCase() +
-                  component.type.slice(1)
-                : "Component"}{" "}
-              Properties
-            </h2>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center">
+              <ComponentIcon className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                {component.type
+                  ? component.type.charAt(0).toUpperCase() +
+                    component.type.slice(1)
+                  : "Component"}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {component.variant}
+              </p>
+            </div>
           </div>
           <Badge variant="secondary" className="text-xs">
-            {component.variant}
+            {component.type}
           </Badge>
         </div>
 
         {/* Action Buttons */}
         <div className="flex gap-1">
-          {onMoveUp && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onMoveUp(component.id)}
-              className="flex-1"
-            >
-              <MoveUp className="w-4 h-4" />
-            </Button>
-          )}
-          {onMoveDown && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onMoveDown(component.id)}
-              className="flex-1"
-            >
-              <MoveDown className="w-4 h-4" />
-            </Button>
-          )}
-          {onDuplicate && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDuplicate(component)}
-              className="flex-1"
-            >
-              <Copy className="w-4 h-4" />
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(component.id)}
-              className="flex-1 text-red-600 hover:text-red-700"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          )}
+          <TooltipProvider>
+            {onMoveUp && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onMoveUp(component.id)}
+                    className="flex-1 h-8"
+                  >
+                    <MoveUp className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Move Up</TooltipContent>
+              </Tooltip>
+            )}
+            {onMoveDown && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onMoveDown(component.id)}
+                    className="flex-1 h-8"
+                  >
+                    <MoveDown className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Move Down</TooltipContent>
+              </Tooltip>
+            )}
+            {onDuplicate && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDuplicate(component)}
+                    className="flex-1 h-8"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Duplicate</TooltipContent>
+              </Tooltip>
+            )}
+            {onDelete && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(component.id)}
+                    className="flex-1 h-8 text-destructive hover:text-destructive-foreground"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete</TooltipContent>
+              </Tooltip>
+            )}
+          </TooltipProvider>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          );
-        })}
+      {/* Live Preview Toggle */}
+      <div className="p-3 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Live Preview</span>
+          </div>
+          <Switch
+            checked={showLivePreview}
+            onCheckedChange={setShowLivePreview}
+          />
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {activeTab === "content" && (
-          <div className="space-y-4">
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-200px)]">
+        <Tabs
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full h-full"
+        >
+          <TabsList className="grid w-full grid-cols-3 h-12 min-w-0">
+            <TabsTrigger
+              value="content"
+              className="flex items-center gap-2 min-w-0"
+            >
+              <Type className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Content</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="style"
+              className="flex items-center gap-2 min-w-0"
+            >
+              <Palette className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Style</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="advanced"
+              className="flex items-center gap-2 min-w-0"
+            >
+              <Settings className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline truncate">Advanced</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent
+            value="content"
+            className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]"
+          >
             {/* Variant Selection */}
-            <div>
-              <Label className="text-sm font-medium">Variant</Label>
-              <Select
-                value={component.variant}
-                onValueChange={(value) => {
-                  console.log(
-                    "Changing variant from",
-                    component.variant,
-                    "to",
-                    value
-                  );
-                  handleChange("variant", value);
-                }}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableVariants.length > 0 ? (
-                    availableVariants.map((variant) => (
-                      <SelectItem key={variant.id} value={variant.id}>
-                        {variant.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <>
-                      <SelectItem value="default">Default</SelectItem>
-                      <SelectItem value="minimal">Minimal</SelectItem>
-                      <SelectItem value="detailed">Detailed</SelectItem>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Layers className="w-4 h-4" />
+                  Component Variant
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Select
+                  value={component.variant}
+                  onValueChange={(value) => {
+                    handleChange("variant", value);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableVariants.length > 0 ? (
+                      availableVariants.map((variant) => (
+                        <SelectItem key={variant.id} value={variant.id}>
+                          {variant.name}
+                        </SelectItem>
+                      ))
+                    ) : (
                       <SelectItem value={component.variant}>
                         {component.variant}
                       </SelectItem>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
-              {availableVariants.length > 0 && (
-                <p className="mt-1 text-xs text-gray-500">
-                  {availableVariants.length} variant
-                  {availableVariants.length !== 1 ? "s" : ""} available
-                </p>
-              )}
-              <p className="mt-1 text-xs text-blue-600">
-                💡 Your content and style changes will be preserved when
-                switching variants
-              </p>
-            </div>
+                    )}
+                  </SelectContent>
+                </Select>
+                {availableVariants.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {availableVariants.length} variant
+                    {availableVariants.length !== 1 ? "s" : ""} available
+                  </p>
+                )}
+                <div className="flex items-center gap-2 text-xs text-primary bg-primary/10 p-2 rounded">
+                  <Sparkles className="w-3 h-3" />
+                  <span>
+                    Your changes are preserved when switching variants
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Dynamic Content Editor */}
+            {/* Content Editor */}
             <ContentEditor
               data={component.props || {}}
               onUpdate={(newProps) => handleChange("props", newProps)}
               componentType={component.type}
               componentVariant={component.variant}
             />
-          </div>
-        )}
+          </TabsContent>
 
-        {activeTab === "style" && (
-          <div className="space-y-4">
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="colors">
-                <AccordionTrigger className="text-sm">Colors</AccordionTrigger>
-                <AccordionContent className="space-y-3">
-                  <div>
-                    <Label className="text-sm">Background Color</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        type="color"
-                        value={component.styles?.backgroundColor || "#ffffff"}
-                        onChange={(e) =>
-                          handleStyleChange("backgroundColor", e.target.value)
-                        }
-                        className="w-12 h-8 p-1"
-                      />
-                      <Input
-                        value={component.styles?.backgroundColor || "#ffffff"}
-                        onChange={(e) =>
-                          handleStyleChange("backgroundColor", e.target.value)
-                        }
-                        placeholder="#ffffff"
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm">Text Color</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        type="color"
-                        value={component.styles?.textColor || "#000000"}
-                        onChange={(e) =>
-                          handleStyleChange("textColor", e.target.value)
-                        }
-                        className="w-12 h-8 p-1"
-                      />
-                      <Input
-                        value={component.styles?.textColor || "#000000"}
-                        onChange={(e) =>
-                          handleStyleChange("textColor", e.target.value)
-                        }
-                        placeholder="#000000"
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm">Primary Color</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        type="color"
-                        value={component.styles?.primaryColor || "#3b82f6"}
-                        onChange={(e) =>
-                          handleStyleChange("primaryColor", e.target.value)
-                        }
-                        className="w-12 h-8 p-1"
-                      />
-                      <Input
-                        value={component.styles?.primaryColor || "#3b82f6"}
-                        onChange={(e) =>
-                          handleStyleChange("primaryColor", e.target.value)
-                        }
-                        placeholder="#3b82f6"
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-sm">Secondary Color</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        type="color"
-                        value={component.styles?.secondaryColor || "#64748b"}
-                        onChange={(e) =>
-                          handleStyleChange("secondaryColor", e.target.value)
-                        }
-                        className="w-12 h-8 p-1"
-                      />
-                      <Input
-                        value={component.styles?.secondaryColor || "#64748b"}
-                        onChange={(e) =>
-                          handleStyleChange("secondaryColor", e.target.value)
-                        }
-                        placeholder="#64748b"
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+          <TabsContent
+            value="style"
+            className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]"
+          >
+            {/* ColorPanel for all color fields */}
+            {colorKeys.length > 0 && (
+              <Card key="Colors">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    Colors
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <ColorPanel colors={colors} setColors={setColors} />
+                </CardContent>
+              </Card>
+            )}
+            {/* Render other style groups, skipping color fields */}
+            {Object.entries(styleGroups).map(([group, keys]) =>
+              group !== "Colors" && keys.length > 0 ? (
+                <Card key={group}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      {group}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {keys.map(renderStyleField)}
+                  </CardContent>
+                </Card>
+              ) : null
+            )}
+          </TabsContent>
 
-              <AccordionItem value="spacing">
-                <AccordionTrigger className="text-sm">Spacing</AccordionTrigger>
-                <AccordionContent className="space-y-3">
-                  <div>
-                    <Label className="text-sm">Padding Y</Label>
-                    <Input
-                      type="number"
-                      value={component.styles?.paddingY || "16"}
-                      onChange={(e) =>
-                        handleStyleChange("paddingY", e.target.value)
+          <TabsContent
+            value="advanced"
+            className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]"
+          >
+            {/* Component Info */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Component Info
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Component ID
+                  </Label>
+                  <Input
+                    value={component.id}
+                    readOnly
+                    className="mt-1 h-8 bg-muted/50"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Order</Label>
+                  <Input
+                    type="number"
+                    value={component.order}
+                    onChange={(e) =>
+                      handleChange("order", parseInt(e.target.value))
+                    }
+                    className="mt-1 h-8"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Raw Data */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Code className="w-4 h-4" />
+                  Raw Data
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Styles (JSON)
+                  </Label>
+                  <Textarea
+                    value={JSON.stringify(component.styles, null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const parsed = JSON.parse(e.target.value);
+                        handleChange("styles", parsed);
+                      } catch (error) {
+                        // Invalid JSON, ignore
                       }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm">Padding X</Label>
-                    <Input
-                      type="number"
-                      value={component.styles?.paddingX || "4"}
-                      onChange={(e) =>
-                        handleStyleChange("paddingX", e.target.value)
+                    }}
+                    placeholder="Edit styles as JSON..."
+                    className="mt-1 font-mono text-xs h-24"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    Props (JSON)
+                  </Label>
+                  <Textarea
+                    value={JSON.stringify(component.props, null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const parsed = JSON.parse(e.target.value);
+                        handleChange("props", parsed);
+                      } catch (error) {
+                        // Invalid JSON, ignore
                       }
-                      className="mt-1"
-                    />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="typography">
-                <AccordionTrigger className="text-sm">
-                  Typography
-                </AccordionTrigger>
-                <AccordionContent className="space-y-3">
-                  <div>
-                    <Label className="text-sm">Text Align</Label>
-                    <Select
-                      value={component.styles?.textAlign || "left"}
-                      onValueChange={(value) =>
-                        handleStyleChange("textAlign", value)
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="left">Left</SelectItem>
-                        <SelectItem value="center">Center</SelectItem>
-                        <SelectItem value="right">Right</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-sm">Font Size</Label>
-                    <Select
-                      value={component.styles?.fontSize || "base"}
-                      onValueChange={(value) =>
-                        handleStyleChange("fontSize", value)
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="sm">Small</SelectItem>
-                        <SelectItem value="base">Base</SelectItem>
-                        <SelectItem value="lg">Large</SelectItem>
-                        <SelectItem value="xl">Extra Large</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </div>
-        )}
-
-        {activeTab === "layout" && (
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm">Component Order</Label>
-              <Input
-                type="number"
-                value={component.order}
-                onChange={(e) =>
-                  handleChange("order", parseInt(e.target.value))
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label className="text-sm">Component ID</Label>
-              <Input
-                value={component.id}
-                readOnly
-                className="mt-1 bg-gray-50"
-              />
-            </div>
-          </div>
-        )}
-
-        {activeTab === "advanced" && (
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm">Raw Styles (JSON)</Label>
-              <Textarea
-                value={JSON.stringify(component.styles, null, 2)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value);
-                    handleChange("styles", parsed);
-                  } catch (error) {
-                    // Invalid JSON, ignore
-                  }
-                }}
-                placeholder="Edit styles as JSON..."
-                className="mt-1 font-mono text-xs"
-                rows={6}
-              />
-            </div>
-            <div>
-              <Label className="text-sm">Raw Props (JSON)</Label>
-              <Textarea
-                value={JSON.stringify(component.props, null, 2)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value);
-                    handleChange("props", parsed);
-                  } catch (error) {
-                    // Invalid JSON, ignore
-                  }
-                }}
-                placeholder="Edit props as JSON..."
-                className="mt-1 font-mono text-xs"
-                rows={6}
-              />
-            </div>
-          </div>
-        )}
+                    }}
+                    placeholder="Edit props as JSON..."
+                    className="mt-1 font-mono text-xs h-24"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

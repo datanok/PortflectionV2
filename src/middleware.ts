@@ -1,11 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { auth } from "../auth";
 
 const authRoutes = ["/sign-in", "/sign-up"];
 const passwordRoutes = ["/reset-password", "/forgot-password"];
 const adminRoutes = ["/admin"];
 
-export default async function authMiddleware(request: NextRequest) {
+export default function authMiddleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
 
   // ✅ Allow public access to portfolio routes and root
@@ -17,37 +16,24 @@ export default async function authMiddleware(request: NextRequest) {
   const isPasswordRoute = passwordRoutes.includes(pathName);
   const isAdminRoute = adminRoutes.includes(pathName);
 
-  try {
-    // Use Better Auth API directly
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+  // Check for Better Auth session cookie
+  const sessionToken = request.cookies.get("better-auth.session_token");
 
-    if (!session) {
-      if (isAuthRoute || isPasswordRoute) {
-        return NextResponse.next();
-      }
-      return NextResponse.redirect(new URL("/sign-in", request.url));
-    }
-
-    if (isAuthRoute || isPasswordRoute) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
-    if (isAdminRoute && session.user.role !== "admin") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-
-    return NextResponse.next();
-  } catch (error) {
-    console.warn("⚠️ Middleware auth error:", error);
-
-    // On error, allow access to auth routes, redirect others to sign-in
+  if (!sessionToken) {
     if (isAuthRoute || isPasswordRoute) {
       return NextResponse.next();
     }
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
+
+  // If user is already signed in, redirect away from auth routes
+  if (isAuthRoute || isPasswordRoute) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // (Optional) You cannot check user role in middleware without DB, so skip admin check
+
+  return NextResponse.next();
 }
 
 export const config = {

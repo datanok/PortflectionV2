@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Save, Eye, Loader2, Settings, Palette } from "lucide-react";
+import {
+  Save,
+  Eye,
+  Loader2,
+  Settings,
+  Palette,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +35,7 @@ import {
 import { PortfolioComponent as TypesPortfolioComponent } from "@/lib/portfolio/types";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 // Type adapter to convert between the two PortfolioComponent types
 const adaptToTypesComponent = (
@@ -76,7 +87,12 @@ export default function PortfolioEditor({
     useState<ActionsPortfolioComponent | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [showThemePanel, setShowThemePanel] = useState(false);
+
+  // Mobile navigation states
+  const [activePanel, setActivePanel] = useState<
+    "components" | "canvas" | "properties"
+  >("canvas");
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Portfolio metadata
   const [portfolioName, setPortfolioName] = useState(
@@ -104,6 +120,21 @@ export default function PortfolioEditor({
     animationSpeed: 300,
   });
 
+  // Responsive hook
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
   // Load portfolio data on mount if editing
   useEffect(() => {
     if (portfolioId && initialData) {
@@ -127,7 +158,7 @@ export default function PortfolioEditor({
     }
 
     const newComponent: ActionsPortfolioComponent = {
-      id: `${variant.id}-${Date.now()}`,
+      id: uuidv4(),
       type: sectionType,
       variant: variant.id,
       props: variant.defaultProps || {},
@@ -138,13 +169,27 @@ export default function PortfolioEditor({
 
     setComponents((prev) => [...prev, newComponent]);
     setSelectedComponent(newComponent);
+
+    // Mobile: switch to canvas after adding component
+    if (isMobile) {
+      setActivePanel("canvas");
+      setIsMobileSidebarOpen(false);
+    }
+
     toast.success(`Added ${variant.name}`);
   };
 
   const handleDropComponent = (component: TypesPortfolioComponent) => {
     const actionsComponent = adaptToActionsComponent(component);
+    actionsComponent.id = uuidv4();
     setComponents((prev) => [...prev, actionsComponent]);
     setSelectedComponent(actionsComponent);
+
+    // Mobile: switch to properties after dropping
+    if (isMobile) {
+      setActivePanel("properties");
+    }
+
     toast.success(`Added ${component.type} component`);
   };
 
@@ -205,13 +250,19 @@ export default function PortfolioEditor({
     const actionsComponent = adaptToActionsComponent(component);
     const duplicatedComponent: ActionsPortfolioComponent = {
       ...actionsComponent,
-      id: `${actionsComponent.id}-copy-${Date.now()}`,
+      id: uuidv4(),
       order: components.length,
       isActive: true,
     };
 
     setComponents((prev) => [...prev, duplicatedComponent]);
     setSelectedComponent(duplicatedComponent);
+
+    // Mobile: switch to properties after duplicating
+    if (isMobile) {
+      setActivePanel("properties");
+    }
+
     toast.success("Component duplicated");
   };
 
@@ -280,145 +331,287 @@ export default function PortfolioEditor({
     }
   };
 
+  // Helper to convert globalTheme to CSS variables
+  const getThemeCssVars = (theme: GlobalTheme) => ({
+    "--color-primary": theme.primary,
+    "--color-secondary": theme.secondary,
+    "--color-accent": theme.accent,
+    "--color-background": theme.background,
+    "--color-card": theme.card,
+    "--color-muted": theme.muted,
+    "--font-heading": theme.fontHeading,
+    "--font-body": theme.fontBody,
+    "--spacing-base": `${theme.spacingBase}rem`,
+    "--spacing-section": `${theme.spacingSection}rem`,
+    "--spacing-component": `${theme.spacingComponent}rem`,
+    "--radius": `${theme.borderRadius}rem`,
+    "--shadow-intensity": theme.shadowIntensity,
+    "--animation-speed": `${theme.animationSpeed}ms`,
+  });
+
+  const handleComponentSelect = (component: ActionsPortfolioComponent) => {
+    setSelectedComponent(component);
+    if (isMobile) {
+      setActivePanel("properties");
+    }
+  };
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex h-screen bg-background">
-        {/* Left Sidebar - Component Palette */}
-        <div className="w-80 border-r bg-card overflow-y-auto">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">Component Library</h2>
-            <p className="text-sm text-muted-foreground">
-              Drag components to build your portfolio
-            </p>
-          </div>
-
-          <div className="flex-1 overflow-y-auto">
-            <ComponentPalette onComponentSelect={handleAddComponent} />
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Top Bar */}
-          <div className="border-b bg-card p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <input
-                  type="text"
-                  value={portfolioName}
-                  onChange={(e) => setPortfolioName(e.target.value)}
-                  className="text-xl font-semibold bg-transparent border-none outline-none"
-                  placeholder="Portfolio Name"
-                />
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="isPublic"
-                    checked={isPublic}
-                    onChange={(e) => setIsPublic(e.target.checked)}
-                    className="rounded"
-                  />
-                  <label htmlFor="isPublic" className="text-sm">
-                    Public
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowThemePanel(!showThemePanel)}
-                >
-                  <Palette className="w-4 h-4 mr-2" />
-                  Theme
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsPreviewOpen(true)}
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview
-                </Button>
-                <Button onClick={handleSave} disabled={isSaving}>
-                  {isSaving ? (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <Save className="w-4 h-4 mr-2" />
-                  )}
-                  {isSaving ? "Saving..." : "Save"}
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Content Area */}
-          <div className="flex-1 flex overflow-scroll">
-            {/* Drop Canvas */}
-            <div className="flex-1 overflow-scroll">
-              <DropCanvas
-                components={components.map(adaptToTypesComponent)}
-                onSelect={(component) => {
-                  const actionsComponent = components.find(
-                    (c) => c.id === component.id
-                  );
-                  if (actionsComponent) {
-                    setSelectedComponent(actionsComponent);
-                  }
-                }}
-                selectedId={selectedComponent?.id || null}
-                onDrop={handleDropComponent}
-                globalTheme={globalTheme}
-              />
-            </div>
-
-            {/* Right Sidebar - Property Panel */}
-            <PropertyPanel
-              component={
-                selectedComponent
-                  ? adaptToTypesComponent(selectedComponent)
-                  : null
-              }
-              onUpdate={(id, updates) => {
-                const actionsUpdates = adaptToActionsComponent(
-                  updates as TypesPortfolioComponent
-                );
-                handleUpdateComponent(id, actionsUpdates);
-              }}
-              onDelete={handleDeleteComponent}
-              onDuplicate={handleDuplicateComponent}
-              onMoveUp={(id) => handleMoveComponent(id, "up")}
-              onMoveDown={(id) => handleMoveComponent(id, "down")}
+      <div
+        className="flex flex-col h-screen bg-background w-full overflow-hidden"
+        style={getThemeCssVars(globalTheme) as React.CSSProperties}
+      >
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between p-3 border-b border-border bg-card flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+            >
+              {isMobileSidebarOpen ? (
+                <X className="w-4 h-4" />
+              ) : (
+                <Menu className="w-4 h-4" />
+              )}
+            </Button>
+            <input
+              type="text"
+              value={portfolioName}
+              onChange={(e) => setPortfolioName(e.target.value)}
+              className="text-sm font-medium bg-transparent border-none outline-none text-foreground flex-1 min-w-0"
+              placeholder="Portfolio Name"
             />
           </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsPreviewOpen(true)}
+              className="px-2"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              size="sm"
+              className="px-2"
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
         </div>
 
-        {/* Theme Panel */}
-        {showThemePanel && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50">
-            <div className="absolute right-0 top-0 h-full w-96 bg-card border-l shadow-lg">
-              <div className="p-4 border-b">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium">Global Theme</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowThemePanel(false)}
-                  >
-                    ×
-                  </Button>
-                </div>
-              </div>
-              <div className="p-4">
-                <GlobalThemeControls
-                  theme={globalTheme}
-                  onThemeChange={setGlobalTheme}
+        {/* Desktop Header */}
+        <div className="hidden md:flex border-b border-border bg-card p-4 flex-shrink-0">
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-4">
+              <input
+                type="text"
+                value={portfolioName}
+                onChange={(e) => setPortfolioName(e.target.value)}
+                className="text-xl font-semibold bg-transparent border-none outline-none text-foreground"
+                placeholder="Portfolio Name"
+              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isPublic"
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                  className="rounded border-border"
                 />
+                <label
+                  htmlFor="isPublic"
+                  className="text-sm text-muted-foreground"
+                >
+                  Public
+                </label>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPreviewOpen(true)}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Mobile Bottom Navigation */}
+        <div className="md:hidden border-t border-border bg-card flex flex-shrink-0">
+          <button
+            className={`flex-1 py-3 text-xs font-medium flex flex-col items-center gap-1 ${
+              activePanel === "components"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => setActivePanel("components")}
+          >
+            <Palette className="w-4 h-4" />
+            Components
+          </button>
+          <button
+            className={`flex-1 py-3 text-xs font-medium flex flex-col items-center gap-1 ${
+              activePanel === "canvas"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => setActivePanel("canvas")}
+          >
+            <Eye className="w-4 h-4" />
+            Canvas
+          </button>
+          <button
+            className={`flex-1 py-3 text-xs font-medium flex flex-col items-center gap-1 ${
+              activePanel === "properties"
+                ? "text-primary bg-primary/10"
+                : "text-muted-foreground"
+            } ${!selectedComponent ? "opacity-50" : ""}`}
+            onClick={() => setActivePanel("properties")}
+            disabled={!selectedComponent}
+          >
+            <Settings className="w-4 h-4" />
+            Properties
+          </button>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex min-h-0 relative">
+          {/* Mobile Sidebar Overlay */}
+          {isMobile && isMobileSidebarOpen && (
+            <div
+              className="absolute inset-0 bg-black/50 z-40 md:hidden"
+              onClick={() => setIsMobileSidebarOpen(false)}
+            />
+          )}
+
+          {/* Left Sidebar - Component Palette */}
+          <div
+            className={`
+            ${
+              isMobile
+                ? `absolute left-0 top-0 h-full w-80 z-50 transform transition-transform duration-300 ${
+                    isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+                  } ${
+                    activePanel === "components"
+                      ? "relative translate-x-0 w-full"
+                      : "absolute"
+                  }`
+                : "w-60 sm:w-64 lg:w-72 xl:w-80 relative"
+            } 
+            border-r bg-card overflow-y-auto flex-shrink-0 md:block
+            ${isMobile && activePanel !== "components" ? "hidden" : ""}
+          `}
+          >
+            <div className="p-3 md:p-4 border-b border-border">
+              <h2 className="text-base md:text-lg font-semibold text-foreground">
+                Component Library
+              </h2>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Drag components to build your portfolio
+              </p>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <ComponentPalette onComponentSelect={handleAddComponent} />
+            </div>
+          </div>
+
+          {/* Main Canvas Area */}
+          <div
+            className={`
+            flex-1 overflow-y-auto overflow-x-hidden min-w-0
+            ${isMobile && activePanel !== "canvas" ? "hidden" : ""}
+          `}
+          >
+            <DropCanvas
+              components={components.map(adaptToTypesComponent)}
+              onSelect={(component) => {
+                const actionsComponent = components.find(
+                  (c) => c.id === component.id
+                );
+                if (actionsComponent) {
+                  handleComponentSelect(actionsComponent);
+                }
+              }}
+              selectedId={selectedComponent?.id || null}
+              onDrop={handleDropComponent}
+              globalTheme={globalTheme}
+            />
+          </div>
+
+          {/* Right Sidebar - Properties */}
+          <div
+            className={`
+            ${
+              isMobile
+                ? `w-full ${activePanel === "properties" ? "" : "hidden"}`
+                : "w-64 sm:w-72 lg:w-80 xl:w-96"
+            } 
+            border-l border-border bg-card flex flex-col min-h-0 flex-shrink-0 relative z-20
+          `}
+          >
+            {/* Global Theme Controls */}
+            <div className="p-3 md:p-4 border-b border-border flex-shrink-0">
+              <h3 className="text-sm font-medium mb-3 text-foreground">
+                Global Theme
+              </h3>
+              <GlobalThemeControls
+                theme={globalTheme}
+                onThemeChange={setGlobalTheme}
+                className="w-full"
+              />
+              <Button
+                className="mt-3 w-full"
+                onClick={handleSave}
+                disabled={isSaving}
+                variant="outline"
+                size="sm"
+              >
+                {isSaving ? "Saving..." : "Save Theme"}
+              </Button>
+            </div>
+
+            {/* Property Panel */}
+            <div className="flex-1 overflow-y-auto">
+              <PropertyPanel
+                component={
+                  selectedComponent
+                    ? adaptToTypesComponent(selectedComponent)
+                    : null
+                }
+                onUpdate={(id, updates) => {
+                  const actionsUpdates = adaptToActionsComponent(
+                    updates as TypesPortfolioComponent
+                  );
+                  handleUpdateComponent(id, actionsUpdates);
+                }}
+                onDelete={handleDeleteComponent}
+                onDuplicate={handleDuplicateComponent}
+                onMoveUp={(id) => handleMoveComponent(id, "up")}
+                onMoveDown={(id) => handleMoveComponent(id, "down")}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </DndProvider>
   );

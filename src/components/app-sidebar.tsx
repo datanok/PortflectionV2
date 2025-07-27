@@ -60,11 +60,11 @@ const navItems = [
     items: [
       { title: "My Portfolios", url: "/dashboard/my-portfolios" },
       { title: "Create New", url: "/dashboard/portfolios/new" },
-      { 
-        title: "Portfolio Builder", 
+      {
+        title: "Portfolio Builder",
         url: "/dashboard/portfolio-builder",
         icon: Layers,
-        isNew: true
+        isNew: true,
       },
     ],
   },
@@ -83,25 +83,24 @@ const navItems = [
 export const Logo = () => {
   return (
     <Link
-    href="#"
-    className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal text-black dark:text-white"
-  >
-    <Image
-      src="/assets/logo.png"
-      alt="Portflection Logo"
-      width={24}
-      height={24}
-      className="object-contain"
-    />
-    <motion.span
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="font-semibold leading-none"
+      href="#"
+      className="relative z-20 flex items-center gap-2 py-1 text-sm font-normal text-black dark:text-white"
     >
-      Portflection
-    </motion.span>
-  </Link>
-  
+      <Image
+        src="/assets/logo.png"
+        alt="Portflection Logo"
+        width={24}
+        height={24}
+        className="object-contain"
+      />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="font-semibold leading-none"
+      >
+        Portflection
+      </motion.span>
+    </Link>
   );
 };
 export const LogoIcon = () => {
@@ -111,13 +110,13 @@ export const LogoIcon = () => {
       className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black"
     >
       <Image
-      src="/assets/logo.png"
-      alt="Portflection Logo"
-      width={24}
-      height={24}
-      className="object-contain"
-    />
-   </Link>
+        src="/assets/logo.png"
+        alt="Portflection Logo"
+        width={24}
+        height={24}
+        className="object-contain"
+      />
+    </Link>
   );
 };
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -132,7 +131,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar" {...props}>
+    <Sidebar collapsible="icon" variant="floating" {...props}>
       <SidebarHeader>{open ? <Logo /> : <LogoIcon />}</SidebarHeader>
 
       <SidebarContent>

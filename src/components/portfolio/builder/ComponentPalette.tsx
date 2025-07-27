@@ -92,14 +92,14 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
         ${isDragging ? "opacity-50 scale-95" : "opacity-100 scale-100"}
         ${
           variant.isPopular
-            ? "border-blue-200 bg-blue-50"
-            : "border-gray-200 bg-white"
+            ? "border-primary/30 bg-primary/10"
+            : "border-border bg-card"
         }
-        hover:border-blue-300 hover:bg-blue-50/50
+        hover:border-primary hover:bg-primary/5
       `}
     >
       {/* Thumbnail */}
-      <div className="relative mb-2 rounded-md overflow-hidden bg-gray-100 aspect-video">
+      <div className="relative mb-2 rounded-md overflow-hidden bg-muted aspect-video">
         <img
           src={variant.thumbnail}
           alt={variant.name}
@@ -115,13 +115,13 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
         {/* Overlay with badges */}
         <div className="absolute top-2 left-2 flex gap-1">
           {variant.isPopular && (
-            <Badge className="bg-orange-100 text-orange-800 text-xs">
+            <Badge className="bg-primary/10 text-primary text-xs">
               <Star className="w-3 h-3 mr-1" />
               Popular
             </Badge>
           )}
           {variant.isPremium && (
-            <Badge className="bg-purple-100 text-purple-800 text-xs">
+            <Badge className="bg-secondary/10 text-secondary text-xs">
               <Crown className="w-3 h-3 mr-1" />
               Pro
             </Badge>
@@ -131,10 +131,10 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
 
       {/* Component Info */}
       <div className="space-y-1 sm:space-y-2">
-        <h4 className="font-medium text-xs sm:text-sm text-gray-900 group-hover:text-blue-900 line-clamp-1">
+        <h4 className="font-medium text-xs sm:text-sm text-foreground group-hover:text-primary line-clamp-1">
           {variant.name}
         </h4>
-        <p className="text-xs text-gray-600 line-clamp-2 hidden sm:block">
+        <p className="text-xs text-muted-foreground line-clamp-2 hidden sm:block">
           {variant.description}
         </p>
 
@@ -143,13 +143,13 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
           {variant.tags.slice(0, 1).map((tag) => (
             <span
               key={tag}
-              className="px-1 sm:px-2 py-0.5 sm:py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+              className="px-1 sm:px-2 py-0.5 sm:py-1 bg-muted text-muted-foreground text-xs rounded-md"
             >
               {tag}
             </span>
           ))}
           {variant.tags.length > 1 && (
-            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-gray-100 text-gray-600 text-xs rounded-md">
+            <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-muted text-muted-foreground text-xs rounded-md">
               +{variant.tags.length - 1}
             </span>
           )}
@@ -158,7 +158,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
 
       {/* Drag indicator */}
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="bg-black/20 text-white px-2 py-1 rounded text-xs">
+        <div className="bg-foreground/20 text-background px-2 py-1 rounded text-xs">
           Drag
         </div>
       </div>
@@ -241,7 +241,7 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
   }
 
   return (
-    <div className="border-b border-gray-200">
+    <div className="border-b border-border">
       <button
         onClick={() => {
           console.log(
@@ -254,31 +254,31 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
         }}
         className={`w-full flex items-center justify-between p-3 text-left transition-colors ${
           isExpanded
-            ? "bg-blue-50 border-l-4 border-blue-500"
-            : "hover:bg-gray-50"
+            ? "bg-primary/10 border-l-4 border-primary"
+            : "hover:bg-muted"
         }`}
       >
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
             {/* Icon based on section type */}
-            <div className="w-4 h-4 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-4 h-4 bg-primary rounded flex items-center justify-center text-background text-xs font-bold">
               {sectionId.charAt(0).toUpperCase()}
             </div>
           </div>
           <div className="flex-1">
-            <h3 className="font-medium text-sm text-gray-900">
+            <h3 className="font-medium text-sm text-foreground">
               {section.name}
             </h3>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-muted-foreground">
               {filteredVariants.length} variant
               {filteredVariants.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
         {isExpanded ? (
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         ) : (
-          <ChevronRight className="w-4 h-4 text-gray-400" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
         )}
       </button>
 
@@ -287,7 +287,7 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
           isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="p-3 bg-gray-50/50">
+        <div className="p-3 bg-muted/50">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
             {filteredVariants.map((variant) => (
               <DraggableComponent
@@ -422,17 +422,17 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
 
   return (
     <div
-      className={`bg-white border-r border-gray-200 flex flex-col h-full min-h-0 ${className}`}
+      className={`bg-background border-r border-border flex flex-col h-full min-h-0 ${className}`}
     >
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900 mb-3 hidden lg:block">
+      <div className="p-4 border-b border-border">
+        <h2 className="text-lg font-semibold text-foreground mb-3 hidden lg:block">
           Components
         </h2>
 
         {/* Search */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search components..."
             value={searchQuery}
@@ -461,7 +461,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                     key={option.value}
                     onClick={() => setActiveFilter(option.value)}
                     className={
-                      activeFilter === option.value ? "bg-blue-50" : ""
+                      activeFilter === option.value ? "bg-primary/10" : ""
                     }
                   >
                     <Icon className="w-4 h-4 mr-2" />
@@ -479,7 +479,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               onClick={expandAll}
               className={`px-2 text-xs flex-1 sm:flex-none ${
                 expandedSections.size === Object.keys(componentRegistry).length
-                  ? "bg-blue-100 text-blue-700"
+                  ? "bg-primary/10 text-primary"
                   : ""
               }`}
             >
@@ -491,7 +491,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               size="sm"
               onClick={collapseAll}
               className={`px-2 text-xs flex-1 sm:flex-none ${
-                expandedSections.size === 0 ? "bg-blue-100 text-blue-700" : ""
+                expandedSections.size === 0 ? "bg-primary/10 text-primary" : ""
               }`}
             >
               <span className="hidden sm:inline">Collapse</span>
@@ -503,9 +503,9 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
 
       {/* Popular Components Quick Access */}
       {activeFilter === "popular" && !searchQuery.trim() && (
-        <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200">
-          <h3 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-1">
-            <Star className="w-4 h-4 text-orange-500" />
+        <div className="p-4 bg-primary/5 border-b border-border">
+          <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-1">
+            <Star className="w-4 h-4 text-primary" />
             <span className="hidden sm:inline">Popular Components</span>
             <span className="sm:hidden">Popular</span>
           </h3>
@@ -526,7 +526,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       {/* Component Sections */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {/* Debug info - remove in production */}
-        <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border bg-card sticky top-0 z-10">
           {debugInfo.sectionCount} sections, {debugInfo.componentCount}{" "}
           components available
         </div>
@@ -549,11 +549,11 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="text-xs text-gray-600 text-center">
+      <div className="p-4 border-t border-border bg-muted">
+        <div className="text-xs text-muted-foreground text-center">
           <p className="hidden sm:block">Drag components to the canvas</p>
           <p className="sm:hidden">Tap to add components</p>
-          <p className="mt-1 text-gray-500">Components from registry</p>
+          <p className="mt-1 text-muted-foreground">Components from registry</p>
         </div>
       </div>
     </div>

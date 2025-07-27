@@ -17,6 +17,19 @@ export const auth = betterAuth({
       maxAge: 5 * 60, // Cache duration in seconds
     },
   },
+  advanced: {
+    cookies: {
+      session_token: {
+        attributes: {
+          sameSite: "lax",
+          secure: false, // Not using https in local dev
+          path: "/",
+          httpOnly: true,
+          // domain: undefined, // Omit for localhost
+        },
+      },
+    },
+  },
   user: {
     additionalFields: {
       premium: {
@@ -49,6 +62,7 @@ export const auth = betterAuth({
         subject: "Reset your password",
         template: "reset-password",
         VERIFICATION_URL: url,
+        name: user.name || user.email.split("@")[0],
       });
     },
   },
@@ -59,13 +73,13 @@ export const auth = betterAuth({
       const name = user.name || user.email.split("@")[0];
       await sendEmail({
         to: user.email,
-        subject: 'Verify your email address',
+        subject: "Verify your email address",
         template: "verification", // treated as template name, not full HTML
         VERIFICATION_URL: url,
         name,
       });
-    }
-  }
+    },
+  },
 } satisfies BetterAuthOptions);
 
 export type Session = typeof auth.$Infer.Session;

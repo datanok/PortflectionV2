@@ -116,8 +116,11 @@ export default function PortfolioClientPage({
     .filter((comp) => comp.isActive)
     .sort((a, b) => a.order - b.order);
 
+  // Get section IDs from component types
+  const sectionIds = sortedComponents.map((comp) => comp.type);
+
   return (
-    <NavigationHelper>
+    <NavigationHelper sections={sectionIds}>
       <div
         className="min-h-screen"
         style={{
@@ -163,7 +166,9 @@ export default function PortfolioClientPage({
 
               return (
                 <div key={component.id} className="w-full">
-                  <Component {...mergedProps} />
+                  <section id={component.type}>
+                    <Component {...mergedProps} />
+                  </section>
                 </div>
               );
             } catch (error) {

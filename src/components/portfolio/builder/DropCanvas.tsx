@@ -40,12 +40,12 @@ export default function DropCanvas({
   return (
     <div
       ref={drop as any}
-      className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto bg-gray-100 min-h-0"
+      className="flex-1 overflow-y-auto overflow-x-hidden bg-background min-h-0 min-w-0"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto px-2 sm:px-4 box-border">
         {components.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 sm:h-80 lg:h-96 text-gray-400 border-2 border-dashed rounded-lg p-6 text-center">
-            <div className="w-20 h-20 mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 mb-4 bg-background rounded-full flex items-center justify-center">
               <svg
                 className="w-10 h-10 text-gray-400"
                 fill="none"
@@ -73,7 +73,7 @@ export default function DropCanvas({
             </div>
           </div>
         ) : (
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden w-full">
             {components.map((component, index) => (
               <div
                 key={component.id}
@@ -99,7 +99,7 @@ export default function DropCanvas({
 
                 {/* Subtle separator between components (except last one) */}
                 {index < components.length - 1 && (
-                  <div className="h-px bg-gray-100 mx-4"></div>
+                  <div className="h-px bg-background mx-4"></div>
                 )}
               </div>
             ))}

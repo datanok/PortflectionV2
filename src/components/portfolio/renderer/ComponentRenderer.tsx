@@ -1,6 +1,6 @@
 import React from "react";
 import { PortfolioComponent } from "@/lib/portfolio/types";
-import { getComponent } from "@/lib/portfolio/registry";
+import { getComponent, componentRegistry } from "@/lib/portfolio/registry";
 import { GlobalTheme } from "../builder/GlobalThemeControls";
 
 interface ComponentRendererProps {
@@ -14,15 +14,37 @@ export default function ComponentRenderer({
   preview = true,
   globalTheme,
 }: ComponentRendererProps) {
+  console.log("ComponentRenderer - component:", {
+    type: component.type,
+    variant: component.variant,
+    props: component.props,
+    styles: component.styles,
+  });
+
   const componentConfig = getComponent(
     component.type as any,
     component.variant
   );
 
+  console.log("ComponentRenderer - componentConfig:", componentConfig);
+
   if (!componentConfig) {
+    console.error("Component not found:", {
+      type: component.type,
+      variant: component.variant,
+      availableTypes: Object.keys(componentRegistry || {}),
+      availableVariants:
+        componentRegistry?.[component.type as any]?.variants?.map(
+          (v) => v.id
+        ) || [],
+    });
     return (
       <div className="p-4 text-red-600 bg-red-100 border border-red-200 rounded">
         Component &quot;{component.type}&quot; not found.
+        <br />
+        <small>
+          Type: {component.type}, Variant: {component.variant}
+        </small>
       </div>
     );
   }
@@ -209,11 +231,6 @@ export default function ComponentRenderer({
       }}
     >
       {/* Preview overlay indicator - only show in debug mode */}
-      {preview && process.env.NODE_ENV === "development" && (
-        <div className="absolute top-2 right-2 z-10 bg-blue-500 text-white text-xs px-2 py-1 rounded-full opacity-75">
-          Preview
-        </div>
-      )}
 
       <Component {...props} />
 
