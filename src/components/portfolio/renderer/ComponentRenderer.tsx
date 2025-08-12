@@ -1,25 +1,65 @@
 import React from "react";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import { getComponent, componentRegistry } from "@/lib/portfolio/registry";
-import { GlobalTheme } from "../builder/GlobalThemeControls";
+import { LiveMarketplaceComponent } from "@/components/LiveMarketplaceComponent";
 
 interface ComponentRendererProps {
   component: PortfolioComponent;
   preview?: boolean;
-  globalTheme?: GlobalTheme;
 }
 
 export default function ComponentRenderer({
   component,
   preview = true,
-  globalTheme,
 }: ComponentRendererProps) {
-  console.log("ComponentRenderer - component:", {
+  // Log the full component object in detail
+  console.log(
+    "ComponentRenderer - FULL component object:",
+    JSON.stringify(component, null, 2)
+  );
+
+  console.log("ComponentRenderer - component properties:", {
     type: component.type,
     variant: component.variant,
     props: component.props,
     styles: component.styles,
+    isMarketplace: component.isMarketplace,
+    hasComponentCode: !!component.componentCode,
+    componentCodeLength: component.componentCode?.length,
+    componentCodePreview: component.componentCode?.substring(0, 100) + "...",
   });
+
+  // Check if this is a marketplace component first
+  if (component.isMarketplace && component.componentCode) {
+    console.log("✅ Rendering marketplace component:", component.variant);
+    return (
+      <LiveMarketplaceComponent
+        componentCode={component.componentCode}
+        componentProps={component.props}
+        className="w-full"
+      />
+    );
+  }
+
+  // Also check if it has componentCode but isMarketplace flag is missing
+  if (component.componentCode && !component.isMarketplace) {
+    console.log(
+      "✅ Rendering marketplace component (fallback):",
+      component.variant
+    );
+    return (
+      <LiveMarketplaceComponent
+        componentCode={component.componentCode}
+        componentProps={component.props}
+        className="w-full"
+      />
+    );
+  }
+
+  // If we get here, it's not a marketplace component
+  console.log("❌ Treating as static component, looking up in registry...");
+  console.log("❌ isMarketplace:", component.isMarketplace);
+  console.log("❌ hasComponentCode:", !!component.componentCode);
 
   const componentConfig = getComponent(
     component.type as any,
@@ -68,8 +108,6 @@ export default function ComponentRenderer({
     shadow: styles.shadow,
     primaryColor: styles.primaryColor,
     secondaryColor: styles.secondaryColor,
-    // Pass global theme to components
-    globalTheme,
   };
 
   // Debug: Log the styles being applied
@@ -180,24 +218,6 @@ export default function ComponentRenderer({
     return classes.join(" ");
   };
 
-  // Apply global theme styles
-  const getGlobalThemeStyles = () => {
-    if (!globalTheme) return {};
-
-    return {
-      fontFamily: globalTheme.fontBody,
-      "--primary-color": globalTheme.primary,
-      "--secondary-color": globalTheme.secondary,
-      "--accent-color": globalTheme.accent,
-      "--background-color": globalTheme.background,
-      "--card-color": globalTheme.card,
-      "--muted-color": globalTheme.muted,
-      "--border-radius": `${globalTheme.borderRadius}rem`,
-      "--shadow-intensity": `${globalTheme.shadowIntensity}%`,
-      "--animation-speed": `${globalTheme.animationSpeed}ms`,
-    } as React.CSSProperties;
-  };
-
   // Generate section ID for navigation
   const getSectionId = () => {
     const sectionMap: Record<string, string> = {
@@ -225,10 +245,7 @@ export default function ComponentRenderer({
       ${preview ? "preview-mode" : ""}
       ${getDynamicClasses()}
     `}
-      style={{
-        ...getStyleObject(),
-        ...getGlobalThemeStyles(),
-      }}
+      style={getStyleObject()}
     >
       {/* Preview overlay indicator - only show in debug mode */}
 

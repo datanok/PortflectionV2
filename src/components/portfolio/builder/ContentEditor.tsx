@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,12 +10,11 @@ import { Switch } from "@/components/ui/switch";
 import {
   Plus,
   Trash2,
-  Edit3,
-  Save,
-  X,
   ChevronDown,
   ChevronRight,
   Info,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import { getComponent } from "@/lib/portfolio/registry";
 import {
@@ -38,17 +37,54 @@ interface FieldConfig {
   type: "text" | "textarea" | "boolean" | "array" | "object";
 }
 
+// Debounce hook for auto-save
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export default function ContentEditor({
   data,
   onUpdate,
   componentType,
   componentVariant,
 }: ContentEditorProps) {
-  const [editingField, setEditingField] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState<any>("");
+  const [localData, setLocalData] = useState(data);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set()
   );
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "pending">(
+    "saved"
+  );
+
+  // Debounce local data changes for auto-save
+  const debouncedData = useDebounce(localData, 500);
+
+  // Update local data when props change
+  useEffect(() => {
+    setLocalData(data);
+  }, [data]);
+
+  // Auto-save when debounced data changes
+  useEffect(() => {
+    if (JSON.stringify(debouncedData) !== JSON.stringify(data)) {
+      setSaveStatus("saving");
+      onUpdate(debouncedData);
+      // Simulate save completion
+      setTimeout(() => setSaveStatus("saved"), 300);
+    }
+  }, [debouncedData, data, onUpdate]);
 
   // Get defaultProps from the registry for the selected variant
   const defaultProps = useMemo(() => {
@@ -69,106 +105,112 @@ export default function ContentEditor({
     });
   }, [defaultProps]);
 
-  const handleFieldUpdate = (key: string, value: any) => {
-    const updatedData = { ...data, [key]: value };
-    onUpdate(updatedData);
-    setEditingField(null);
-  };
+  const handleFieldUpdate = useCallback((key: string, value: any) => {
+    setLocalData((prev) => ({ ...prev, [key]: value }));
+    setSaveStatus("pending");
+  }, []);
 
-  const handleArrayItemAdd = (key: string) => {
-    const currentArray = data[key] || [];
-    let newItem: any;
+  const handleArrayItemAdd = useCallback(
+    (key: string) => {
+      const currentArray = localData[key] || [];
+      let newItem: any;
 
-    // Create appropriate default item based on the key
-    if (key === "timelineItems") {
-      newItem = {
-        year: "2024",
-        title: "New Position",
-        company: "Company Name",
-        description: "Description of the role and achievements",
-        type: "work",
-      };
-    } else if (key === "stats") {
-      newItem = {
-        number: "0",
-        label: "New Stat",
-        icon: "code",
-      };
-    } else if (key === "projects") {
-      newItem = {
-        id: `${String(currentArray.length + 1).padStart(2, "0")}`,
-        title: "New Project",
-        category: "Web Application",
-        year: "2024",
-        description: "Description of the project",
-        longDescription:
-          "Detailed description of the project, technologies used, and key features.",
-        technologies: ["React", "Node.js"],
-        liveUrl: "https://example.com",
-        githubUrl: "https://github.com",
-        featured: false,
-        status: "completed",
-      };
-    } else if (key === "contactMethods") {
-      newItem = {
-        icon: "mail",
-        label: "New Contact",
-        value: "contact@example.com",
-        link: "mailto:contact@example.com",
-      };
-    } else if (key === "skills") {
-      newItem = {
-        name: "New Skill",
-        level: 75,
-        category: "Frontend",
-        yearsExperience: 2,
-        status: "active",
-      };
-    } else if (key === "buttons") {
-      newItem = {
-        label: "New Button",
-        href: "#",
-        isPrimary: false,
-        downloadFile: "",
-      };
-    } else {
-      newItem = "New item";
-    }
+      // Create appropriate default item based on the key
+      if (key === "timelineItems") {
+        newItem = {
+          year: "2024",
+          title: "New Position",
+          company: "Company Name",
+          description: "Description of the role and achievements",
+          type: "work",
+        };
+      } else if (key === "stats") {
+        newItem = {
+          number: "0",
+          label: "New Stat",
+          icon: "code",
+        };
+      } else if (key === "projects") {
+        newItem = {
+          id: `${String(currentArray.length + 1).padStart(2, "0")}`,
+          title: "New Project",
+          category: "Web Application",
+          year: "2024",
+          description: "Description of the project",
+          longDescription:
+            "Detailed description of the project, technologies used, and key features.",
+          technologies: ["React", "Node.js"],
+          liveUrl: "https://example.com",
+          githubUrl: "https://github.com",
+          featured: false,
+          status: "completed",
+        };
+      } else if (key === "contactMethods") {
+        newItem = {
+          icon: "mail",
+          label: "New Contact",
+          value: "contact@example.com",
+          link: "mailto:contact@example.com",
+        };
+      } else if (key === "skills") {
+        newItem = {
+          name: "New Skill",
+          level: 75,
+          category: "Frontend",
+          yearsExperience: 2,
+          status: "active",
+        };
+      } else if (key === "buttons") {
+        newItem = {
+          label: "New Button",
+          href: "#",
+          isPrimary: false,
+          downloadFile: "",
+        };
+      } else {
+        newItem = "New item";
+      }
 
-    const updatedArray = [...currentArray, newItem];
-    const updatedData = { ...data, [key]: updatedArray };
-    onUpdate(updatedData);
-  };
+      const updatedArray = [...currentArray, newItem];
+      setLocalData((prev) => ({ ...prev, [key]: updatedArray }));
+      setSaveStatus("pending");
+    },
+    [localData]
+  );
 
-  const handleArrayItemRemove = (key: string, index: number) => {
-    const currentArray = data[key] || [];
-    const updatedArray = currentArray.filter(
-      (_: any, i: number) => i !== index
-    );
-    const updatedData = { ...data, [key]: updatedArray };
-    onUpdate(updatedData);
-  };
+  const handleArrayItemRemove = useCallback(
+    (key: string, index: number) => {
+      const currentArray = localData[key] || [];
+      const updatedArray = currentArray.filter(
+        (_: any, i: number) => i !== index
+      );
+      setLocalData((prev) => ({ ...prev, [key]: updatedArray }));
+      setSaveStatus("pending");
+    },
+    [localData]
+  );
 
-  const handleArrayItemUpdate = (key: string, index: number, value: any) => {
-    const currentArray = data[key] || [];
-    const updatedArray = [...currentArray];
-    updatedArray[index] = value;
-    const updatedData = { ...data, [key]: updatedArray };
-    onUpdate(updatedData);
-  };
+  const handleArrayItemUpdate = useCallback(
+    (key: string, index: number, value: any) => {
+      const currentArray = localData[key] || [];
+      const updatedArray = [...currentArray];
+      updatedArray[index] = value;
+      setLocalData((prev) => ({ ...prev, [key]: updatedArray }));
+      setSaveStatus("pending");
+    },
+    [localData]
+  );
 
-  const handleArrayObjectUpdate = (
-    key: string,
-    index: number,
-    field: string,
-    value: any
-  ) => {
-    const currentArray = data[key] || [];
-    const updatedArray = [...currentArray];
-    updatedArray[index] = { ...updatedArray[index], [field]: value };
-    const updatedData = { ...data, [key]: updatedArray };
-    onUpdate(updatedData);
-  };
+  const handleArrayObjectUpdate = useCallback(
+    (key: string, index: number, field: string, value: any) => {
+      const currentArray = localData[key] || [];
+      const updatedArray = [...currentArray];
+      updatedArray[index] = { ...updatedArray[index], [field]: value };
+      setLocalData((prev) => ({ ...prev, [key]: updatedArray }));
+      setSaveStatus("pending");
+    },
+    [localData]
+  );
 
   const renderArrayItem = (item: any, key: string, index: number) => {
     // Handle timeline items
@@ -842,10 +884,7 @@ export default function ContentEditor({
 
   const renderField = (field: FieldConfig) => {
     const { key, type } = field;
-    const value = data[key];
-    const isEditing = editingField === key;
-    const displayValue =
-      typeof value === "boolean" ? (value ? "Yes" : "No") : value;
+    const value = localData[key];
 
     if (type === "array") {
       const arrayValue = Array.isArray(value) ? value : [];
@@ -982,76 +1021,37 @@ export default function ContentEditor({
       );
     }
 
-    // Simple field (text, textarea, boolean)
+    // Simple field (text, textarea, boolean) - now directly editable
     return (
       <Card key={key} className="mb-4">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium">{key}</CardTitle>
-            {!isEditing ? (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setEditingField(key);
-                  setEditValue(value);
-                }}
-                className="h-6 px-2"
-              >
-                <Edit3 className="w-3 h-3" />
-              </Button>
-            ) : (
-              <div className="flex gap-1">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => handleFieldUpdate(key, editValue)}
-                  className="h-6 px-2 text-green-600"
-                >
-                  <Save className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setEditingField(null)}
-                  className="h-6 px-2 text-muted-foreground"
-                >
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-            )}
-          </div>
+          <CardTitle className="text-sm font-medium">{key}</CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          {isEditing ? (
-            <div className="space-y-3">
-              {type === "boolean" ? (
-                <div className="flex items-center gap-3">
-                  <Switch checked={editValue} onCheckedChange={setEditValue} />
-                  <span className="text-sm text-muted-foreground">
-                    {editValue ? "Enabled" : "Disabled"}
-                  </span>
-                </div>
-              ) : type === "textarea" ? (
-                <Textarea
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  className="text-sm min-h-[80px]"
-                />
-              ) : (
-                <Input
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  className="text-sm h-8"
-                />
-              )}
+          {type === "boolean" ? (
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={value || false}
+                onCheckedChange={(checked) => handleFieldUpdate(key, checked)}
+              />
+              <span className="text-sm text-muted-foreground">
+                {value ? "Enabled" : "Disabled"}
+              </span>
             </div>
+          ) : type === "textarea" ? (
+            <Textarea
+              value={value || ""}
+              onChange={(e) => handleFieldUpdate(key, e.target.value)}
+              className="text-sm min-h-[80px]"
+              placeholder={`Enter ${key}...`}
+            />
           ) : (
-            <div className="text-sm text-foreground bg-muted/30 p-3 rounded border min-h-[40px] flex items-center">
-              {displayValue || (
-                <span className="text-muted-foreground italic">Empty</span>
-              )}
-            </div>
+            <Input
+              value={value || ""}
+              onChange={(e) => handleFieldUpdate(key, e.target.value)}
+              className="text-sm h-8"
+              placeholder={`Enter ${key}...`}
+            />
           )}
         </CardContent>
       </Card>
@@ -1061,10 +1061,32 @@ export default function ContentEditor({
   return (
     <div className="space-y-6 w-full max-w-full">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Content Editor</h3>
-        <Badge variant="outline" className="text-xs">
-          {componentType} - {componentVariant}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <h3 className="text-lg font-semibold">Content Editor</h3>
+          <Badge variant="outline" className="text-xs">
+            {componentType} - {componentVariant}
+          </Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          {saveStatus === "saving" && (
+            <div className="flex items-center gap-1 text-amber-600">
+              <Clock className="w-3 h-3 animate-spin" />
+              <span className="text-xs">Saving...</span>
+            </div>
+          )}
+          {saveStatus === "saved" && (
+            <div className="flex items-center gap-1 text-green-600">
+              <CheckCircle className="w-3 h-3" />
+              <span className="text-xs">Saved</span>
+            </div>
+          )}
+          {saveStatus === "pending" && (
+            <div className="flex items-center gap-1 text-blue-600">
+              <Clock className="w-3 h-3" />
+              <span className="text-xs">Pending</span>
+            </div>
+          )}
+        </div>
       </div>
       <Separator />
       {fieldConfigs.length === 0 ? (

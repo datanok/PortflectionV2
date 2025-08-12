@@ -21,6 +21,25 @@ import {
   searchVariants,
 } from "@/lib/portfolio/registry";
 import { ComponentVariant, SectionType } from "@/lib/portfolio/registry";
+import {
+  getHybridComponentsForSection,
+  getAllHybridComponents,
+  searchHybridComponents,
+  getPopularHybridComponents,
+  isMarketplaceComponent,
+  getComponentDisplayName,
+  getComponentThumbnail,
+  getComponentDescription,
+  getComponentTags,
+  isComponentPopular,
+  isComponentPremium,
+  type HybridComponentVariant,
+  type MarketplaceComponentVariant,
+} from "@/lib/portfolio/hybrid-registry";
+import {
+  useInstalledComponents,
+  useMarketplaceComponents,
+} from "@/components/LiveMarketplaceComponent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +57,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface ComponentPaletteProps {
-  onComponentSelect?: (variant: ComponentVariant) => void;
+  onComponentSelect?: (variant: HybridComponentVariant) => void;
   className?: string;
 }
 
@@ -53,9 +72,9 @@ type FilterType =
 
 // Draggable Component Item
 interface DraggableComponentProps {
-  variant: ComponentVariant;
+  variant: HybridComponentVariant;
   sectionId: SectionType;
-  onSelect?: (variant: ComponentVariant) => void;
+  onSelect?: (variant: HybridComponentVariant) => void;
 }
 
 const DraggableComponent: React.FC<DraggableComponentProps> = ({
@@ -66,12 +85,13 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "component",
     item: () => {
-      console.log("Drag started for:", variant.name);
+      console.log("Drag started for:", getComponentDisplayName(variant));
       return {
         type: { id: sectionId },
         variant,
         sectionId,
         componentId: `${sectionId}-${variant.id}-${Date.now()}`,
+        isMarketplace: isMarketplaceComponent(variant),
       };
     },
     collect: (monitor) => ({
@@ -101,29 +121,34 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
       {/* Thumbnail */}
       <div className="relative mb-2 rounded-md overflow-hidden bg-muted aspect-video">
         <img
-          src={variant.thumbnail}
-          alt={variant.name}
+          src={getComponentThumbnail(variant)}
+          alt={getComponentDisplayName(variant)}
           className="w-full h-full object-cover"
           onError={(e) => {
             // Fallback to placeholder
             e.currentTarget.src = `https://placehold.co/200x120/e2e8f0/64748b?text=${encodeURIComponent(
-              variant.name
+              getComponentDisplayName(variant)
             )}`;
           }}
         />
 
         {/* Overlay with badges */}
         <div className="absolute top-2 left-2 flex gap-1">
-          {variant.isPopular && (
+          {isComponentPopular(variant) && (
             <Badge className="bg-primary/10 text-primary text-xs">
               <Star className="w-3 h-3 mr-1" />
               Popular
             </Badge>
           )}
-          {variant.isPremium && (
+          {isComponentPremium(variant) && (
             <Badge className="bg-secondary/10 text-secondary text-xs">
               <Crown className="w-3 h-3 mr-1" />
               Pro
+            </Badge>
+          )}
+          {isMarketplaceComponent(variant) && (
+            <Badge className="bg-green-500/10 text-green-500 text-xs">
+              Community
             </Badge>
           )}
         </div>
@@ -132,25 +157,27 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
       {/* Component Info */}
       <div className="space-y-1 sm:space-y-2">
         <h4 className="font-medium text-xs sm:text-sm text-foreground group-hover:text-primary line-clamp-1">
-          {variant.name}
+          {getComponentDisplayName(variant)}
         </h4>
         <p className="text-xs text-muted-foreground line-clamp-2 hidden sm:block">
-          {variant.description}
+          {getComponentDescription(variant)}
         </p>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-1">
-          {variant.tags.slice(0, 1).map((tag) => (
-            <span
-              key={tag}
-              className="px-1 sm:px-2 py-0.5 sm:py-1 bg-muted text-muted-foreground text-xs rounded-md"
-            >
-              {tag}
-            </span>
-          ))}
-          {variant.tags.length > 1 && (
+          {getComponentTags(variant)
+            .slice(0, 2)
+            .map((tag) => (
+              <span
+                key={tag}
+                className="px-1 sm:px-2 py-0.5 sm:py-1 bg-muted text-muted-foreground text-xs rounded-md"
+              >
+                {tag}
+              </span>
+            ))}
+          {getComponentTags(variant).length > 2 && (
             <span className="px-1 sm:px-2 py-0.5 sm:py-1 bg-muted text-muted-foreground text-xs rounded-md">
-              +{variant.tags.length - 1}
+              +{getComponentTags(variant).length - 2}
             </span>
           )}
         </div>
@@ -171,9 +198,10 @@ interface SectionGroupProps {
   sectionId: SectionType;
   isExpanded: boolean;
   onToggle: () => void;
-  onComponentSelect?: (variant: ComponentVariant) => void;
+  onComponentSelect?: (variant: HybridComponentVariant) => void;
   searchQuery: string;
   activeFilter: FilterType;
+  marketplaceComponents?: MarketplaceComponentVariant[];
 }
 
 const SectionGroup: React.FC<SectionGroupProps> = ({
@@ -183,12 +211,19 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
   onComponentSelect,
   searchQuery,
   activeFilter,
+  marketplaceComponents = [],
 }) => {
+  // Get section data from registry
   const section = componentRegistry[sectionId];
+
+  // Get components for this section (both static and marketplace)
+  const sectionComponents = useMemo(() => {
+    return getHybridComponentsForSection(sectionId, marketplaceComponents);
+  }, [sectionId, marketplaceComponents]);
 
   // Filter variants based on search and filter
   const filteredVariants = useMemo(() => {
-    let variants = section.variants;
+    let variants = sectionComponents;
     console.log(
       `Section ${sectionId}: Starting with ${variants.length} variants`
     );
@@ -198,9 +233,11 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
       const query = searchQuery.toLowerCase();
       variants = variants.filter(
         (variant) =>
-          variant.name.toLowerCase().includes(query) ||
-          variant.description.toLowerCase().includes(query) ||
-          variant.tags.some((tag) => tag.toLowerCase().includes(query))
+          getComponentDisplayName(variant).toLowerCase().includes(query) ||
+          getComponentDescription(variant).toLowerCase().includes(query) ||
+          getComponentTags(variant).some((tag) =>
+            tag.toLowerCase().includes(query)
+          )
       );
       console.log(
         `Section ${sectionId}: After search filter: ${variants.length} variants`
@@ -210,7 +247,7 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
     // Apply category filter
     if (activeFilter !== "all" && activeFilter !== "popular") {
       variants = variants.filter(
-        (variant) => variant.category === activeFilter
+        (variant) => getComponentCategory(variant) === activeFilter
       );
       console.log(
         `Section ${sectionId}: After category filter (${activeFilter}): ${variants.length} variants`
@@ -219,7 +256,7 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
 
     // Apply popular filter
     if (activeFilter === "popular") {
-      variants = variants.filter((variant) => variant.isPopular);
+      variants = variants.filter((variant) => isComponentPopular(variant));
       console.log(
         `Section ${sectionId}: After popular filter: ${variants.length} variants`
       );
@@ -234,7 +271,7 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
       }))
     );
     return variants;
-  }, [section.variants, searchQuery, activeFilter, sectionId]);
+  }, [sectionComponents, searchQuery, activeFilter, sectionId]);
 
   if (filteredVariants.length === 0) {
     return null;
@@ -267,7 +304,7 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
           </div>
           <div className="flex-1">
             <h3 className="font-medium text-sm text-foreground">
-              {section.name}
+              {section?.name || sectionId}
             </h3>
             <p className="text-xs text-muted-foreground">
               {filteredVariants.length} variant
@@ -314,6 +351,12 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
   const [expandedSections, setExpandedSections] = useState<Set<SectionType>>(
     new Set(["hero", "about", "projects"]) // Default expanded sections
   );
+
+  // Fetch both installed and all marketplace components
+  const { installedComponents, loading: installedLoading } =
+    useInstalledComponents();
+  const { marketplaceComponents, loading: marketplaceLoading } =
+    useMarketplaceComponents();
 
   const toggleSection = useCallback((sectionId: SectionType) => {
     console.log(
@@ -388,27 +431,24 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
 
   // Memoize popular variants to prevent re-renders
   const popularVariants = useMemo(() => {
-    const variants = getPopularVariants();
+    const variants = getPopularHybridComponents(marketplaceComponents);
     console.log(
-      "Popular variants:",
+      "Popular hybrid variants:",
       variants.map((v) => ({
-        name: v.name,
-        isPopular: v.isPopular,
+        name: getComponentDisplayName(v),
+        isPopular: isComponentPopular(v),
       }))
     );
     return variants.slice(0, 4).map((variant) => {
       const sectionId = Object.keys(componentRegistry).find((key) =>
-        componentRegistry[key as SectionType].variants.some(
-          (v) => v.id === variant.id
-        )
+        getHybridComponentsForSection(
+          key as SectionType,
+          marketplaceComponents
+        ).some((v) => v.id === variant.id)
       ) as SectionType;
-
-      return {
-        variant,
-        sectionId,
-      };
+      return { variant, sectionId: sectionId || "custom" };
     });
-  }, []);
+  }, [marketplaceComponents]);
 
   // Memoize debug info to prevent re-renders
   const debugInfo = useMemo(() => {
@@ -542,6 +582,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                 onComponentSelect={onComponentSelect}
                 searchQuery={searchQuery}
                 activeFilter={activeFilter}
+                marketplaceComponents={marketplaceComponents}
               />
             )
           )}
@@ -553,7 +594,9 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
         <div className="text-xs text-muted-foreground text-center">
           <p className="hidden sm:block">Drag components to the canvas</p>
           <p className="sm:hidden">Tap to add components</p>
-          <p className="mt-1 text-muted-foreground">Components from registry</p>
+          <p className="mt-1 text-muted-foreground">
+            Built-in + {installedComponents.length} installed components
+          </p>
         </div>
       </div>
     </div>

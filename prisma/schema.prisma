@@ -29,6 +29,13 @@ model User {
   sessions      Session[]
   accounts      Account[]
   portfolio     Portfolio[]
+  
+  // Component contribution relations
+  componentSubmissions ComponentSubmission[]
+  componentInstallations ComponentInstallation[]
+  componentReviews      ComponentReview[]
+  approvedComponents    ApprovedComponent[] @relation("ComponentApprover")
+  reviewedComponents    ComponentSubmission[] @relation("ComponentReviewer")
 }
 
 model Session {
@@ -149,4 +156,123 @@ model PortfolioComponent {
   portfolio  Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   
   @@index([portfolioId, order])
+}
+
+// Component Contribution System Models
+
+model ComponentSubmission {
+  id                String   @id @default(cuid()) @map("_id")
+  name              String
+  description       String
+  category          String   // e.g., "hero", "about", "projects"
+  tags              String[] @default([])
+  componentCode     String   // The actual React component code
+  demoUrl           String?
+  documentationUrl  String?
+  githubUrl         String?
+  version           String   @default("1.0.0")
+  isPremium         Boolean  @default(false)
+  price             Float?
+  compatibility     String[] @default([]) // e.g., ["React 18+", "TypeScript"]
+  dependencies      String[] @default([]) // e.g., ["framer-motion", "react-particles"]
+  
+  // Author information
+  authorName        String
+  authorEmail       String
+  authorGithub      String?
+  
+  // Submission status
+  status            String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  submittedBy       String   // User ID who submitted
+  submittedAt       DateTime @default(now())
+  
+  // Review information
+  reviewedBy        String?  // Admin who reviewed
+  reviewedAt        DateTime?
+  reviewerNotes     String?
+  rejectionReason   String?
+  
+  // Relations
+  submittedByUser   User     @relation(fields: [submittedBy], references: [id], onDelete: Cascade)
+  reviewedByUser    User?    @relation("ComponentReviewer", fields: [reviewedBy], references: [id])
+  
+  @@index([status, submittedAt])
+  @@index([category])
+  @@index([submittedBy])
+}
+
+model ApprovedComponent {
+  id                String   @id @default(cuid()) @map("_id")
+  name              String
+  description       String
+  category          String
+  tags              String[] @default([])
+  componentCode     String
+  thumbnail         String?  // URL to component preview image
+  demoUrl           String?
+  documentationUrl  String?
+  githubUrl         String?
+  version           String   @default("1.0.0")
+  isPremium         Boolean  @default(false)
+  price             Float?
+  compatibility     String[] @default([])
+  dependencies      String[] @default([])
+  
+  // Author information
+  authorName        String
+  authorEmail       String
+  authorGithub      String?
+  
+  // Stats
+  downloads         Int      @default(0)
+  rating            Float    @default(0)
+  reviewCount       Int      @default(0)
+  
+  // Approval information
+  approvedBy        String   // Admin who approved
+  approvedAt        DateTime @default(now())
+  originalSubmission String  // Reference to original submission
+  
+  // Relations
+  approvedByUser    User     @relation("ComponentApprover", fields: [approvedBy], references: [id])
+  installations     ComponentInstallation[]
+  reviews           ComponentReview[]
+  
+  @@index([category])
+  @@index([isPremium])
+  @@index([downloads])
+  @@index([rating])
+}
+
+model ComponentInstallation {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String
+  componentId String
+  installedAt DateTime @default(now())
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  component   ApprovedComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, componentId])
+  @@index([userId])
+  @@index([componentId])
+}
+
+model ComponentReview {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String
+  componentId String
+  rating      Int      // 1-5 stars
+  review      String?  // Optional text review
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  component   ApprovedComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, componentId])
+  @@index([componentId])
+  @@index([rating])
 }

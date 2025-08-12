@@ -9,13 +9,17 @@ import { z } from "zod";
 
 // Types
 export interface PortfolioComponent {
-  id?: string;
+  id: string;
   type: string;
   variant: string;
   props: Record<string, any>;
-  styles?: Record<string, any>;
+  styles: Record<string, any>;
   order: number;
-  isActive: boolean;
+  isActive?: boolean;
+  isMarketplace?: boolean;
+  componentCode?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface SavePortfolioData {

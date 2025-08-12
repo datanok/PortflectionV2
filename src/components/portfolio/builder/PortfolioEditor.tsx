@@ -22,7 +22,13 @@ import {
   ComponentVariant,
   SectionType,
 } from "@/lib/portfolio/registry";
-import GlobalThemeControls, { GlobalTheme } from "./GlobalThemeControls";
+import {
+  isMarketplaceComponent,
+  MarketplaceComponentWrapper,
+  type HybridComponentVariant,
+} from "@/lib/portfolio/hybrid-registry";
+import { LiveMarketplaceComponent } from "@/components/LiveMarketplaceComponent";
+import BulkStyleModal from "./BulkStyleModal";
 import PropertyPanel from "./PropertyPanel";
 import ComponentPalette from "./ComponentPalette";
 import DropCanvas from "./DropCanvas";
@@ -47,6 +53,8 @@ const adaptToTypesComponent = (
   props: comp.props,
   styles: comp.styles || {},
   order: comp.order,
+  isMarketplace: comp.isMarketplace || false,
+  componentCode: comp.componentCode,
   createdAt: undefined,
   updatedAt: undefined,
 });
@@ -61,6 +69,8 @@ const adaptToActionsComponent = (
   styles: comp.styles,
   order: comp.order,
   isActive: true,
+  isMarketplace: comp.isMarketplace || false,
+  componentCode: comp.componentCode,
 });
 
 interface PortfolioData {
@@ -68,7 +78,6 @@ interface PortfolioData {
   name: string;
   slug: string;
   description?: string;
-  theme?: GlobalTheme;
   components: ActionsPortfolioComponent[];
   isPublic: boolean;
   portfolioType: string;
@@ -101,25 +110,6 @@ export default function PortfolioEditor({
   const [portfolioSlug, setPortfolioSlug] = useState(initialData?.slug || "");
   const [isPublic, setIsPublic] = useState(initialData?.isPublic || false);
 
-  // Global theme state
-  const [globalTheme, setGlobalTheme] = useState<GlobalTheme>({
-    primary: "#3b82f6",
-    secondary: "#64748b",
-    accent: "#8b5cf6",
-    background: "#ffffff",
-    card: "#f8fafc",
-    muted: "#f1f5f9",
-    fontHeading: "Inter",
-    fontBody: "Inter",
-    spacingBase: 1,
-    spacingSection: 2,
-    spacingComponent: 1.25,
-    mode: "light",
-    borderRadius: 0.5,
-    shadowIntensity: 50,
-    animationSpeed: 300,
-  });
-
   // Responsive hook
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
@@ -140,20 +130,32 @@ export default function PortfolioEditor({
     if (portfolioId && initialData) {
       console.log("Loading initial data:", initialData);
       setComponents(initialData.components || []);
-      setGlobalTheme(initialData.theme || globalTheme);
       setPortfolioName(initialData.name || "Untitled Portfolio");
       setPortfolioSlug(initialData.slug || "");
       setIsPublic(initialData.isPublic || false);
     }
   }, [portfolioId, initialData]);
 
-  const handleAddComponent = (variant: ComponentVariant) => {
+  const handleAddComponent = (variant: HybridComponentVariant) => {
     // Find the section type for this variant
     let sectionType: SectionType = "hero"; // fallback
-    for (const [sectionId, section] of Object.entries(componentRegistry)) {
-      if (section.variants.some((v) => v.id === variant.id)) {
-        sectionType = sectionId as SectionType;
-        break;
+
+    if (isMarketplaceComponent(variant)) {
+      // For marketplace components, determine section type from category
+      const categorySectionMap: Record<string, SectionType> = {
+        layout: "hero",
+        content: "about",
+        media: "projects",
+        form: "contact",
+      };
+      sectionType = categorySectionMap[variant.category] || "custom";
+    } else {
+      // For static registry components
+      for (const [sectionId, section] of Object.entries(componentRegistry)) {
+        if (section.variants.some((v) => v.id === variant.id)) {
+          sectionType = sectionId as SectionType;
+          break;
+        }
       }
     }
 
@@ -165,6 +167,10 @@ export default function PortfolioEditor({
       styles: variant.defaultStyles || {},
       order: components.length,
       isActive: true,
+      isMarketplace: isMarketplaceComponent(variant), // This will be true for marketplace components
+      componentCode: isMarketplaceComponent(variant)
+        ? variant.componentCode
+        : undefined,
     };
 
     setComponents((prev) => [...prev, newComponent]);
@@ -180,9 +186,42 @@ export default function PortfolioEditor({
   };
 
   const handleDropComponent = (component: TypesPortfolioComponent) => {
+    console.log("handleDropComponent - incoming component:", {
+      isMarketplace: component.isMarketplace,
+      hasComponentCode: !!component.componentCode,
+      componentCodeLength: component.componentCode?.length,
+    });
+
     const actionsComponent = adaptToActionsComponent(component);
+
+    console.log("handleDropComponent - after adaptToActionsComponent:", {
+      isMarketplace: actionsComponent.isMarketplace,
+      hasComponentCode: !!actionsComponent.componentCode,
+      componentCodeLength: actionsComponent.componentCode?.length,
+    });
+
     actionsComponent.id = uuidv4();
-    setComponents((prev) => [...prev, actionsComponent]);
+
+    console.log("handleDropComponent - before setComponents:", {
+      isMarketplace: actionsComponent.isMarketplace,
+      hasComponentCode: !!actionsComponent.componentCode,
+      componentCodeLength: actionsComponent.componentCode?.length,
+      fullComponent: actionsComponent,
+    });
+
+    setComponents((prev) => {
+      const newComponents = [...prev, actionsComponent];
+      console.log("handleDropComponent - in setComponents callback:", {
+        newComponentsLength: newComponents.length,
+        lastComponent: newComponents[newComponents.length - 1],
+        lastComponentMarketplace:
+          newComponents[newComponents.length - 1]?.isMarketplace,
+        lastComponentHasCode:
+          !!newComponents[newComponents.length - 1]?.componentCode,
+      });
+      return newComponents;
+    });
+
     setSelectedComponent(actionsComponent);
 
     // Mobile: switch to properties after dropping
@@ -298,7 +337,7 @@ export default function PortfolioEditor({
           order: index,
           isActive: true,
         })),
-        theme: globalTheme,
+
         isPublic,
         portfolioType: "developer" as const,
       };
@@ -331,24 +370,6 @@ export default function PortfolioEditor({
     }
   };
 
-  // Helper to convert globalTheme to CSS variables
-  const getThemeCssVars = (theme: GlobalTheme) => ({
-    "--color-primary": theme.primary,
-    "--color-secondary": theme.secondary,
-    "--color-accent": theme.accent,
-    "--color-background": theme.background,
-    "--color-card": theme.card,
-    "--color-muted": theme.muted,
-    "--font-heading": theme.fontHeading,
-    "--font-body": theme.fontBody,
-    "--spacing-base": `${theme.spacingBase}rem`,
-    "--spacing-section": `${theme.spacingSection}rem`,
-    "--spacing-component": `${theme.spacingComponent}rem`,
-    "--radius": `${theme.borderRadius}rem`,
-    "--shadow-intensity": theme.shadowIntensity,
-    "--animation-speed": `${theme.animationSpeed}ms`,
-  });
-
   const handleComponentSelect = (component: ActionsPortfolioComponent) => {
     setSelectedComponent(component);
     if (isMobile) {
@@ -358,10 +379,7 @@ export default function PortfolioEditor({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div
-        className="flex flex-col h-screen bg-background w-full overflow-hidden"
-        style={getThemeCssVars(globalTheme) as React.CSSProperties}
-      >
+      <div className="flex flex-col h-screen bg-background w-full overflow-hidden">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between p-3 border-b border-border bg-card flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -495,7 +513,7 @@ export default function PortfolioEditor({
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex min-h-0 relative">
+        <div className="flex-1 flex min-h-0 relative overflow-hidden">
           {/* Mobile Sidebar Overlay */}
           {isMobile && isMobileSidebarOpen && (
             <div
@@ -538,7 +556,7 @@ export default function PortfolioEditor({
           {/* Main Canvas Area */}
           <div
             className={`
-            flex-1 overflow-y-auto overflow-x-hidden min-w-0
+            flex-1 min-w-0 overflow-hidden
             ${isMobile && activePanel !== "canvas" ? "hidden" : ""}
           `}
           >
@@ -554,7 +572,6 @@ export default function PortfolioEditor({
               }}
               selectedId={selectedComponent?.id || null}
               onDrop={handleDropComponent}
-              globalTheme={globalTheme}
             />
           </div>
 
@@ -569,25 +586,22 @@ export default function PortfolioEditor({
             border-l border-border bg-card flex flex-col min-h-0 flex-shrink-0 relative z-20
           `}
           >
-            {/* Global Theme Controls */}
+            {/* Bulk Style Modal */}
             <div className="p-3 md:p-4 border-b border-border flex-shrink-0">
-              <h3 className="text-sm font-medium mb-3 text-foreground">
-                Global Theme
-              </h3>
-              <GlobalThemeControls
-                theme={globalTheme}
-                onThemeChange={setGlobalTheme}
-                className="w-full"
+              <BulkStyleModal
+                components={components.map(adaptToTypesComponent)}
+                onUpdateComponents={(updates) => {
+                  // Apply style updates to all components
+                  const updatedComponents = components.map((comp) => ({
+                    ...comp,
+                    styles: {
+                      ...comp.styles,
+                      ...updates.styles,
+                    },
+                  }));
+                  setComponents(updatedComponents);
+                }}
               />
-              <Button
-                className="mt-3 w-full"
-                onClick={handleSave}
-                disabled={isSaving}
-                variant="outline"
-                size="sm"
-              >
-                {isSaving ? "Saving..." : "Save Theme"}
-              </Button>
             </div>
 
             {/* Property Panel */}

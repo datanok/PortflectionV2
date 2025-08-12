@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -32,6 +33,10 @@ import {
   ArrowUpRight,
   User,
   Bot,
+  Shield,
+  Users,
+  Store,
+  FileText,
 } from "lucide-react";
 import { deletePortfolioAction } from "./portfolios/actions";
 import { toast } from "sonner";
@@ -49,6 +54,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { PortfolioListCard } from "@/components/PortfolioListCard";
 import { listPortfolios } from "@/actions/portfolio-actions";
+import { authClient } from "../../../auth-client";
 
 interface Portfolio {
   id: string;
@@ -75,6 +81,7 @@ interface AnalyticsData {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { data: session } = authClient.useSession();
   const [portfolioList, setPortfolioList] = useState<Portfolio[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [portfolioListLoading, setPortfolioListLoading] = useState(true);
@@ -86,6 +93,9 @@ export default function DashboardPage() {
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<string | null>(
     null
   );
+
+  // Check if user is admin
+  const isAdmin = session?.user?.role === "admin";
 
   // Load portfolios
   useEffect(() => {
@@ -265,6 +275,57 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Admin Access Section */}
+        {isAdmin && (
+          <Card className="shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Admin Access
+              </CardTitle>
+              <CardDescription>
+                Quick access to admin functions and component management
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                <Button
+                  variant="outline"
+                  className="justify-start"
+                  onClick={() => router.push("/admin")}
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  Admin Dashboard
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-start"
+                  onClick={() => router.push("/admin/users")}
+                >
+                  <Users className="h-4 w-4 mr-2" />
+                  User Management
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-start"
+                  onClick={() => router.push("/admin/components/review")}
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Component Review
+                </Button>
+                <Button
+                  variant="outline"
+                  className="justify-start"
+                  onClick={() => router.push("/components/marketplace")}
+                >
+                  <Store className="h-4 w-4 mr-2" />
+                  Component Marketplace
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Portfolio List */}
         <PortfolioListCard

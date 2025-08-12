@@ -20,6 +20,9 @@ import {
   Globe,
   Download,
   HelpCircle,
+  Users,
+  Component,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavMain } from "@/components/nav-main";
@@ -69,6 +72,15 @@ const navItems = [
     ],
   },
   {
+    title: "Components",
+    url: "/components/marketplace",
+    icon: Component,
+    items: [
+      { title: "Marketplace", url: "/components/marketplace" },
+      { title: "Submit Component", url: "/components/submit" },
+    ],
+  },
+  {
     title: "Analytics",
     url: "/dashboard/analytics",
     icon: BarChart3,
@@ -77,6 +89,19 @@ const navItems = [
     title: "Settings",
     url: "/dashboard/settings",
     icon: Settings,
+  },
+];
+
+const adminNavItems = [
+  {
+    title: "Admin",
+    url: "/admin",
+    icon: Shield,
+    items: [
+      { title: "Dashboard", url: "/admin" },
+      { title: "User Management", url: "/admin/users" },
+      { title: "Component Review", url: "/admin/components/review" },
+    ],
   },
 ];
 
@@ -130,12 +155,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     image: "/avatars/default.png",
   };
 
+  // Check if user is admin
+  const isAdmin = user?.role === "admin";
+
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>
       <SidebarHeader>{open ? <Logo /> : <LogoIcon />}</SidebarHeader>
 
       <SidebarContent>
         <NavMain items={navItems} />
+        {isAdmin && <NavMain items={adminNavItems} />}
       </SidebarContent>
 
       <SidebarFooter className="flex flex-col gap-2 p-2">

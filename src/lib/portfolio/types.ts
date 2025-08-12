@@ -13,6 +13,9 @@ export interface PortfolioComponent {
   props: Record<string, any>;
   styles: Record<string, any>;
   order: number;
+  isActive?: boolean;
+  isMarketplace?: boolean;
+  componentCode?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

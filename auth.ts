@@ -36,6 +36,10 @@ export const auth = betterAuth({
         type: "boolean",
         required: false,
       },
+      role: {
+        type: "string",
+        required: false,
+      },
     },
   },
   socialProviders: {

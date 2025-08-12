@@ -3,14 +3,12 @@ import { useDrop } from "react-dnd";
 import { v4 as uuidv4 } from "uuid";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import ComponentRenderer from "../renderer/ComponentRenderer";
-import { GlobalTheme } from "./GlobalThemeControls";
 
 interface DropCanvasProps {
   components: PortfolioComponent[];
   onSelect: (component: PortfolioComponent) => void;
   selectedId?: string | null;
   onDrop?: (component: PortfolioComponent) => void;
-  globalTheme?: GlobalTheme;
 }
 
 export default function DropCanvas({
@@ -18,12 +16,18 @@ export default function DropCanvas({
   onSelect,
   selectedId,
   onDrop,
-  globalTheme,
 }: DropCanvasProps) {
   const [, drop] = useDrop(() => ({
     accept: "component",
-    drop: (item: { type: { id: string }; variant: any }) => {
+    drop: (item: {
+      type: { id: string };
+      variant: any;
+      isMarketplace?: boolean;
+    }) => {
       console.log("Drop detected:", item);
+      console.log("Item variant componentCode:", item.variant.componentCode);
+      console.log("Item isMarketplace:", item.isMarketplace);
+
       const newComponent: PortfolioComponent = {
         id: uuidv4(),
         type: item.type.id,
@@ -31,8 +35,18 @@ export default function DropCanvas({
         props: item.variant.defaultProps || {},
         styles: item.variant.defaultStyles || {},
         order: components.length,
+        isMarketplace: item.isMarketplace || false,
+        componentCode: item.isMarketplace
+          ? item.variant.componentCode
+          : undefined,
       };
-      console.log("Created component:", newComponent);
+
+      console.log("Created component with marketplace fields:", {
+        isMarketplace: newComponent.isMarketplace,
+        hasComponentCode: !!newComponent.componentCode,
+        componentCodeLength: newComponent.componentCode?.length,
+      });
+
       onDrop?.(newComponent);
     },
   }));
@@ -91,11 +105,7 @@ export default function DropCanvas({
                   </div>
                 )}
 
-                <ComponentRenderer
-                  component={component}
-                  preview={true}
-                  globalTheme={globalTheme}
-                />
+                <ComponentRenderer component={component} preview={true} />
 
                 {/* Subtle separator between components (except last one) */}
                 {index < components.length - 1 && (

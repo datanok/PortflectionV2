@@ -343,7 +343,7 @@ export default function GlobalThemeControls({
                   onClick={() => setActiveTab(tab.id as any)}
                   className="flex items-center gap-2"
                 >
-                  <tab.icon className="w-4 h-4" />
+                  {React.createElement(tab.icon, { className: "w-4 h-4" })}
                   {tab.label}
                 </Button>
               ))}
