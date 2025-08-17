@@ -186,7 +186,7 @@ const SkillsTypography: React.FC<ComponentProps> = ({
               style={{ backgroundColor: primaryColor }}
             ></div>
             <span
-              className="px-4 text-sm font-bold tracking-widest uppercase"
+              className="px-4 text-xs font-bold tracking-widest uppercase"
               style={{ color: secondaryColor }}
             >
               {subtitle}
@@ -198,12 +198,13 @@ const SkillsTypography: React.FC<ComponentProps> = ({
           </div>
 
           <h2
-            className="text-4xl md:text-6xl lg:text-8xl font-black mb-6 tracking-tight"
+            className="text-xl md:text-2xl  ont-black mb-6 tracking-tight"
             style={{
-              fontSize: `clamp(3rem, 8vw, 8rem)`,
+              // fontSize: `clamp(2.5rem, 6vw, 6rem)`,
               fontWeight: 900,
               color: textColor,
               lineHeight: 0.9,
+              fontSize: fontSize,
             }}
           >
             {title}
@@ -211,7 +212,7 @@ const SkillsTypography: React.FC<ComponentProps> = ({
 
           {description && (
             <p
-              className="text-lg md:text-xl max-w-3xl mx-auto leading-relaxed"
+              className="text-base md:text-lg max-w-3xl mx-auto leading-relaxed"
               style={{
                 color: secondaryColor,
                 lineHeight: 1.7,
@@ -223,11 +224,11 @@ const SkillsTypography: React.FC<ComponentProps> = ({
         </div>
 
         {/* Skills Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {skills.map((skill, index) => (
             <div
               key={skill.name}
-              className="group relative transition-all duration-300 hover:scale-105"
+              className="group relative transition-all duration-300 hover:scale-105 p-2"
               style={{
                 backgroundColor:
                   hoveredSkill === skill.name
@@ -237,23 +238,22 @@ const SkillsTypography: React.FC<ComponentProps> = ({
                   hoveredSkill === skill.name ? primaryColor : "transparent"
                 }`,
                 borderRadius: `${borderRadius}px`,
-                padding: "24px",
                 animationDelay: `${index * 0.1}s`,
               }}
               onMouseEnter={() => setHoveredSkill(skill.name)}
               onMouseLeave={() => setHoveredSkill(null)}
             >
               {/* Skill Header */}
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between mb-2">
                 <div>
                   <h3
-                    className="text-xl font-black tracking-tight mb-1"
+                    className="text-sm md:text-lg font-black tracking-tight mb-1"
                     style={{ color: textColor }}
                   >
                     {skill.name}
                   </h3>
                   <span
-                    className="text-xs font-bold tracking-widest uppercase"
+                    className="text-xs font-bold tracking-widest uppercase hidden md:block"
                     style={{ color: secondaryColor }}
                   >
                     {skill.category}
@@ -263,7 +263,7 @@ const SkillsTypography: React.FC<ComponentProps> = ({
                 {showStatus && skill.status && (
                   <div className="text-right">
                     <div
-                      className="w-3 h-3 rounded-full mb-1"
+                      className="w-2.5 h-2.5 rounded-full mb-1"
                       style={{ backgroundColor: getStatusColor(skill.status) }}
                     ></div>
                     <span
@@ -281,13 +281,13 @@ const SkillsTypography: React.FC<ComponentProps> = ({
                 <div className="mb-4">
                   <div className="flex justify-between items-center mb-2">
                     <span
-                      className="text-sm font-bold"
+                      className="text-xs font-bold"
                       style={{ color: secondaryColor }}
                     >
                       PROFICIENCY
                     </span>
                     <span
-                      className="text-lg font-black"
+                      className="text-base font-black"
                       style={{ color: primaryColor }}
                     >
                       {skill.level}%
@@ -323,7 +323,7 @@ const SkillsTypography: React.FC<ComponentProps> = ({
                     EXPERIENCE
                   </span>
                   <span
-                    className="text-sm font-black"
+                    className="text-xs font-black"
                     style={{ color: textColor }}
                   >
                     {skill.yearsExperience}Y

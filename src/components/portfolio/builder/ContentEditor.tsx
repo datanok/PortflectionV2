@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FieldMetadata } from "@/lib/portfolio/registry";
 
 interface ContentEditorProps {
   data: any;
@@ -34,7 +35,8 @@ interface ContentEditorProps {
 
 interface FieldConfig {
   key: string;
-  type: "text" | "textarea" | "boolean" | "array" | "object";
+  type: "text" | "textarea" | "boolean" | "array" | "object" | "select";
+  metadata?: FieldMetadata;
 }
 
 // Debounce hook for auto-save
@@ -60,6 +62,7 @@ export default function ContentEditor({
   componentType,
   componentVariant,
 }: ContentEditorProps) {
+  // Initialize local data with defaultProps merged with incoming data
   const [localData, setLocalData] = useState(data);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set()
@@ -86,24 +89,46 @@ export default function ContentEditor({
     }
   }, [debouncedData, data, onUpdate]);
 
-  // Get defaultProps from the registry for the selected variant
-  const defaultProps = useMemo(() => {
+  // Get defaultProps and propsSchema from the registry for the selected variant
+  const componentConfig = useMemo(() => {
     const config = getComponent(componentType as any, componentVariant);
-    return config?.defaultProps || {};
+    return {
+      defaultProps: config?.defaultProps || {},
+      propsSchema: config?.propsSchema || {},
+    };
   }, [componentType, componentVariant]);
 
-  // Generate field configs from defaultProps
+  // Merge defaultProps with localData when componentConfig changes
+  useEffect(() => {
+    if (Object.keys(componentConfig.defaultProps).length > 0) {
+      setLocalData((prev) => ({ ...componentConfig.defaultProps, ...prev }));
+    }
+  }, [componentConfig.defaultProps]);
+
+  // Generate field configs from defaultProps and propsSchema
   const fieldConfigs: FieldConfig[] = useMemo(() => {
+    const { defaultProps, propsSchema } = componentConfig;
+
     return Object.entries(defaultProps).map(([key, value]) => {
       let type: FieldConfig["type"] = "text";
-      if (typeof value === "boolean") type = "boolean";
-      else if (typeof value === "string" && value.length > 100)
-        type = "textarea";
-      else if (Array.isArray(value)) type = "array";
-      else if (typeof value === "object" && value !== null) type = "object";
-      return { key, type };
+      let metadata: FieldMetadata | undefined;
+
+      // Check if we have schema metadata for this field
+      if (propsSchema[key]) {
+        metadata = propsSchema[key];
+        type = metadata.type;
+      } else {
+        // Fallback to auto-detection
+        if (typeof value === "boolean") type = "boolean";
+        else if (typeof value === "string" && value.length > 100)
+          type = "textarea";
+        else if (Array.isArray(value)) type = "array";
+        else if (typeof value === "object" && value !== null) type = "object";
+      }
+
+      return { key, type, metadata };
     });
-  }, [defaultProps]);
+  }, [componentConfig]);
 
   const handleFieldUpdate = useCallback((key: string, value: any) => {
     setLocalData((prev) => ({ ...prev, [key]: value }));
@@ -166,6 +191,12 @@ export default function ContentEditor({
           href: "#",
           isPrimary: false,
           downloadFile: "",
+        };
+      } else if (key === "socialLinks") {
+        newItem = {
+          platform: "GitHub",
+          url: "https://github.com",
+          username: "@username",
         };
       } else {
         newItem = "New item";
@@ -858,6 +889,81 @@ export default function ContentEditor({
       );
     }
 
+    // Handle social links items
+    if (key === "socialLinks" && typeof item === "object") {
+      return (
+        <div
+          key={index}
+          className="border rounded-lg p-4 bg-muted/30 space-y-3"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Social Link {index + 1}</span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleArrayItemRemove(key, index)}
+              className="h-6 px-2 text-destructive hover:text-destructive-foreground"
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Platform</Label>
+              <Select
+                value={item.platform || "GitHub"}
+                onValueChange={(value) =>
+                  handleArrayObjectUpdate(key, index, "platform", value)
+                }
+              >
+                <SelectTrigger className="text-sm h-8 mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GitHub">GitHub</SelectItem>
+                  <SelectItem value="LinkedIn">LinkedIn</SelectItem>
+                  <SelectItem value="Twitter">Twitter</SelectItem>
+                  <SelectItem value="Email">Email</SelectItem>
+                  <SelectItem value="Instagram">Instagram</SelectItem>
+                  <SelectItem value="Facebook">Facebook</SelectItem>
+                  <SelectItem value="YouTube">YouTube</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">URL</Label>
+              <Input
+                value={item.url || ""}
+                onChange={(e) =>
+                  handleArrayObjectUpdate(key, index, "url", e.target.value)
+                }
+                className="text-sm h-8 mt-1"
+                placeholder="https://github.com/username"
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Username</Label>
+              <Input
+                value={item.username || ""}
+                onChange={(e) =>
+                  handleArrayObjectUpdate(
+                    key,
+                    index,
+                    "username",
+                    e.target.value
+                  )
+                }
+                className="text-sm h-8 mt-1"
+                placeholder="@username"
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // Default simple string item
     return (
       <div key={index} className="border rounded-lg p-3 bg-muted/30">
@@ -1021,11 +1127,18 @@ export default function ContentEditor({
       );
     }
 
-    // Simple field (text, textarea, boolean) - now directly editable
+    // Simple field (text, textarea, boolean, select) - now directly editable
     return (
       <Card key={key} className="mb-4">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">{key}</CardTitle>
+          <CardTitle className="text-sm font-medium">
+            {field.metadata?.label || key}
+          </CardTitle>
+          {field.metadata?.description && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {field.metadata.description}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="pt-0">
           {type === "boolean" ? (
@@ -1038,19 +1151,50 @@ export default function ContentEditor({
                 {value ? "Enabled" : "Disabled"}
               </span>
             </div>
+          ) : type === "select" ? (
+            <Select
+              value={String(value || "")}
+              onValueChange={(newValue) => {
+                // Convert string values to appropriate types for specific fields
+                if (
+                  key === "showScrollIndicator" ||
+                  key === "showStatus" ||
+                  key === "showCodeSnippet"
+                ) {
+                  handleFieldUpdate(key, newValue === "true");
+                } else {
+                  handleFieldUpdate(key, newValue);
+                }
+              }}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue
+                  placeholder={
+                    field.metadata?.placeholder || `Select ${key}...`
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {field.metadata?.options?.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           ) : type === "textarea" ? (
             <Textarea
               value={value || ""}
               onChange={(e) => handleFieldUpdate(key, e.target.value)}
               className="text-sm min-h-[80px]"
-              placeholder={`Enter ${key}...`}
+              placeholder={field.metadata?.placeholder || `Enter ${key}...`}
             />
           ) : (
             <Input
               value={value || ""}
               onChange={(e) => handleFieldUpdate(key, e.target.value)}
               className="text-sm h-8"
-              placeholder={`Enter ${key}...`}
+              placeholder={field.metadata?.placeholder || `Enter ${key}...`}
             />
           )}
         </CardContent>

@@ -103,33 +103,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "approve") {
-      // Create approved component
-      const approvedComponent = await prisma.approvedComponent.create({
-        data: {
-          name: submission.name,
-          description: submission.description,
-          category: submission.category,
-          tags: submission.tags,
-          componentCode: submission.componentCode,
-          thumbnail: "", // Will be set by admin during approval
-          demoUrl: submission.demoUrl,
-          documentationUrl: submission.documentationUrl,
-          githubUrl: submission.githubUrl,
-          version: submission.version,
-          isPremium: submission.isPremium,
-          price: submission.price,
-          compatibility: submission.compatibility,
-          dependencies: submission.dependencies,
-          authorName: submission.authorName,
-          authorEmail: submission.authorEmail,
-          authorGithub: submission.authorGithub,
-          approvedBy: session.user.id,
-          originalSubmission: submission.id,
-          downloads: 0,
-          rating: 0,
-          reviewCount: 0,
-        },
-      });
+      // Update submission status to approved
+      // Note: We're keeping the submission in the database but marking it as approved
+      // instead of creating a separate marketplace entry
 
       // Update submission status
       await prisma.componentSubmission.update({
@@ -143,7 +119,6 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         message: "Component approved successfully",
-        approvedComponent,
       });
     } else if (action === "reject") {
       // Update submission status

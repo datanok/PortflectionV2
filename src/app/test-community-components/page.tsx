@@ -78,7 +78,7 @@ export default function TestCommunityComponentsPage() {
             props={props}
             className="border rounded-lg p-4"
             onError={(error) => console.error("Component error:", error)}
-            onLoad={(metadata) => console.log("Component loaded:", metadata)}
+            onLoad={(metadata) => {}}
           />
         </CardContent>
       </Card>

@@ -19,15 +19,7 @@ export default function DropCanvas({
 }: DropCanvasProps) {
   const [, drop] = useDrop(() => ({
     accept: "component",
-    drop: (item: {
-      type: { id: string };
-      variant: any;
-      isMarketplace?: boolean;
-    }) => {
-      console.log("Drop detected:", item);
-      console.log("Item variant componentCode:", item.variant.componentCode);
-      console.log("Item isMarketplace:", item.isMarketplace);
-
+    drop: (item: { type: { id: string }; variant: any }) => {
       const newComponent: PortfolioComponent = {
         id: uuidv4(),
         type: item.type.id,
@@ -35,17 +27,7 @@ export default function DropCanvas({
         props: item.variant.defaultProps || {},
         styles: item.variant.defaultStyles || {},
         order: components.length,
-        isMarketplace: item.isMarketplace || false,
-        componentCode: item.isMarketplace
-          ? item.variant.componentCode
-          : undefined,
       };
-
-      console.log("Created component with marketplace fields:", {
-        isMarketplace: newComponent.isMarketplace,
-        hasComponentCode: !!newComponent.componentCode,
-        componentCodeLength: newComponent.componentCode?.length,
-      });
 
       onDrop?.(newComponent);
     },

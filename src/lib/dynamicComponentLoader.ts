@@ -1,3 +1,4 @@
+import React from 'react';
 import dynamic from 'next/dynamic';
 import { ComponentMetadata } from './componentRegistry';
 
@@ -29,12 +30,20 @@ export async function loadComponent(componentId: string): Promise<LoadedComponen
   // Check if component has been converted to a file
   const isConverted = await isComponentConvertedToFile(componentId);
   
-  if (isConverted) {
-    // Load from file (new system)
-    Component = dynamic(
-      () => import(`@/components/community/${metadata.name.replace(/[^a-zA-Z0-9]/g, '')}`),
-      {
-        ssr: false,
-        loading: () => (
-          <div className="flex items-center justify-center p-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 bo
+  // Load from file (new system)
+  Component = dynamic(
+    () => import(`@/components/community/${metadata.name.replace(/[^a-zA-Z0-9]/g, '')}`),
+    {
+      ssr: false,
+      loading: () => React.createElement('div', { className: 'flex items-center justify-center p-4' },
+        React.createElement('div', { className: 'animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900' })
+      ),
+    }
+  );
+  
+  // Cache the loaded component
+  const loadedComponent: LoadedComponent = { Component, metadata };
+  componentCache.set(componentId, loadedComponent);
+  
+  return loadedComponent;
+}

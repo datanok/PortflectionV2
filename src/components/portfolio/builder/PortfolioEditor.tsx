@@ -9,6 +9,7 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,12 +23,6 @@ import {
   ComponentVariant,
   SectionType,
 } from "@/lib/portfolio/registry";
-import {
-  isMarketplaceComponent,
-  MarketplaceComponentWrapper,
-  type HybridComponentVariant,
-} from "@/lib/portfolio/hybrid-registry";
-import { LiveMarketplaceComponent } from "@/components/LiveMarketplaceComponent";
 import BulkStyleModal from "./BulkStyleModal";
 import PropertyPanel from "./PropertyPanel";
 import ComponentPalette from "./ComponentPalette";
@@ -53,8 +48,6 @@ const adaptToTypesComponent = (
   props: comp.props,
   styles: comp.styles || {},
   order: comp.order,
-  isMarketplace: comp.isMarketplace || false,
-  componentCode: comp.componentCode,
   createdAt: undefined,
   updatedAt: undefined,
 });
@@ -69,8 +62,6 @@ const adaptToActionsComponent = (
   styles: comp.styles,
   order: comp.order,
   isActive: true,
-  isMarketplace: comp.isMarketplace || false,
-  componentCode: comp.componentCode,
 });
 
 interface PortfolioData {
@@ -128,7 +119,6 @@ export default function PortfolioEditor({
   // Load portfolio data on mount if editing
   useEffect(() => {
     if (portfolioId && initialData) {
-      console.log("Loading initial data:", initialData);
       setComponents(initialData.components || []);
       setPortfolioName(initialData.name || "Untitled Portfolio");
       setPortfolioSlug(initialData.slug || "");
@@ -136,26 +126,15 @@ export default function PortfolioEditor({
     }
   }, [portfolioId, initialData]);
 
-  const handleAddComponent = (variant: HybridComponentVariant) => {
+  const handleAddComponent = (variant: ComponentVariant) => {
     // Find the section type for this variant
     let sectionType: SectionType = "hero"; // fallback
 
-    if (isMarketplaceComponent(variant)) {
-      // For marketplace components, determine section type from category
-      const categorySectionMap: Record<string, SectionType> = {
-        layout: "hero",
-        content: "about",
-        media: "projects",
-        form: "contact",
-      };
-      sectionType = categorySectionMap[variant.category] || "custom";
-    } else {
-      // For static registry components
-      for (const [sectionId, section] of Object.entries(componentRegistry)) {
-        if (section.variants.some((v) => v.id === variant.id)) {
-          sectionType = sectionId as SectionType;
-          break;
-        }
+    // For static registry components
+    for (const [sectionId, section] of Object.entries(componentRegistry)) {
+      if (section.variants.some((v) => v.id === variant.id)) {
+        sectionType = sectionId as SectionType;
+        break;
       }
     }
 
@@ -167,10 +146,6 @@ export default function PortfolioEditor({
       styles: variant.defaultStyles || {},
       order: components.length,
       isActive: true,
-      isMarketplace: isMarketplaceComponent(variant), // This will be true for marketplace components
-      componentCode: isMarketplaceComponent(variant)
-        ? variant.componentCode
-        : undefined,
     };
 
     setComponents((prev) => [...prev, newComponent]);
@@ -186,39 +161,11 @@ export default function PortfolioEditor({
   };
 
   const handleDropComponent = (component: TypesPortfolioComponent) => {
-    console.log("handleDropComponent - incoming component:", {
-      isMarketplace: component.isMarketplace,
-      hasComponentCode: !!component.componentCode,
-      componentCodeLength: component.componentCode?.length,
-    });
-
     const actionsComponent = adaptToActionsComponent(component);
-
-    console.log("handleDropComponent - after adaptToActionsComponent:", {
-      isMarketplace: actionsComponent.isMarketplace,
-      hasComponentCode: !!actionsComponent.componentCode,
-      componentCodeLength: actionsComponent.componentCode?.length,
-    });
-
     actionsComponent.id = uuidv4();
-
-    console.log("handleDropComponent - before setComponents:", {
-      isMarketplace: actionsComponent.isMarketplace,
-      hasComponentCode: !!actionsComponent.componentCode,
-      componentCodeLength: actionsComponent.componentCode?.length,
-      fullComponent: actionsComponent,
-    });
 
     setComponents((prev) => {
       const newComponents = [...prev, actionsComponent];
-      console.log("handleDropComponent - in setComponents callback:", {
-        newComponentsLength: newComponents.length,
-        lastComponent: newComponents[newComponents.length - 1],
-        lastComponentMarketplace:
-          newComponents[newComponents.length - 1]?.isMarketplace,
-        lastComponentHasCode:
-          !!newComponents[newComponents.length - 1]?.componentCode,
-      });
       return newComponents;
     });
 
@@ -342,12 +289,6 @@ export default function PortfolioEditor({
         portfolioType: "developer" as const,
       };
 
-      // Debug: Log the data being sent
-      console.log(
-        "Saving portfolio data:",
-        JSON.stringify(portfolioData, null, 2)
-      );
-
       let result;
       if (portfolioId) {
         result = await updatePortfolio({
@@ -380,55 +321,74 @@ export default function PortfolioEditor({
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col h-screen bg-background w-full overflow-hidden">
-        {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between p-3 border-b border-border bg-card flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-            >
-              {isMobileSidebarOpen ? (
-                <X className="w-4 h-4" />
-              ) : (
-                <Menu className="w-4 h-4" />
-              )}
-            </Button>
-            <input
-              type="text"
-              value={portfolioName}
-              onChange={(e) => setPortfolioName(e.target.value)}
-              className="text-sm font-medium bg-transparent border-none outline-none text-foreground flex-1 min-w-0"
-              placeholder="Portfolio Name"
-            />
+        {/* Enhanced Header with Bulk Editor */}
+        <div className="border-b border-border bg-card flex-shrink-0">
+          {/* Mobile Header */}
+          <div className="md:hidden flex items-center justify-between p-3">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+              >
+                {isMobileSidebarOpen ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Menu className="w-4 h-4" />
+                )}
+              </Button>
+              <input
+                type="text"
+                value={portfolioName}
+                onChange={(e) => setPortfolioName(e.target.value)}
+                className="text-sm font-medium bg-transparent border-none outline-none text-foreground flex-1 min-w-0"
+                placeholder="Portfolio Name"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <BulkStyleModal
+                components={components.map(adaptToTypesComponent)}
+                onUpdateComponents={(updates) => {
+                  const updatedComponents = components.map((comp) => ({
+                    ...comp,
+                    styles: {
+                      ...comp.styles,
+                      ...updates.styles,
+                    },
+                  }));
+                  setComponents(updatedComponents);
+                }}
+                trigger={
+                  <Button variant="outline" size="sm" className="px-2">
+                    <Sparkles className="w-4 h-4" />
+                  </Button>
+                }
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPreviewOpen(true)}
+                className="px-2"
+              >
+                <Eye className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                size="sm"
+                className="px-2"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsPreviewOpen(true)}
-              className="px-2"
-            >
-              <Eye className="w-4 h-4" />
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              size="sm"
-              className="px-2"
-            >
-              {isSaving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-            </Button>
-          </div>
-        </div>
 
-        {/* Desktop Header */}
-        <div className="hidden md:flex border-b border-border bg-card p-4 flex-shrink-0">
-          <div className="flex items-center justify-between w-full">
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-between p-4">
             <div className="flex items-center gap-4">
               <input
                 type="text"
@@ -454,6 +414,25 @@ export default function PortfolioEditor({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <BulkStyleModal
+                components={components.map(adaptToTypesComponent)}
+                onUpdateComponents={(updates) => {
+                  const updatedComponents = components.map((comp) => ({
+                    ...comp,
+                    styles: {
+                      ...comp.styles,
+                      ...updates.styles,
+                    },
+                  }));
+                  setComponents(updatedComponents);
+                }}
+                trigger={
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Bulk Style
+                  </Button>
+                }
+              />
               <Button
                 variant="outline"
                 size="sm"
@@ -542,11 +521,8 @@ export default function PortfolioEditor({
           >
             <div className="p-3 md:p-4 border-b border-border">
               <h2 className="text-base md:text-lg font-semibold text-foreground">
-                Component Library
+                Components
               </h2>
-              <p className="text-xs md:text-sm text-muted-foreground">
-                Drag components to build your portfolio
-              </p>
             </div>
             <div className="flex-1 overflow-y-auto">
               <ComponentPalette onComponentSelect={handleAddComponent} />
@@ -556,7 +532,7 @@ export default function PortfolioEditor({
           {/* Main Canvas Area */}
           <div
             className={`
-            flex-1 min-w-0 overflow-hidden
+            flex-1 min-w-0 overflow-hidden overflow-y-auto
             ${isMobile && activePanel !== "canvas" ? "hidden" : ""}
           `}
           >
@@ -586,26 +562,8 @@ export default function PortfolioEditor({
             border-l border-border bg-card flex flex-col min-h-0 flex-shrink-0 relative z-20
           `}
           >
-            {/* Bulk Style Modal */}
-            <div className="p-3 md:p-4 border-b border-border flex-shrink-0">
-              <BulkStyleModal
-                components={components.map(adaptToTypesComponent)}
-                onUpdateComponents={(updates) => {
-                  // Apply style updates to all components
-                  const updatedComponents = components.map((comp) => ({
-                    ...comp,
-                    styles: {
-                      ...comp.styles,
-                      ...updates.styles,
-                    },
-                  }));
-                  setComponents(updatedComponents);
-                }}
-              />
-            </div>
-
             {/* Property Panel */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-hidden overflow-y-auto">
               <PropertyPanel
                 component={
                   selectedComponent

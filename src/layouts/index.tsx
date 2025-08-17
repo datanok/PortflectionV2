@@ -1,14 +1,16 @@
-import React, { lazy, Suspense, ComponentType } from 'react';
-import { LayoutType, LayoutProps } from '@/types/layout';
-import { Skeleton } from '@/components/ui/skeleton';
+import React, { lazy, Suspense, ComponentType } from "react";
+import { LayoutType, LayoutProps } from "@/types/layout";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Type for dynamically imported layout components
-type LazyLayoutComponent = React.LazyExoticComponent<ComponentType<LayoutProps>>;
+type LazyLayoutComponent = React.LazyExoticComponent<
+  ComponentType<LayoutProps>
+>;
 
 // Lazy load layout components with proper typing
 const layoutComponents: Record<LayoutType, LazyLayoutComponent> = {
-  minimal: lazy(() => import('./MinimalLayout')),
-  classic: lazy(() => import('./ClassicLayout')),
+  minimal: lazy(() => import("./MinimalLayout")),
+  classic: lazy(() => import("./ClassicLayout")),
 };
 
 // Fallback component for loading
@@ -25,12 +27,11 @@ const LayoutLoading: React.FC = () => {
 };
 
 // Layout factory component
-export const PortfolioLayout: React.FC<LayoutProps & { layoutType?: LayoutType }> = ({
-  layoutType = 'classic',
-  ...props
-}) => {
-  const LayoutComponent = layoutComponents[layoutType] || layoutComponents.classic;
-  console.log(layoutType,"layoutType")
+export const PortfolioLayout: React.FC<
+  LayoutProps & { layoutType?: LayoutType }
+> = ({ layoutType = "classic", ...props }) => {
+  const LayoutComponent =
+    layoutComponents[layoutType] || layoutComponents.classic;
 
   return (
     <Suspense fallback={<LayoutLoading />}>
@@ -40,5 +41,5 @@ export const PortfolioLayout: React.FC<LayoutProps & { layoutType?: LayoutType }
 };
 
 // Re-export the layout components
-export { default as ClassicLayout } from './ClassicLayout';
-export { default as MinimalLayout } from './MinimalLayout';
+export { default as ClassicLayout } from "./ClassicLayout";
+export { default as MinimalLayout } from "./MinimalLayout";

@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 
-
 import { NavMenu } from "./nav-menu";
 import { NavigationSheet } from "./navigation-sheet";
-import { ColorScheme } from '@/components/portfolioForms/types/ColorSchemes';
+import { ColorScheme } from "@/app/types/portfolio";
 import { GithubLogo, XLogo } from "./icons";
 import { Logo } from "./logo";
 interface NavbarProps {
@@ -17,14 +16,14 @@ export const Navbar = ({
   name,
   activeSection,
   onNavClick,
-  theme
+  theme,
 }: NavbarProps) => {
   return (
-    <nav 
+    <nav
       className="fixed z-10 top-6 inset-x-4 h-14 bg-background border max-w-screen-md mx-auto rounded-full"
       style={{
-        backgroundColor: theme.glass || 'hsl(var(--background))',
-        borderColor: theme.border || 'hsl(var(--border))',
+        backgroundColor: theme.glass || "hsl(var(--background))",
+        borderColor: theme.border || "hsl(var(--border))",
       }}
     >
       <div className="h-full flex items-center justify-between mx-auto px-3">
@@ -32,7 +31,7 @@ export const Navbar = ({
 
         {/* Desktop Menu */}
         <div className="hidden md:block">
-          <NavMenu 
+          <NavMenu
             activeSection={activeSection}
             onNavClick={onNavClick}
             theme={theme}
@@ -47,7 +46,7 @@ export const Navbar = ({
             style={{
               borderColor: theme.border,
               color: theme.body,
-              backgroundColor: 'transparent'
+              backgroundColor: "transparent",
             }}
           >
             <XLogo className="h-5 w-5" />
@@ -59,7 +58,7 @@ export const Navbar = ({
             style={{
               borderColor: theme.border,
               color: theme.body,
-              backgroundColor: 'transparent'
+              backgroundColor: "transparent",
             }}
           >
             <GithubLogo className="h-5 w-5" />
@@ -67,7 +66,7 @@ export const Navbar = ({
 
           {/* Mobile Menu */}
           <div className="md:hidden">
-            <NavigationSheet 
+            <NavigationSheet
               activeSection={activeSection}
               onNavClick={onNavClick}
               theme={theme}

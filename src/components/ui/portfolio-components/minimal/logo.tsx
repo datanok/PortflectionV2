@@ -1,4 +1,4 @@
-import { ColorScheme } from '@/components/portfolioForms/types/ColorSchemes';
+import { ColorScheme } from "@/app/types/portfolio";
 
 interface LogoProps {
   name: string;
@@ -7,17 +7,17 @@ interface LogoProps {
 
 export const Logo = ({ name, theme }: LogoProps) => {
   return (
-    <a 
-      href="#" 
+    <a
+      href="#"
       className="text-2xl font-bold tracking-tight"
       style={{ color: theme.body }}
       onClick={(e) => {
         e.preventDefault();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }}
     >
-      {name?.split(' ').map((n, i) => (
-        <span key={i} style={{ color: i === 1 ? theme.accent : 'inherit' }}>
+      {name?.split(" ").map((n, i) => (
+        <span key={i} style={{ color: i === 1 ? theme.accent : "inherit" }}>
           {n}
         </span>
       ))}

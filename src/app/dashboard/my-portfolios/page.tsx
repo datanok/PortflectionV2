@@ -25,9 +25,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { deletePortfolioAction } from "@/app/dashboard/portfolios/actions";
+import { deletePortfolio } from "@/actions/portfolio-actions";
 import { PortfolioListCard } from "@/components/PortfolioListCard";
-import { listPortfolios, deletePortfolio } from "@/actions/portfolio-actions";
+import { listPortfolios } from "@/actions/portfolio-actions";
 
 interface Portfolio {
   id: string;

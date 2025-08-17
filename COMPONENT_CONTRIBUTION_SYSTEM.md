@@ -7,23 +7,20 @@ This document outlines the complete component contribution system for Portflecti
 The component contribution system consists of several interconnected parts:
 
 1. **GitHub-Based Contribution** - Traditional pull request workflow
-2. **Component Marketplace** - Browse and install community components
-3. **Component Submission System** - Web-based component submission
-4. **Admin Review System** - Review and approve/reject submissions
-5. **Database Schema** - Store submissions, approvals, and installations
+2. **Component Submission System** - Web-based component submission
+3. **Admin Review System** - Review and approve/reject submissions
+4. **Database Schema** - Store submissions and approvals
 
 ## 📁 File Structure
 
 ```
 src/
 ├── components/
-│   ├── ComponentMarketplace.tsx      # Marketplace interface
 │   ├── ComponentSubmission.tsx       # Submission form
 │   └── AdminComponentReview.tsx      # Admin review interface
 ├── app/api/
 │   ├── components/
 │   │   ├── submit/route.ts           # Handle submissions
-│   │   └── marketplace/route.ts      # Marketplace API
 │   └── admin/
 │       └── components/
 │           ├── submissions/route.ts  # Admin submissions API
@@ -57,10 +54,6 @@ Add these to your `.env` file:
 COMPONENT_SUBMISSION_ENABLED=true
 MAX_COMPONENT_SIZE=50000  # 50KB max component code
 REVIEW_NOTIFICATION_EMAIL=admin@yourdomain.com
-
-# Marketplace settings
-MARKETPLACE_ENABLED=true
-PREMIUM_COMPONENTS_ENABLED=true
 ```
 
 ### 3. API Routes Setup
@@ -69,8 +62,6 @@ The system includes these API endpoints:
 
 - `POST /api/components/submit` - Submit new component
 - `GET /api/components/submit` - Get user's submissions
-- `GET /api/components/marketplace` - Browse marketplace
-- `POST /api/components/marketplace` - Install/uninstall components
 - `GET /api/admin/components/submissions` - Admin: list submissions
 - `POST /api/admin/components/review` - Admin: review submissions
 
@@ -110,39 +101,8 @@ The system includes these API endpoints:
 
 3. **Approve/Reject**
    - Provide feedback notes
-   - Approve: Component moves to marketplace
+   - Approve: Component is approved and available
    - Reject: Component archived with reason
-
-## 🛍️ Marketplace System
-
-### Features
-
-- **Browse Components**: Search, filter, and sort components
-- **Install/Uninstall**: One-click component installation
-- **Ratings & Reviews**: Community feedback system
-- **Premium Components**: Paid component support
-- **Statistics**: Download counts, ratings, reviews
-
-### Integration
-
-The marketplace integrates with your existing portfolio builder:
-
-```tsx
-// In your portfolio builder
-import ComponentMarketplace from "@/components/ComponentMarketplace";
-
-// Add marketplace tab to builder
-<Tabs>
-  <TabsList>
-    <TabsTrigger value="builder">Builder</TabsTrigger>
-    <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-  </TabsList>
-  <TabsContent value="builder">{/* Existing builder content */}</TabsContent>
-  <TabsContent value="marketplace">
-    <ComponentMarketplace />
-  </TabsContent>
-</Tabs>;
-```
 
 ## 🔧 Component Guidelines
 
@@ -218,37 +178,6 @@ model ComponentSubmission {
 }
 ```
 
-### ApprovedComponent
-
-Stores approved components in marketplace:
-
-```prisma
-model ApprovedComponent {
-  id                String   @id @default(cuid())
-  name              String
-  description       String
-  // ... component details
-  downloads         Int      @default(0)
-  rating            Float    @default(0)
-  reviewCount       Int      @default(0)
-}
-```
-
-### ComponentInstallation
-
-Tracks user installations:
-
-```prisma
-model ComponentInstallation {
-  id          String   @id @default(cuid())
-  userId      String
-  componentId String
-  installedAt DateTime @default(now())
-
-  @@unique([userId, componentId])
-}
-```
-
 ## 🔐 Security & Validation
 
 ### Input Validation
@@ -276,65 +205,28 @@ model ComponentInstallation {
 ### In-App Notifications
 
 - **Review Status Updates**: Real-time status changes
-- **New Components**: Notify users of new marketplace additions
-- **Update Notifications**: When components are updated
+- **Approval Notifications**: When components are approved
 
 ## 🎯 Integration Points
 
 ### 1. Portfolio Builder
 
-Integrate marketplace into existing builder:
-
-```tsx
-// In PortfolioEditor.tsx
-import ComponentMarketplace from "@/components/ComponentMarketplace";
-
-// Add marketplace panel
-<div className="flex">
-  <div className="w-1/3">
-    <ComponentPalette />
-  </div>
-  <div className="w-1/3">
-    <ComponentMarketplace />
-  </div>
-  <div className="w-1/3">
-    <PropertyPanel />
-  </div>
-</div>;
-```
+The component submission system integrates with the existing portfolio builder through the admin review process.
 
 ### 2. Registry Integration
 
-Update registry to include community components:
-
-```typescript
-// In registry.ts
-export const getCommunityComponents = async () => {
-  const response = await fetch("/api/components/marketplace");
-  const data = await response.json();
-  return data.components;
-};
-
-// Merge with existing components
-export const getAllComponents = () => {
-  return {
-    ...componentRegistry,
-    community: await getCommunityComponents(),
-  };
-};
-```
+Components are managed through the submission and approval workflow.
 
 ### 3. Navigation
 
-Add marketplace to main navigation:
+Add component submission to main navigation:
 
 ```tsx
 // In navigation component
 <nav>
   <Link href="/dashboard">Dashboard</Link>
   <Link href="/portfolio-builder">Portfolio Builder</Link>
-  <Link href="/marketplace">Component Marketplace</Link>
-  <Link href="/submit-component">Submit Component</Link>
+  <Link href="/components/submit">Submit Component</Link>
 </nav>
 ```
 
@@ -355,21 +247,7 @@ npx prisma migrate deploy
 ```bash
 # Set production environment variables
 COMPONENT_SUBMISSION_ENABLED=true
-MARKETPLACE_ENABLED=true
 REVIEW_NOTIFICATION_EMAIL=admin@yourdomain.com
-```
-
-### 3. File Uploads
-
-Configure image upload for component thumbnails:
-
-```typescript
-// Configure upload service (AWS S3, Cloudinary, etc.)
-const uploadThumbnail = async (file: File) => {
-  // Upload to your preferred service
-  const uploadedUrl = await uploadToCloud(file);
-  return uploadedUrl;
-};
 ```
 
 ## 📊 Analytics & Monitoring
@@ -378,8 +256,7 @@ const uploadThumbnail = async (file: File) => {
 
 - **Submission Volume**: Number of submissions per day/week
 - **Approval Rate**: Percentage of approved vs rejected
-- **Popular Components**: Most downloaded/rated components
-- **User Engagement**: Marketplace usage statistics
+- **Review Time**: Average time from submission to review
 
 ### Monitoring
 

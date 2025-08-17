@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 
 interface HeroAction {
   label: string;
@@ -31,6 +31,8 @@ interface ComponentProps {
   showProfileImage?: boolean;
   showCodeSnippet?: boolean;
   codeSnippet?: string;
+  floatingCodeElement1?: string;
+  floatingCodeElement2?: string;
 
   // Style Props
   backgroundColor?: string;
@@ -48,7 +50,23 @@ interface ComponentProps {
   // Global Theme
   globalTheme?: any;
 }
+function getContrastColor(hex: string) {
+  // Expand shorthand hex (#abc -> #aabbcc)
+  if (hex.length === 4) {
+    hex = "#" + [...hex.slice(1)].map((c) => c + c).join("");
+  }
 
+  // Convert hex to RGB
+  const r = parseInt(hex.substr(1, 2), 16);
+  const g = parseInt(hex.substr(3, 2), 16);
+  const b = parseInt(hex.substr(5, 2), 16);
+
+  // Calculate brightness (perceived luminance)
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+  // Return black for light backgrounds, white for dark
+  return brightness > 128 ? "#000000" : "#FFFFFF";
+}
 const TypographyHero: React.FC<ComponentProps> = ({
   greeting = "HELLO_WORLD();",
   name = "JANE_DOE",
@@ -84,13 +102,14 @@ const TypographyHero: React.FC<ComponentProps> = ({
   showProfileImage = false,
   showCodeSnippet = true,
   codeSnippet = `const developer = {
-  name: "Jane Doe",
-  skills: ["React", "Node.js", "TypeScript"],
+  name: ${name},
   passion: "Creating amazing UX",
   status: "available"
 };`,
+  floatingCodeElement1 = 'console.log("Hello!");',
+  floatingCodeElement2 = "return success;",
   backgroundColor = "#0f172a",
-  textColor = "#e2e8f0",
+  textColor = "#000",
   primaryColor = "#3b82f6",
   secondaryColor = "#64748b",
   paddingY = "80",
@@ -106,10 +125,15 @@ const TypographyHero: React.FC<ComponentProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  // Typing animation effect
+  // Throttled mouse movement handler
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    setMousePosition({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  // Typing animation effect - optimized with longer intervals
   useEffect(() => {
     const targetText = typingTexts[currentTypingIndex];
-    const typingSpeed = isDeleting ? 50 : 100;
+    const typingSpeed = isDeleting ? 80 : 150; // Increased from 50/100 to 80/150ms
     const pauseTime = isDeleting ? 500 : 2000;
 
     const timer = setTimeout(() => {
@@ -128,55 +152,76 @@ const TypographyHero: React.FC<ComponentProps> = ({
     return () => clearTimeout(timer);
   }, [currentText, isDeleting, currentTypingIndex, typingTexts]);
 
-  // Mouse tracking for interactive effects
+  // Mouse tracking for interactive effects - throttled
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    let timeoutId: NodeJS.Timeout;
+
+    const throttledMouseMove = (e: MouseEvent) => {
+      if (timeoutId) return; // Skip if already scheduled
+
+      timeoutId = setTimeout(() => {
+        handleMouseMove(e);
+        timeoutId = null as any;
+      }, 16); // ~60fps throttling
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
 
-  const sectionStyle: React.CSSProperties = {
-    backgroundColor,
-    color: textColor,
-    paddingTop: `${paddingY}px`,
-    paddingBottom: `${paddingY}px`,
-    paddingLeft: `${paddingX}px`,
-    paddingRight: `${paddingX}px`,
-    borderRadius: `${borderRadius}px`,
-    boxShadow: shadow !== "none" ? shadow : undefined,
-    fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
-    position: "relative",
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    overflow: "hidden",
-  };
+    window.addEventListener("mousemove", throttledMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", throttledMouseMove);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [handleMouseMove]);
 
-  const gridOverlayStyle: React.CSSProperties = {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundImage: `
+  // Memoize expensive calculations
+  const sectionStyle: React.CSSProperties = useMemo(
+    () => ({
+      backgroundColor,
+      color: textColor,
+      paddingTop: `${paddingY}px`,
+      paddingBottom: `${paddingY}px`,
+      paddingLeft: `${paddingX}px`,
+      paddingRight: `${paddingX}px`,
+      borderRadius: `${borderRadius}px`,
+      boxShadow: shadow !== "none" ? shadow : undefined,
+      fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+      position: "relative",
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      overflow: "hidden",
+    }),
+    [backgroundColor, textColor, paddingY, paddingX, borderRadius, shadow]
+  );
+
+  const gridOverlayStyle: React.CSSProperties = useMemo(
+    () => ({
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundImage: `
       linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px)
     `,
-    backgroundSize: "60px 60px",
-    pointerEvents: "none",
-  };
+      backgroundSize: "60px 60px",
+      pointerEvents: "none",
+    }),
+    []
+  );
 
-  const floatingElementStyle: React.CSSProperties = {
-    position: "absolute",
-    transform: `translate(${mousePosition.x * 0.02}px, ${
-      mousePosition.y * 0.02
-    }px)`,
-    transition: "transform 0.2s ease-out",
-  };
+  const floatingElementStyle: React.CSSProperties = useMemo(
+    () => ({
+      position: "absolute",
+      transform: `translate(${mousePosition.x * 0.02}px, ${
+        mousePosition.y * 0.02
+      }px)`,
+      transition: "transform 0.2s ease-out",
+    }),
+    [mousePosition.x, mousePosition.y]
+  );
 
-  const getSocialIcon = (platform: string) => {
+  const getSocialIcon = useCallback((platform: string) => {
     const icons: Record<string, string> = {
       GitHub: "⚡",
       LinkedIn: "💼",
@@ -185,35 +230,45 @@ const TypographyHero: React.FC<ComponentProps> = ({
       Instagram: "📷",
     };
     return icons[platform] || "🔗";
-  };
+  }, []);
+
+  // Memoize static floating elements
+  const floatingElements = useMemo(
+    () => (
+      <>
+        <div
+          style={{
+            ...floatingElementStyle,
+            top: "10%",
+            right: "10%",
+            opacity: 0.1,
+          }}
+          className="text-6xl"
+        >
+          {"{ }"}
+        </div>
+        <div
+          style={{
+            ...floatingElementStyle,
+            bottom: "20%",
+            left: "5%",
+            opacity: 0.1,
+          }}
+          className="text-4xl"
+        >
+          {"</>"}
+        </div>
+      </>
+    ),
+    [floatingElementStyle]
+  );
 
   return (
     <section style={sectionStyle}>
       <div style={gridOverlayStyle}></div>
 
       {/* Floating Elements */}
-      <div
-        style={{
-          ...floatingElementStyle,
-          top: "10%",
-          right: "10%",
-          opacity: 0.1,
-        }}
-        className="text-6xl"
-      >
-        {"{ }"}
-      </div>
-      <div
-        style={{
-          ...floatingElementStyle,
-          bottom: "20%",
-          left: "5%",
-          opacity: 0.1,
-        }}
-        className="text-4xl"
-      >
-        {"</>"}
-      </div>
+      {floatingElements}
 
       <div className="relative z-10 max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -231,11 +286,11 @@ const TypographyHero: React.FC<ComponentProps> = ({
             {showStatus && (
               <div className="flex items-center space-x-3 mb-6">
                 <div
-                  className="w-3 h-3 rounded-full animate-pulse"
+                  className="w-2.5 h-2.5 rounded-full animate-pulse"
                   style={{ backgroundColor: statusColor }}
                 ></div>
                 <span
-                  className="text-sm font-bold tracking-widest uppercase"
+                  className="text-xs font-bold tracking-widest uppercase"
                   style={{ color: statusColor }}
                 >
                   {statusText}
@@ -246,7 +301,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
             {/* Greeting */}
             <div className="space-y-2">
               <p
-                className="text-lg md:text-xl font-bold tracking-wide"
+                className="text-base md:text-lg font-bold tracking-wide"
                 style={{
                   color: primaryColor,
                   animationDelay: "0.2s",
@@ -256,11 +311,10 @@ const TypographyHero: React.FC<ComponentProps> = ({
               </p>
             </div>
 
-            {/* Name */}
             <h1
               className="font-black tracking-tight leading-none"
               style={{
-                fontSize: "clamp(3rem, 12vw, 8rem)",
+                fontSize: "clamp(2.5rem, 10vw, 6rem)",
                 color: textColor,
                 fontWeight: 900,
                 lineHeight: 0.85,
@@ -274,7 +328,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
                 <span
-                  className="text-2xl md:text-4xl font-black tracking-tight"
+                  className="text-xl md:text-3xl font-black tracking-tight"
                   style={{ color: primaryColor }}
                 >
                   {currentText}
@@ -288,7 +342,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
               </div>
 
               <p
-                className="text-xl md:text-2xl font-medium leading-relaxed"
+                className="text-lg md:text-xl font-medium leading-relaxed"
                 style={{
                   color: secondaryColor,
                   lineHeight: 1.6,
@@ -300,7 +354,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
 
             {/* Description */}
             <p
-              className="text-lg leading-relaxed max-w-2xl"
+              className="text-base leading-relaxed max-w-2xl"
               style={{
                 color: textColor,
                 lineHeight: 1.7,
@@ -317,21 +371,26 @@ const TypographyHero: React.FC<ComponentProps> = ({
                   key={button.label}
                   href={button.href}
                   download={button.downloadFile}
-                  className="group px-8 py-4 font-bold tracking-wider uppercase transition-all duration-300 hover:scale-105 border-2 relative overflow-hidden"
+                  className="group px-6 py-3 font-bold tracking-wider uppercase transition-all duration-300 hover:scale-105 border-2 relative overflow-hidden"
                   style={{
                     backgroundColor: button.isPrimary
                       ? primaryColor
                       : "transparent",
-                    color: button.isPrimary ? "#ffffff" : primaryColor,
+                    color: button.isPrimary
+                      ? getContrastColor(primaryColor)
+                      : primaryColor,
                     borderColor: primaryColor,
                     borderRadius: `${borderRadius}px`,
-                    fontSize: "0.875rem",
+                    fontSize: "0.75rem",
                     textDecoration: "none",
                     animationDelay: `${1 + index * 0.1}s`,
                   }}
                 >
                   <span className="relative z-10">{button.label}</span>
-                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  <div
+                    style={{ backgroundColor: primaryColor }}
+                    className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                  ></div>
                 </a>
               ))}
             </div>
@@ -363,7 +422,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
                     e.currentTarget.style.color = secondaryColor;
                   }}
                 >
-                  <span className="text-xl">
+                  <span className="text-lg">
                     {getSocialIcon(social.platform)}
                   </span>
                   <span className="text-xs font-medium hidden sm:block">
@@ -399,7 +458,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
                 <div
                   className="rounded-lg overflow-hidden shadow-2xl"
                   style={{
-                    backgroundColor: "#1e293b",
+                    backgroundColor: secondaryColor,
                     border: `1px solid ${primaryColor}40`,
                   }}
                 >
@@ -407,8 +466,8 @@ const TypographyHero: React.FC<ComponentProps> = ({
                   <div
                     className="flex items-center justify-between px-4 py-3 border-b"
                     style={{
-                      backgroundColor: "#334155",
-                      borderColor: `${primaryColor}20`,
+                      backgroundColor: primaryColor,
+                      borderColor: getContrastColor(primaryColor),
                     }}
                   >
                     <div className="flex items-center space-x-2">
@@ -420,16 +479,16 @@ const TypographyHero: React.FC<ComponentProps> = ({
                       className="text-xs font-medium"
                       style={{ color: secondaryColor }}
                     >
-                      developer.js
+                      {title}
                     </span>
                   </div>
 
                   {/* Code Content */}
                   <div className="p-6">
                     <pre
-                      className="text-sm leading-relaxed"
+                      className="text-xs leading-relaxed"
                       style={{
-                        color: textColor,
+                        color: getContrastColor(secondaryColor),
                         fontFamily:
                           "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
                       }}
@@ -438,12 +497,28 @@ const TypographyHero: React.FC<ComponentProps> = ({
                         {codeSnippet.split("\n").map((line, index) => (
                           <div
                             key={index}
-                            className="hover:bg-blue-500 hover:bg-opacity-10 px-2 py-1 rounded transition-colors duration-200"
-                            style={{ animationDelay: `${index * 0.1}s` }}
+                            className="px-2 py-1 rounded transition-colors duration-200 hover:bg-blue-500 hover:bg-opacity-10 cursor-pointer hover:text-white"
+                            style={{
+                              animationDelay: `${index * 0.1}s`,
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                primaryColor;
+                              e.currentTarget.style.color =
+                                getContrastColor(primaryColor);
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor =
+                                "transparent";
+                              e.currentTarget.style.color =
+                                getContrastColor(secondaryColor);
+                            }}
                           >
                             <span
                               className="text-xs mr-4 select-none"
-                              style={{ color: secondaryColor }}
+                              style={{
+                                color: getContrastColor(secondaryColor),
+                              }}
                             >
                               {String(index + 1).padStart(2, "0")}
                             </span>
@@ -457,29 +532,29 @@ const TypographyHero: React.FC<ComponentProps> = ({
 
                 {/* Floating Code Elements */}
                 <div
-                  className="absolute -top-8 -left-8 px-3 py-1 rounded text-xs font-bold animate-float"
+                  className="absolute -top-8 -left-8 px-2 py-1 rounded text-xs font-bold animate-float"
                   style={{
                     backgroundColor: primaryColor,
-                    color: "#ffffff",
+                    color: getContrastColor(primaryColor),
                   }}
                 >
-                  console.log(&quot;Hello!&quot;);
+                  {floatingCodeElement1}
                 </div>
                 <div
-                  className="absolute -bottom-6 -right-6 px-3 py-1 rounded text-xs font-bold animate-float"
+                  className="absolute -bottom-6 -right-6 px-2 py-1 rounded text-xs font-bold animate-float"
                   style={{
                     backgroundColor: statusColor,
-                    color: "#ffffff",
+                    color: getContrastColor(statusColor),
                     animationDelay: "1s",
                   }}
                 >
-                  return success;
+                  {floatingCodeElement2}
                 </div>
               </div>
             ) : (
               <div className="text-center">
                 <div
-                  className="text-8xl md:text-9xl font-black opacity-20 animate-pulse"
+                  className="text-6xl md:text-7xl font-black opacity-20 animate-pulse"
                   style={{ color: primaryColor }}
                 >
                   {"</>"}

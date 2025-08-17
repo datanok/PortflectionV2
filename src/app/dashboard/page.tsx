@@ -38,7 +38,7 @@ import {
   Store,
   FileText,
 } from "lucide-react";
-import { deletePortfolioAction } from "./portfolios/actions";
+import { deletePortfolio } from "@/actions/portfolio-actions";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -151,7 +151,7 @@ export default function DashboardPage() {
 
   const handleDeletePortfolio = useCallback(async (id: string) => {
     try {
-      await deletePortfolioAction(id);
+      await deletePortfolio(id);
       toast.success("Portfolio deleted successfully!");
     } catch (error: any) {
       toast.error(error.message || "Failed to delete portfolio.");

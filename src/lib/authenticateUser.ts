@@ -10,27 +10,16 @@ export const authenticateUser = async (
 ): Promise<Session | null> => {
   try {
     const cookie = req.headers.get("cookie");
-    console.log(
-      "🔍 Authenticating user with cookie:",
-      cookie ? "Present" : "Missing"
-    );
 
     // Use Better Auth API directly instead of betterFetch
     const session = await auth.api.getSession({
       headers: req.headers,
     });
 
-    console.log("📊 Session response:", {
-      hasData: !!session,
-      session: session,
-    });
-
     if (!session) {
-      console.warn("⚠️ No session data received");
       return null;
     }
 
-    console.log("✅ Authentication successful for user:", session.user.email);
     return session;
   } catch (error: unknown) {
     if (error instanceof Error) {

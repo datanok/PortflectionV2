@@ -73,12 +73,9 @@ const navItems = [
   },
   {
     title: "Components",
-    url: "/components/marketplace",
+    url: "/components/submit",
     icon: Component,
-    items: [
-      { title: "Marketplace", url: "/components/marketplace" },
-      { title: "Submit Component", url: "/components/submit" },
-    ],
+    items: [{ title: "Submit Component", url: "/components/submit" }],
   },
   {
     title: "Analytics",

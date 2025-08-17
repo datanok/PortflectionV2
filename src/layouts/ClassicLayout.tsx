@@ -2,18 +2,37 @@
 
 import { BaseLayout } from "./BaseLayout";
 import dynamic from "next/dynamic";
-import React, { memo, useEffect, useState, useMemo, useCallback } from 'react';
-import { usePortfolioData } from '@/components/PortfolioProvider';
-import type { Theme } from '@/types/theme';
-import { getDefaultTheme } from '@/types/theme';
-import { Code, Briefcase, Mail, Github, Linkedin, Globe, Twitter, Instagram, Facebook, Youtube } from 'lucide-react';
-import type { ReactNode, ComponentType } from 'react';
+import React, { memo, useEffect, useState, useMemo, useCallback } from "react";
+import { usePortfolioData } from "@/components/PortfolioProvider";
+import type { Theme } from "@/types/theme";
+import { getDefaultTheme } from "@/types/theme";
+import {
+  Code,
+  Briefcase,
+  Mail,
+  Github,
+  Linkedin,
+  Globe,
+  Twitter,
+  Instagram,
+  Facebook,
+  Youtube,
+} from "lucide-react";
+import type { ReactNode, ComponentType } from "react";
 
-import { toast } from 'sonner';
+import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Define social icon types
-type SocialIconType = 'github' | 'linkedin' | 'website' | 'twitter' | 'instagram' | 'facebook' | 'youtube' | 'medium';
+type SocialIconType =
+  | "github"
+  | "linkedin"
+  | "website"
+  | "twitter"
+  | "instagram"
+  | "facebook"
+  | "youtube"
+  | "medium";
 type SocialLinks = Partial<Record<SocialIconType, string>>;
 
 // Skeleton loaders
@@ -49,7 +68,11 @@ const NavbarSkeleton = () => (
 );
 
 // Type definitions for component props
-type PortfolioType = 'developer' | 'designer' | 'contentCreator' | 'businessConsulting';
+type PortfolioType =
+  | "developer"
+  | "designer"
+  | "contentCreator"
+  | "businessConsulting";
 
 interface PortfolioData {
   name?: string;
@@ -126,7 +149,11 @@ interface HeroSectionProps {
 
 interface SkillsSectionProps {
   skills: string[];
-  presetType: 'developer' | 'designer' | 'contentCreator' | 'businessConsulting';
+  presetType:
+    | "developer"
+    | "designer"
+    | "contentCreator"
+    | "businessConsulting";
   theme: any;
 }
 
@@ -143,12 +170,14 @@ interface FooterProps {
 
 // Dynamic imports with loading states and proper typing
 const HeroSection = dynamic<HeroSectionProps>(
-  () => import("@/components/ui/portfolio-components/classic/HeroSection") as any,
+  () =>
+    import("@/components/ui/portfolio-components/classic/HeroSection") as any,
   { ssr: false, loading: () => <HeroSkeleton /> }
 );
 
 const SkillsSection = dynamic<SkillsSectionProps>(
-  () => import("@/components/ui/portfolio-components/classic/SkillsSection") as any,
+  () =>
+    import("@/components/ui/portfolio-components/classic/SkillsSection") as any,
   { ssr: false, loading: () => <SkillsSkeleton /> }
 );
 
@@ -156,33 +185,47 @@ const SkillsSection = dynamic<SkillsSectionProps>(
 import { PortfolioNavbar } from "@/components/ui/portfolio-components/classic/PortfolioNavbar";
 
 // Create a properly typed dynamic component
-const PortfolioNavbarDynamic = dynamic<React.ComponentProps<typeof PortfolioNavbar>>(
-  () => import("@/components/ui/portfolio-components/classic/PortfolioNavbar").then(mod => mod.PortfolioNavbar),
-  { 
-    ssr: false, 
-    loading: () => <NavbarSkeleton /> 
+const PortfolioNavbarDynamic = dynamic<
+  React.ComponentProps<typeof PortfolioNavbar>
+>(
+  () =>
+    import("@/components/ui/portfolio-components/classic/PortfolioNavbar").then(
+      (mod) => mod.PortfolioNavbar
+    ),
+  {
+    ssr: false,
+    loading: () => <NavbarSkeleton />,
   }
 ) as React.ComponentType<React.ComponentProps<typeof PortfolioNavbar>>;
 
 const ExperienceTimeline = dynamic<ExperienceTimelineProps>(
-  () => import("@/components/ui/portfolio-components/classic/Experience-card") as any,
+  () =>
+    import(
+      "@/components/ui/portfolio-components/classic/Experience-card"
+    ) as any,
   { ssr: false, loading: () => <div>Loading experience...</div> }
 );
 
 const EducationSection = dynamic<EducationSectionProps>(
-  () => import("@/components/ui/portfolio-components/classic/Education-section") as any,
+  () =>
+    import(
+      "@/components/ui/portfolio-components/classic/Education-section"
+    ) as any,
   { ssr: false, loading: () => <div>Loading education...</div> }
 );
 
 const CertificationsSection = dynamic<CertificationsSectionProps>(
-  () => import("@/components/ui/portfolio-components/classic/CertificationsSection") as any,
+  () =>
+    import(
+      "@/components/ui/portfolio-components/classic/CertificationsSection"
+    ) as any,
   { ssr: false, loading: () => <div>Loading certifications...</div> }
 );
 
 const FooterComponent = dynamic<FooterProps>(
   () => import("@/components/ui/portfolio-components/classic/Footer") as any,
-  { 
-    ssr: false, 
+  {
+    ssr: false,
     loading: () => (
       <footer className="py-10 px-6 border-t bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto">
@@ -196,67 +239,76 @@ const FooterComponent = dynamic<FooterProps>(
           </div>
         </div>
       </footer>
-    ) 
+    ),
   }
 );
 
 // Dynamic imports for project sections
 const DeveloperProjectSection = dynamic(
-  () => import("@/components/ui/portfolio-components/classic/DeveloperProjectSection"),
+  () =>
+    import(
+      "@/components/ui/portfolio-components/classic/DeveloperProjectSection"
+    ),
   { ssr: false, loading: () => <div>Loading projects...</div> }
 );
 
 const DesignerProjectSection = dynamic(
-  () => import("@/components/ui/portfolio-components/classic/DesignerProjectSection"),
+  () =>
+    import(
+      "@/components/ui/portfolio-components/classic/DesignerProjectSection"
+    ),
   { ssr: false, loading: () => <div>Loading projects...</div> }
 );
 
 const BusinessProjectSection = dynamic(
-  () => import("@/components/ui/portfolio-components/classic/BusinessProjectSection"),
+  () =>
+    import(
+      "@/components/ui/portfolio-components/classic/BusinessProjectSection"
+    ),
   { ssr: false, loading: () => <div>Loading projects...</div> }
 );
 
 // Memoize components with proper typing
 const MemoizedHeroSection = memo(HeroSection);
-MemoizedHeroSection.displayName = 'MemoizedHeroSection';
+MemoizedHeroSection.displayName = "MemoizedHeroSection";
 
 const MemoizedSkillsSection = memo(SkillsSection);
-MemoizedSkillsSection.displayName = 'MemoizedSkillsSection';
+MemoizedSkillsSection.displayName = "MemoizedSkillsSection";
 
 // Memoize the PortfolioNavbar component with proper typing
 const MemoizedPortfolioNavbar = memo(function PortfolioNavbarWrapper({
   theme,
-  name = 'Portfolio'
+  name = "Portfolio",
 }: {
   theme: Theme;
   name?: string;
 }) {
   return <PortfolioNavbar theme={theme} name={name} />;
 });
-MemoizedPortfolioNavbar.displayName = 'MemoizedPortfolioNavbar';
+MemoizedPortfolioNavbar.displayName = "MemoizedPortfolioNavbar";
 
 // Memoize project section components
 const MemoizedDeveloperProjectSection = memo(DeveloperProjectSection);
-MemoizedDeveloperProjectSection.displayName = 'MemoizedDeveloperProjectSection';
+MemoizedDeveloperProjectSection.displayName = "MemoizedDeveloperProjectSection";
 
 const MemoizedDesignerProjectSection = memo(DesignerProjectSection);
-MemoizedDesignerProjectSection.displayName = 'MemoizedDesignerProjectSection';
+MemoizedDesignerProjectSection.displayName = "MemoizedDesignerProjectSection";
 
 const MemoizedBusinessProjectSection = memo(BusinessProjectSection);
-MemoizedBusinessProjectSection.displayName = 'MemoizedBusinessProjectSection';
+MemoizedBusinessProjectSection.displayName = "MemoizedBusinessProjectSection";
 
 // Memoize other components with proper typing
 const MemoizedExperienceTimeline = memo(ExperienceTimeline);
-MemoizedExperienceTimeline.displayName = 'MemoizedExperienceTimeline';
+MemoizedExperienceTimeline.displayName = "MemoizedExperienceTimeline";
 
 const MemoizedEducationSection = memo(EducationSection);
-MemoizedEducationSection.displayName = 'MemoizedEducationSection';
+MemoizedEducationSection.displayName = "MemoizedEducationSection";
 
 const MemoizedCertificationsSection = memo(CertificationsSection);
-MemoizedCertificationsSection.displayName = 'MemoizedCertificationsSection';
+MemoizedCertificationsSection.displayName = "MemoizedCertificationsSection";
 
 const MemoizedFooter = memo(FooterComponent);
-MemoizedFooter.displayName = 'MemoizedFooter';
+MemoizedFooter.displayName = "MemoizedFooter";
 
 // Social Icons component
 interface SocialIconProps {
@@ -274,20 +326,25 @@ const SOCIAL_ICONS: Record<SocialIconType, ComponentType<{ size: number }>> = {
   instagram: Instagram,
   facebook: Facebook,
   youtube: Youtube,
-  medium: Github
+  medium: Github,
 } as const;
 
-const SocialIcon: React.FC<SocialIconProps> = ({ type, url, theme, className = '' }) => {
+const SocialIcon: React.FC<SocialIconProps> = ({
+  type,
+  url,
+  theme,
+  className = "",
+}) => {
   const Icon = SOCIAL_ICONS[type];
   if (!Icon) return null;
 
   return (
-    <a 
+    <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
       className={`p-2 rounded-full hover:bg-opacity-10 hover:bg-white transition-colors ${className}`}
-      style={{ color: theme?.light || '#ffffff' }}
+      style={{ color: theme?.light || "#ffffff" }}
       aria-label={`${type} profile`}
     >
       <Icon size={20} />
@@ -296,9 +353,15 @@ const SocialIcon: React.FC<SocialIconProps> = ({ type, url, theme, className = '
 };
 
 const MemoizedSocialIcon = memo(SocialIcon);
-MemoizedSocialIcon.displayName = 'MemoizedSocialIcon';
+MemoizedSocialIcon.displayName = "MemoizedSocialIcon";
 
-const SocialIcons = ({ socials, theme }: { socials: SocialLinks; theme: any }): React.ReactElement => {
+const SocialIcons = ({
+  socials,
+  theme,
+}: {
+  socials: SocialLinks;
+  theme: any;
+}): React.ReactElement => {
   const socialIcons: Record<SocialIconType, ReactNode> = {
     github: <Github size={20} />,
     linkedin: <Linkedin size={20} />,
@@ -307,35 +370,39 @@ const SocialIcons = ({ socials, theme }: { socials: SocialLinks; theme: any }): 
     instagram: <Instagram size={20} />,
     facebook: <Facebook size={20} />,
     youtube: <Youtube size={20} />,
-    medium: <Github size={20} />
+    medium: <Github size={20} />,
   };
 
   return (
     <div className="flex space-x-4">
-      {(Object.entries(socials) as [SocialIconType, string][]).map(([key, value]) => {
-        const Icon = socialIcons[key];
-        
-        if (!value || !Icon) return null;
-        
-        return (
-          <a
-            key={key}
-            href={value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`text-${theme?.textSecondary || 'gray-500'} hover:text-${theme?.primary || 'blue-500'} transition-colors`}
-            aria-label={key}
-          >
-            {Icon}
-          </a>
-        );
-      })}
+      {(Object.entries(socials) as [SocialIconType, string][]).map(
+        ([key, value]) => {
+          const Icon = socialIcons[key];
+
+          if (!value || !Icon) return null;
+
+          return (
+            <a
+              key={key}
+              href={value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`text-${
+                theme?.textSecondary || "gray-500"
+              } hover:text-${theme?.primary || "blue-500"} transition-colors`}
+              aria-label={key}
+            >
+              {Icon}
+            </a>
+          );
+        }
+      )}
     </div>
   );
 };
 
 const MemoizedSocialIcons = memo(SocialIcons);
-MemoizedSocialIcons.displayName = 'MemoizedSocialIcons';
+MemoizedSocialIcons.displayName = "MemoizedSocialIcons";
 
 interface FooterProps {
   name: string;
@@ -350,7 +417,7 @@ const Footer = memo(({ name, socials, theme }: FooterProps) => (
       backgroundColor: theme?.dark || "#111827",
       color: theme?.light || "#f9fafb",
       fontFamily: theme?.fontBody || "Lato",
-      borderColor: theme?.accent || "#374151"
+      borderColor: theme?.accent || "#374151",
     }}
   >
     <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -361,7 +428,7 @@ const Footer = memo(({ name, socials, theme }: FooterProps) => (
           Crafted with purpose. Built to showcase you.
         </p>
         <p className="text-xs opacity-50 mt-1">
-          &copy; {new Date().getFullYear()} by {name || 'Portfolio Owner'}
+          &copy; {new Date().getFullYear()} by {name || "Portfolio Owner"}
         </p>
       </div>
 
@@ -370,9 +437,16 @@ const Footer = memo(({ name, socials, theme }: FooterProps) => (
         <div className="flex flex-col items-center md:items-start">
           <h3 className="text-sm font-medium mb-2">Connect</h3>
           <div className="flex flex-wrap gap-3">
-            {(Object.entries(socials) as [SocialIconType, string][]).map(([platform, url]) => (
-              <MemoizedSocialIcon key={platform} type={platform} url={url} theme={theme} />
-            ))}
+            {(Object.entries(socials) as [SocialIconType, string][]).map(
+              ([platform, url]) => (
+                <MemoizedSocialIcon
+                  key={platform}
+                  type={platform}
+                  url={url}
+                  theme={theme}
+                />
+              )
+            )}
           </div>
         </div>
       )}
@@ -380,7 +454,10 @@ const Footer = memo(({ name, socials, theme }: FooterProps) => (
       {/* Right: CTA or Credit */}
       <div className="text-center md:text-right space-y-2">
         <p className="text-sm opacity-70">
-          Built with <span style={{ color: theme?.primary || "#4F46E5" }}>Portflection</span>
+          Built with{" "}
+          <span style={{ color: theme?.primary || "#4F46E5" }}>
+            Portflection
+          </span>
         </p>
         <a
           href="https://portflection.com"
@@ -394,7 +471,7 @@ const Footer = memo(({ name, socials, theme }: FooterProps) => (
     </div>
   </footer>
 ));
-Footer.displayName = 'Footer';
+Footer.displayName = "Footer";
 
 // Define portfolio data type locally since we can't import it
 interface PortfolioData {
@@ -425,80 +502,88 @@ interface ClassicLayoutProps {
   children?: ReactNode;
 }
 
-const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, children }) => {
+const ClassicLayout: React.FC<ClassicLayoutProps> = ({
+  isPreview = false,
+  children,
+}) => {
   const [mounted, setMounted] = useState(false);
   const portfolioData = usePortfolioData();
-  console.log(portfolioData,"portfolioData")
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   // Define default theme
-  const defaultTheme = useMemo<Theme>(() => ({
-    ...getDefaultTheme(),
-    primary: '#000000',
-    secondary: '#ffffff',
-    dark: '#1a1a1a',
-    light: '#f5f5f5',
-    accent: '#3b82f6',
-    background: '#ffffff',
-    card: '#ffffff',
-    muted: '#f3f4f6',
-    fontHeading: 'system-ui, -apple-system, sans-serif',
-    fontBody: 'system-ui, -apple-system, sans-serif',
-    body: '#ffffff'
-  }), []);
+  const defaultTheme = useMemo<Theme>(
+    () => ({
+      ...getDefaultTheme(),
+      primary: "#000000",
+      secondary: "#ffffff",
+      dark: "#1a1a1a",
+      light: "#f5f5f5",
+      accent: "#3b82f6",
+      background: "#ffffff",
+      card: "#ffffff",
+      muted: "#f3f4f6",
+      fontHeading: "system-ui, -apple-system, sans-serif",
+      fontBody: "system-ui, -apple-system, sans-serif",
+      body: "#ffffff",
+    }),
+    []
+  );
 
   // Safely extract portfolio data with defaults and handle extraData
   const portfolioDataTyped: PortfolioData = {
     ...(portfolioData || {}),
     // Ensure all required properties have default values
-    name: portfolioData?.name || 'Your Name',
-    title: portfolioData?.title || 'Your Title',
-    about: portfolioData?.about || 'A brief introduction about yourself.',
-    profileImage: portfolioData?.profileImage || '',
-    location: portfolioData?.location || 'Location',
-    email: portfolioData?.email || 'your.email@example.com',
-    phone: portfolioData?.phone || '',
+    name: portfolioData?.name || "Your Name",
+    title: portfolioData?.title || "Your Title",
+    about: portfolioData?.about || "A brief introduction about yourself.",
+    profileImage: portfolioData?.profileImage || "",
+    location: portfolioData?.location || "Location",
+    email: portfolioData?.email || "your.email@example.com",
+    phone: portfolioData?.phone || "",
     // Extract arrays from extraData if available, otherwise use direct properties or empty arrays
-    experience: Array.isArray(portfolioData?.extraData?.experience) 
-      ? portfolioData.extraData.experience 
-      : Array.isArray(portfolioData?.experience) 
-        ? portfolioData.experience 
-        : [],
-    education: Array.isArray(portfolioData?.extraData?.education) 
-      ? portfolioData.extraData.education 
-      : Array.isArray(portfolioData?.education) 
-        ? portfolioData.education 
-        : [],
-    portfolioItems: Array.isArray(portfolioData?.extraData?.portfolioItems) 
-      ? portfolioData.extraData.portfolioItems 
-      : Array.isArray(portfolioData?.portfolioItems) 
-        ? portfolioData.portfolioItems 
-        : [],
-    certifications: Array.isArray(portfolioData?.extraData?.certifications) 
-      ? portfolioData.extraData.certifications 
-      : Array.isArray((portfolioData as any)?.certifications) 
-        ? (portfolioData as any).certifications 
-        : [],
-    keyAchievements: Array.isArray(portfolioData?.extraData?.keyAchievements) 
-      ? portfolioData.extraData.keyAchievements 
-      : Array.isArray((portfolioData as any)?.keyAchievements) 
-        ? (portfolioData as any).keyAchievements 
-        : [],
-    skills: Array.isArray(portfolioData?.extraData?.skills) 
-      ? portfolioData.extraData.skills 
-      : Array.isArray(portfolioData?.skills) 
-        ? portfolioData.skills 
-        : [],
+    experience: Array.isArray(portfolioData?.extraData?.experience)
+      ? portfolioData.extraData.experience
+      : Array.isArray(portfolioData?.experience)
+      ? portfolioData.experience
+      : [],
+    education: Array.isArray(portfolioData?.extraData?.education)
+      ? portfolioData.extraData.education
+      : Array.isArray(portfolioData?.education)
+      ? portfolioData.education
+      : [],
+    portfolioItems: Array.isArray(portfolioData?.extraData?.portfolioItems)
+      ? portfolioData.extraData.portfolioItems
+      : Array.isArray(portfolioData?.portfolioItems)
+      ? portfolioData.portfolioItems
+      : [],
+    certifications: Array.isArray(portfolioData?.extraData?.certifications)
+      ? portfolioData.extraData.certifications
+      : Array.isArray((portfolioData as any)?.certifications)
+      ? (portfolioData as any).certifications
+      : [],
+    keyAchievements: Array.isArray(portfolioData?.extraData?.keyAchievements)
+      ? portfolioData.extraData.keyAchievements
+      : Array.isArray((portfolioData as any)?.keyAchievements)
+      ? (portfolioData as any).keyAchievements
+      : [],
+    skills: Array.isArray(portfolioData?.extraData?.skills)
+      ? portfolioData.extraData.skills
+      : Array.isArray(portfolioData?.skills)
+      ? portfolioData.skills
+      : [],
     socials: portfolioData?.socials || {},
-    portfolioType: (portfolioData?.portfolioType as PortfolioType) || 'developer',
+    portfolioType:
+      (portfolioData?.portfolioType as PortfolioType) || "developer",
     // Ensure theme is properly typed with defaults
-    theme: portfolioData?.theme ? {
-      ...defaultTheme,
-      ...portfolioData.theme
-    } : defaultTheme
+    theme: portfolioData?.theme
+      ? {
+          ...defaultTheme,
+          ...portfolioData.theme,
+        }
+      : defaultTheme,
   };
   // Destructure the typed portfolio data
   const {
@@ -515,7 +600,7 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
     portfolioItems,
     certifications,
     keyAchievements,
-    portfolioType
+    portfolioType,
   } = portfolioDataTyped;
 
   // Combine skills, removing duplicates
@@ -524,15 +609,18 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
   }, [skills]);
 
   // Extract socials with defaults
-  const socials = useMemo(() => ({
-    github: '',
-    linkedin: '',
-    twitter: '',
-    instagram: '',
-    website: '',
-    behance: '',
-    ...socialLinks
-  }), [socialLinks]);
+  const socials = useMemo(
+    () => ({
+      github: "",
+      linkedin: "",
+      twitter: "",
+      instagram: "",
+      website: "",
+      behance: "",
+      ...socialLinks,
+    }),
+    [socialLinks]
+  );
 
   // Combine default theme with any custom theme from portfolio data
   const theme = useMemo<Theme>(() => {
@@ -554,33 +642,41 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
       accent: customTheme.accent ?? defaultTheme.accent,
       fontHeading: customTheme.fontHeading ?? defaultTheme.fontHeading,
       fontBody: customTheme.fontBody ?? defaultTheme.fontBody,
-      body: customTheme.body ?? defaultTheme.body
+      body: customTheme.body ?? defaultTheme.body,
     };
     return mergedTheme;
   }, [defaultTheme, portfolioData?.theme]);
 
   // Memoize project section component mapping
-  const projectSectionMap = useMemo(() => ({
-    developer: MemoizedDeveloperProjectSection,
-    designer: MemoizedDesignerProjectSection,
-    businessConsulting: MemoizedBusinessProjectSection,
-  }), []);
+  const projectSectionMap = useMemo(
+    () => ({
+      developer: MemoizedDeveloperProjectSection,
+      designer: MemoizedDesignerProjectSection,
+      businessConsulting: MemoizedBusinessProjectSection,
+    }),
+    []
+  );
 
   // Memoize the component selection function
   const ProjectSectionComponent = useMemo(() => {
     const defaultComponent = MemoizedDeveloperProjectSection;
     if (!portfolioType) return defaultComponent;
-    return projectSectionMap[portfolioType as keyof typeof projectSectionMap] || defaultComponent;
+    return (
+      projectSectionMap[portfolioType as keyof typeof projectSectionMap] ||
+      defaultComponent
+    );
   }, [portfolioType, projectSectionMap]);
 
   // Create a wrapper component for project sections
-  const ProjectSectionWrapper: React.FC<{ type: string } & ProjectSectionProps> = ({ type, ...props }) => {
+  const ProjectSectionWrapper: React.FC<
+    { type: string } & ProjectSectionProps
+  > = ({ type, ...props }) => {
     switch (type) {
-      case 'developer':
+      case "developer":
         return <MemoizedDeveloperProjectSection {...props} />;
-      case 'designer':
+      case "designer":
         return <MemoizedDesignerProjectSection {...props} />;
-      case 'businessConsulting':
+      case "businessConsulting":
         return <MemoizedBusinessProjectSection {...props} />;
       default:
         return <MemoizedDeveloperProjectSection {...props} />;
@@ -590,33 +686,40 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
   // Create a Footer component with proper typing
   const PortfolioFooter = useMemo(() => {
     return (
-      <footer className="py-10 px-6 border-t" style={{ 
-        backgroundColor: theme?.dark || "#111827",
-        color: theme?.light || "#f9fafb",
-        borderColor: theme?.accent || "#374151"
-      }}>
+      <footer
+        className="py-10 px-6 border-t"
+        style={{
+          backgroundColor: theme?.dark || "#111827",
+          color: theme?.light || "#f9fafb",
+          borderColor: theme?.accent || "#374151",
+        }}
+      >
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-4 md:mb-0">
-              <p className="text-sm"> &copy; {new Date().getFullYear()} {name || 'Portfolio'}</p>
+              <p className="text-sm">
+                {" "}
+                &copy; {new Date().getFullYear()} {name || "Portfolio"}
+              </p>
             </div>
             <div className="flex space-x-4">
-              {Object.entries(socials).map(([platform, url]) => (
-                url && (
-                  <a
-                    key={platform}
-                    href={url as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:opacity-75 transition-opacity"
-                    aria-label={platform}
-                  >
-                    {platform === 'github' && <Github size={20} />}
-                    {platform === 'linkedin' && <Linkedin size={20} />}
-                    {platform === 'website' && <Globe size={20} />}
-                  </a>
-                )
-              ))}
+              {Object.entries(socials).map(
+                ([platform, url]) =>
+                  url && (
+                    <a
+                      key={platform}
+                      href={url as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:opacity-75 transition-opacity"
+                      aria-label={platform}
+                    >
+                      {platform === "github" && <Github size={20} />}
+                      {platform === "linkedin" && <Linkedin size={20} />}
+                      {platform === "website" && <Globe size={20} />}
+                    </a>
+                  )
+              )}
             </div>
           </div>
         </div>
@@ -640,25 +743,22 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
 
   // Ensure all required theme properties are included
   const navbarTheme: Theme = {
-    primary: theme.primary || '#1f2937',
-    secondary: theme.secondary || '#374151',
-    dark: theme.dark || '#111827',
-    light: theme.light || '#f3f4f6',
-    background: theme.background || '#f1f5f9',
-    card: theme.card || '#ffffff',
-    muted: theme.muted || '#edf2f7',
-    accent: theme.accent || '#6366f1',
-    fontHeading: theme.fontHeading || 'Montserrat',
-    fontBody: theme.fontBody || 'Lato',
-    body: theme.body || '#1a202c'
+    primary: theme.primary || "#1f2937",
+    secondary: theme.secondary || "#374151",
+    dark: theme.dark || "#111827",
+    light: theme.light || "#f3f4f6",
+    background: theme.background || "#f1f5f9",
+    card: theme.card || "#ffffff",
+    muted: theme.muted || "#edf2f7",
+    accent: theme.accent || "#6366f1",
+    fontHeading: theme.fontHeading || "Montserrat",
+    fontBody: theme.fontBody || "Lato",
+    body: theme.body || "#1a202c",
   };
 
   return (
     <BaseLayout className="">
-      <MemoizedPortfolioNavbar 
-        theme={navbarTheme}
-        name={name} 
-      />
+      <MemoizedPortfolioNavbar theme={navbarTheme} name={name} />
       <main className="relative overflow-hidden ">
         {/* Hero Section */}
         <section id="hero" className="scroll-mt-16">
@@ -667,7 +767,7 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
             title={title}
             about={about}
             email={email}
-            githubLink={socialLinks.github || ''}
+            githubLink={socialLinks.github || ""}
             linkedinLink={socialLinks.linkedin}
             personalWebsite={socialLinks.website}
             location={location}
@@ -678,7 +778,7 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
               linkedin: socialLinks.linkedin,
               twitter: socialLinks.twitter,
               instagram: socialLinks.instagram,
-              website: socialLinks.website
+              website: socialLinks.website,
             }}
             theme={theme}
           />
@@ -691,7 +791,7 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
             theme={theme}
           />
         </section>
-        
+
         <section id="skills" className="scroll-mt-16">
           <MemoizedSkillsSection
             skills={allSkills}
@@ -706,7 +806,7 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
               muted: theme.muted,
               accent: theme.accent,
               fontHeading: theme.fontHeading,
-              fontBody: theme.fontBody
+              fontBody: theme.fontBody,
             }}
           />
         </section>
@@ -724,8 +824,8 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
           className="scroll-mt-16"
           style={{ backgroundColor: theme?.muted || "#edf2f7" }}
         >
-          <MemoizedExperienceTimeline 
-            experience={experience} 
+          <MemoizedExperienceTimeline
+            experience={experience}
             theme={{
               primary: theme.primary,
               secondary: theme.secondary,
@@ -736,15 +836,15 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
               muted: theme.muted,
               accent: theme.accent,
               fontHeading: theme.fontHeading,
-              fontBody: theme.fontBody
+              fontBody: theme.fontBody,
             }}
           />
         </section>
 
         {/* Education Section */}
         <section id="education" className="scroll-mt-16">
-          <MemoizedEducationSection 
-            education={education} 
+          <MemoizedEducationSection
+            education={education}
             theme={{
               primary: theme.primary,
               secondary: theme.secondary,
@@ -755,7 +855,7 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
               muted: theme.muted,
               accent: theme.accent,
               fontHeading: theme.fontHeading,
-              fontBody: theme.fontBody
+              fontBody: theme.fontBody,
             }}
           />
         </section>
@@ -763,8 +863,8 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
         {/* Certifications Section */}
         {certifications && certifications.length > 0 && (
           <section id="certifications" className="scroll-mt-16">
-            <MemoizedCertificationsSection 
-              certifications={certifications} 
+            <MemoizedCertificationsSection
+              certifications={certifications}
               theme={{
                 primary: theme.primary,
                 secondary: theme.secondary,
@@ -775,16 +875,16 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
                 muted: theme.muted,
                 accent: theme.accent,
                 fontHeading: theme.fontHeading,
-                fontBody: theme.fontBody
+                fontBody: theme.fontBody,
               }}
             />
           </section>
         )}
 
         {/* Footer */}
-        <MemoizedFooter 
-          name={name} 
-          socials={socials} 
+        <MemoizedFooter
+          name={name}
+          socials={socials}
           theme={{
             primary: theme.primary,
             secondary: theme.secondary,
@@ -795,15 +895,12 @@ const ClassicLayout: React.FC<ClassicLayoutProps> = ({ isPreview = false, childr
             muted: theme.muted,
             accent: theme.accent,
             fontHeading: theme.fontHeading,
-            fontBody: theme.fontBody
-          }} 
+            fontBody: theme.fontBody,
+          }}
         />
 
         {/* Contact Section */}
-     
       </main>
-
- 
     </BaseLayout>
   );
 };

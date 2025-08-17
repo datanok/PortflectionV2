@@ -7,15 +7,14 @@ import React from "react";
 const Page = () => {
   return (
     <div className="relative w-full overflow-x-hidden">
-      {/* Background Grid (optional, can be absolutely positioned) */}
-      
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Hero />
-        
-        <FeaturesSection />
-        
-        <FAQ />
-      </div>
+      {/* Hero Section */}
+      <Hero />
+
+      {/* Features Section */}
+      <FeaturesSection />
+
+      {/* FAQ Section */}
+      <FAQ />
     </div>
   );
 };

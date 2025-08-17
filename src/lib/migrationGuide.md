@@ -1,74 +1,78 @@
-# Migration Guide: From react-live to Community Components
+# Component System Guide
 
 ## Overview
-This guide helps you migrate from the old `react-live` based system to the new file-based community component system.
 
-## Step 1: Remove react-live dependency
+This guide explains the current component submission and review system.
 
-```bash
-npm uninstall react-live
-```
+## Component Submission
 
-## Step 2: Update component usage
-
-### Old way (using react-live):
-```tsx
-<LiveMarketplaceComponent
-  componentCode={`
-    function MyComponent() {
-      return <div>Hello World</div>
-    }
-  `}
-  componentProps={{ title: "Hello" }}
-/>
-```
-
-### New way (using community system):
-```tsx
-<LiveMarketplaceComponent
-  componentId="my-component-id"
-  componentProps={{ title: "Hello" }}
-/>
-```
-
-## Step 3: Convert existing components
-
-1. Run the conversion script:
-```bash
-npm run convert-components
-```
-
-2. This will:
-   - Convert approved components from the database to `.tsx` files
-   - Place them in `src/components/community/`
-   - Update the component registry
-
-## Step 4: Update your portfolio builder
-
-Replace instances of the old system with the new one:
+### Submit a new component:
 
 ```tsx
-// Old
-import { LiveMarketplaceComponent } from '@/components/live/LiveMarketplaceComponent';
-
-// New
-import { CommunityComponentRenderer } from '@/components/community/CommunityComponentRenderer';
+const response = await fetch("/api/components/submit", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    name: "My Component",
+    description: "A custom component",
+    category: "hero",
+    componentCode:
+      "export default function MyComponent() { return <div>Hello</div> }",
+    authorName: "John Doe",
+    authorEmail: "john@example.com",
+  }),
+});
 ```
 
-## Step 5: Test the migration
+## Admin Review
 
-1. Visit `/test-community-components` to test the new system
-2. Verify that existing portfolios still work
-3. Check that new components can be added
+### Review submissions (admin only):
 
-## Benefits of the new system:
+```tsx
+// Approve a component
+const response = await fetch("/api/admin/components/submissions", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    submissionId: "submission-id",
+    action: "approve",
+    reviewerNotes: "Great component!",
+  }),
+});
 
-- ✅ **Security**: No more `eval()` or dangerous code execution
-- ✅ **Performance**: Only used components are bundled
-- ✅ **Maintainability**: Standard React patterns and TypeScript
-- ✅ **Scalability**: Components are actual files that can be version controlled
-- ✅ **Developer Experience**: Better error handling and debugging
+// Reject a component
+const response = await fetch("/api/admin/components/submissions", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    submissionId: "submission-id",
+    action: "reject",
+    rejectionReason: "Doesn't meet quality standards",
+  }),
+});
+```
 
-## Backward Compatibility
+## System Benefits
 
-The old `LiveMarketplaceComponent` still works but will show a warning for legacy `componentCode` usage. It's recommended to migrate to `componentId` for new components. 
+- ✅ **Simple Workflow**: Submit → Review → Approve/Reject
+- ✅ **Quality Control**: Admin review ensures component quality
+- ✅ **Security**: No dynamic code execution
+- ✅ **Maintainability**: Clear approval process
+- ✅ **Scalability**: Easy to manage submissions
+
+## File Structure
+
+```
+src/
+├── components/
+│   ├── ComponentSubmission.tsx       # Submission form
+│   └── AdminComponentReview.tsx      # Admin review interface
+├── app/api/
+│   ├── components/
+│   │   └── submit/route.ts           # Handle submissions
+│   └── admin/
+│       └── components/
+│           └── submissions/route.ts  # Admin submissions API
+└── prisma/
+    └── schema.prisma                 # Database schema
+```

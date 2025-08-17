@@ -1,10 +1,10 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
 async function createTestComponent() {
-  console.log('🔧 Creating test component...');
-  
+  console.log("🔧 Creating test component...");
+
   try {
     // Create a test approved component
     const testComponent = await prisma.approvedComponent.create({
@@ -54,16 +54,15 @@ export default function TestHero({
         originalSubmission: "test-submission", // You'll need to replace this with an actual submission ID
       },
     });
-    
-    console.log('✅ Test component created:', testComponent.id);
-    console.log('Component details:', {
+
+    console.log("✅ Test component created:", testComponent.id);
+    console.log("Component details:", {
       name: testComponent.name,
       category: testComponent.category,
-      approvedAt: testComponent.approvedAt
+      approvedAt: testComponent.approvedAt,
     });
-    
   } catch (error) {
-    console.error('❌ Error creating test component:', error);
+    console.error("❌ Error creating test component:", error);
   } finally {
     await prisma.$disconnect();
   }
@@ -72,10 +71,10 @@ export default function TestHero({
 // Run the creation
 createTestComponent()
   .then(() => {
-    console.log('✨ Test component creation completed');
+    console.log("✨ Test component creation completed");
     process.exit(0);
   })
   .catch((error) => {
-    console.error('💥 Test component creation failed:', error);
+    console.error("💥 Test component creation failed:", error);
     process.exit(1);
   });

@@ -48,15 +48,9 @@ const NavigationHelper: React.FC<NavigationHelperProps> = ({
             top: rect.top + window.scrollY,
             bottom: rect.bottom + window.scrollY,
           });
-        } else {
-          console.warn(`Section with ID "${sectionId}" not found in DOM`);
         }
       });
 
-      console.log(
-        "NavigationHelper: Sections found:",
-        info.map((s) => s.id)
-      );
       setSectionsInfo(info);
     };
 
@@ -102,11 +96,9 @@ const NavigationHelper: React.FC<NavigationHelperProps> = ({
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (!element) {
-      console.warn(`NavigationHelper: Section "${sectionId}" not found`);
       return;
     }
 
-    console.log(`NavigationHelper: Scrolling to section "${sectionId}"`);
     const targetPosition = element.offsetTop - offset;
 
     if (smooth) {

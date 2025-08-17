@@ -503,8 +503,8 @@ export default function AdminComponentReview() {
                   <strong>For rejections:</strong> Please provide a clear reason
                   for rejection in the notes above.
                   <br />
-                  <strong>For approvals:</strong> The component will be added to
-                  the marketplace and made available to users.
+                  <strong>For approvals:</strong> The component will be approved
+                  and made available to users.
                 </AlertDescription>
               </Alert>
 

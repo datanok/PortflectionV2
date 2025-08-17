@@ -35,7 +35,6 @@ export default function EditPortfolioPage(props: {
       setError(null);
       try {
         const result = await getPortfolio(id);
-        console.log("Loaded portfolio data:", result);
         setPortfolioData(result.data);
       } catch (err: any) {
         if (err.message.includes("Access denied")) {

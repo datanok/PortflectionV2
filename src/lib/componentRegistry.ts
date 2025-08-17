@@ -76,11 +76,8 @@ export async function loadComponentRegistry(): Promise<ComponentRegistry> {
 
   // Return cached registry if it's still valid
   if (registryCache && now - cacheTimestamp < CACHE_DURATION) {
-    console.log("📦 Returning cached registry");
     return registryCache;
   }
-
-  console.log("🔄 Loading fresh registry from database...");
 
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient();
@@ -100,9 +97,6 @@ export async function loadComponentRegistry(): Promise<ComponentRegistry> {
     registryCache = registry;
     cacheTimestamp = now;
 
-    console.log(
-      `✅ Loaded ${Object.keys(registry).length} components into registry`
-    );
     return registry;
   } finally {
     await prisma.$disconnect();
@@ -113,7 +107,6 @@ export async function loadComponentRegistry(): Promise<ComponentRegistry> {
 export function clearRegistryCache(): void {
   registryCache = null;
   cacheTimestamp = 0;
-  console.log("🗑️ Registry cache cleared");
 }
 
 // Get component metadata by ID

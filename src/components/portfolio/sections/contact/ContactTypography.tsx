@@ -34,7 +34,24 @@ interface ContactTypographyProps {
   // Global Theme
   globalTheme?: any;
 }
-
+function getFontSize(fontSize: string) {
+  if (fontSize === "sm") {
+    return "clamp(1rem, 2vw, 1.5rem)";
+  }
+  if (fontSize === "md") {
+    return "clamp(1.5rem, 3vw, 2rem)";
+  }
+  if (fontSize === "lg") {
+    return "clamp(2rem, 4vw, 3rem)";
+  }
+  if (fontSize === "xl") {
+    return "clamp(3rem, 6vw, 4rem)";
+  }
+  if (fontSize === "2xl") {
+    return "clamp(4rem, 8vw, 6rem)";
+  }
+  return fontSize;
+}
 const ContactTypography: React.FC<ContactTypographyProps> = ({
   title = "CONTACT",
   subtitle = "LET'S WORK TOGETHER",
@@ -69,7 +86,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
   paddingY = "120",
   paddingX = "32",
   textAlign = "left",
-  fontSize = "4xl",
+  fontSize = "3rem",
   fontWeight = "black",
   borderRadius = "0",
   shadow = "none",
@@ -92,9 +109,10 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
     boxShadow: shadow !== "none" ? shadow : "none",
   };
 
+  console.log(fontSize);
   const titleStyles = {
     color: primaryColor,
-    fontSize: fontSize === "4xl" ? "clamp(3rem, 8vw, 8rem)" : fontSize,
+    fontSize: getFontSize(fontSize),
     fontWeight: fontWeight === "black" ? "900" : fontWeight,
     fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
     lineHeight: "0.85",
@@ -149,7 +167,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
       }, 3000);
     }, 2000);
   };
-
+  console.log(title);
   return (
     <section
       className={`py-${paddingY} px-${paddingX} relative`}
@@ -164,20 +182,20 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
           <p className="mb-8" style={subtitleStyles}>
             {subtitle}
           </p>
-          {description && (
-            <p
-              className="max-w-3xl text-lg leading-relaxed"
-              style={{ color: textColor }}
-            >
-              {description}
-            </p>
-          )}
         </div>
 
         <div className="grid lg:grid-cols-12 gap-16">
           {/* Left Column - Contact Info */}
           <div className="lg:col-span-5 space-y-12">
             {/* Contact Methods */}
+            {description && (
+              <p
+                className="max-w-3xl text-lg leading-relaxed"
+                style={{ color: textColor }}
+              >
+                {description}
+              </p>
+            )}
             <div className="space-y-8">
               <div
                 className="text-xl font-bold uppercase tracking-wider"
@@ -197,15 +215,15 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                   <a
                     key={index}
                     href={method.link}
-                    className="group block border border-gray-200 p-6 hover:border-black transition-all duration-300 hover:translate-x-2"
+                    className="group block border border-gray-200 p-2 hover:border-black transition-all duration-300 hover:translate-x-2"
                     style={{ borderColor: `${secondaryColor}20` }}
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-2">
                       <div
                         className="flex-shrink-0 w-12 h-12 border border-gray-300 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-300"
                         style={{ borderColor: `${secondaryColor}40` }}
                       >
-                        <IconComponent size={20} />
+                        <IconComponent size={16} />
                       </div>
 
                       <div className="flex-1">
@@ -220,7 +238,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                           {method.label}
                         </div>
                         <div
-                          className="text-lg font-medium"
+                          className="text-md font-medium"
                           style={{ color: textColor }}
                         >
                           {method.value}
@@ -239,17 +257,18 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
               <div className="space-y-8">
                 <div>
                   <div
-                    className="text-2xl font-bold uppercase tracking-wider mb-2"
+                    className=" font-bold uppercase tracking-wider mb-2"
                     style={{
                       color: primaryColor,
+                      fontSize: getFontSize(fontSize),
                       fontFamily:
                         "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
                     }}
                   >
-                    {formTitle}
-                  </div>
-                  <div className="text-lg" style={{ color: secondaryColor }}>
-                    {formSubtitle}
+                    {formTitle}{" "}
+                    <span className="text-sm" style={{ color: secondaryColor }}>
+                      {formSubtitle}
+                    </span>
                   </div>
                 </div>
 
@@ -272,7 +291,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 focus:border-black outline-none transition-all duration-300"
+                        className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300"
                         style={{
                           borderColor: `${secondaryColor}40`,
                           fontFamily:
@@ -298,7 +317,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 focus:border-black outline-none transition-all duration-300"
+                        className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300"
                         style={{
                           borderColor: `${secondaryColor}40`,
                           fontFamily:
@@ -325,7 +344,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                       value={formData.subject}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 focus:border-black outline-none transition-all duration-300"
+                      className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300"
                       style={{
                         borderColor: `${secondaryColor}40`,
                         fontFamily:
@@ -350,8 +369,8 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                       value={formData.message}
                       onChange={handleInputChange}
                       required
-                      rows={6}
-                      className="w-full px-4 py-3 border border-gray-300 focus:border-black outline-none transition-all duration-300 resize-vertical"
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300 resize-vertical"
                       style={{
                         borderColor: `${secondaryColor}40`,
                         fontFamily:
@@ -364,7 +383,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                     type="button"
                     onClick={handleSubmit}
                     disabled={formStatus === "sending"}
-                    className="group flex items-center gap-3 px-8 py-4 border-2 border-black bg-black text-white hover:bg-transparent hover:text-black transition-all duration-300 uppercase tracking-wider font-medium disabled:opacity-50"
+                    className="group flex items-center gap-3 px-8 py-2 border-2 border-black bg-black text-white hover:bg-transparent hover:text-black transition-all duration-300 uppercase tracking-wider font-medium disabled:opacity-50"
                     style={{
                       borderColor: primaryColor,
                       backgroundColor:

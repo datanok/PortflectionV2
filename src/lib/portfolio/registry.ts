@@ -3,6 +3,19 @@ export interface ComponentProps {
   [key: string]: any;
 }
 
+// New interface for field metadata to support dropdowns and other field types
+export interface FieldMetadata {
+  type: "text" | "textarea" | "boolean" | "array" | "object" | "select";
+  options?: Array<{ value: string; label: string }>; // For select/dropdown fields
+  label?: string; // Human-readable label
+  description?: string; // Field description
+  placeholder?: string; // Placeholder text
+}
+
+export interface ComponentPropsSchema {
+  [key: string]: FieldMetadata;
+}
+
 export interface StyleConfig {
   backgroundColor?: string;
   textColor?: string;
@@ -24,6 +37,7 @@ export interface ComponentVariant {
   component: React.ComponentType<ComponentProps>;
   thumbnail: string; // URL or path to preview image
   defaultProps: ComponentProps;
+  propsSchema?: ComponentPropsSchema; // New field for field metadata
   defaultStyles: StyleConfig;
   category: "layout" | "content" | "media" | "form";
   tags: string[];
@@ -64,6 +78,7 @@ import * as ProjectsComponents from "@/components/portfolio/sections/projects";
 import * as ContactComponents from "@/components/portfolio/sections/contact";
 import * as SkillsComponents from "@/components/portfolio/sections/skills";
 import * as NavbarComponents from "@/components/portfolio/sections/navbar";
+import * as FooterComponents from "@/components/portfolio/sections/footer";
 import * as CustomComponents from "@/components/portfolio/sections/custom";
 // Re-export components for easier access
 export {
@@ -73,6 +88,7 @@ export {
   ContactComponents,
   SkillsComponents,
   NavbarComponents,
+  FooterComponents,
 };
 
 export const componentRegistry: Record<SectionType, ComponentSection> = {
@@ -96,23 +112,75 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
         theme: "image",
         isPopular: true,
         defaultProps: {
-          title: "John Doe",
-          subtitle: "Full Stack Developer",
+          title: "TANMAY PATIL",
+          subtitle: "Software Development Engineer (Full-Stack)",
           description:
-            "I craft beautiful, functional web experiences with modern technologies. Passionate about clean code, user experience, and continuous learning.",
+            "Software Engineer with over 3 years of experience building high-performance, scalable web applications for enterprise platforms serving millions of users. Proficient across the modern JavaScript ecosystem, I specialize in delivering robust end-to-end features using TypeScript, React.js, and Node.js.",
           profileImage:
             "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
           ctaText: "View My Work",
           ctaLink: "#projects",
           showSocialLinks: true,
-          githubUrl: "https://github.com",
-          linkedinUrl: "https://linkedin.com",
-          emailUrl: "mailto:john@example.com",
+          githubUrl: "https://github.com/datanok",
+          linkedinUrl: "https://linkedin.com/in/tanmaypatil25",
+          emailUrl: "mailto:tanmaypatiltp25@gmail.com",
           showScrollIndicator: true,
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Name",
+            description: "Your full name",
+            placeholder: "Enter your name...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Job Title",
+            description: "Your professional title or role",
+            placeholder: "e.g., Full Stack Developer",
+          },
+          description: {
+            type: "textarea",
+            label: "Description",
+            description: "A brief introduction about yourself",
+            placeholder: "Tell visitors about yourself...",
+          },
+          profileImage: {
+            type: "text",
+            label: "Profile Image URL",
+            description: "URL to your profile picture",
+            placeholder: "https://example.com/image.jpg",
+          },
+          ctaText: {
+            type: "text",
+            label: "CTA Button Text",
+            description: "Text for the call-to-action button",
+            placeholder: "e.g., View My Work",
+          },
+          ctaLink: {
+            type: "text",
+            label: "CTA Button Link",
+            description: "Where the CTA button should link to",
+            placeholder: "#projects",
+          },
+          showSocialLinks: {
+            type: "boolean",
+            label: "Show Social Links",
+            description: "Display social media links",
+          },
+          showScrollIndicator: {
+            type: "select",
+            label: "Scroll Indicator",
+            description: "Choose the scroll indicator style",
+            options: [
+              { value: "true", label: "Show Scroll Indicator" },
+              { value: "false", label: "Hide Scroll Indicator" },
+            ],
+          },
         },
         defaultStyles: {
           backgroundColor: "#ffffff",
-          textColor: "#111827",
+          textColor: "#000",
           primaryColor: "#3b82f6",
           secondaryColor: "#6b7280",
           paddingY: "64",
@@ -143,19 +211,19 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
         isPopular: true,
         defaultProps: {
           greeting: "HELLO_WORLD();",
-          name: "JANE_DOE",
-          title: "FULL_STACK_DEVELOPER",
+          name: "TANMAY_PATIL",
+          title: "SOFTWARE_DEVELOPMENT_ENGINEER",
           showStatus: true,
           statusText: "AVAILABLE_FOR_HIRE",
           showCodeSnippet: true,
           showScrollIndicator: true,
           typingTexts: [
-            "FRONTEND_DEVELOPER",
-            "BACKEND_ARCHITECT",
-            "UI/UX_DESIGNER",
+            "FULL_STACK_DEVELOPER",
+            "REACT_DEVELOPER",
+            "NODE_JS_DEVELOPER",
           ],
           description:
-            "Passionate developer specializing in modern web technologies, user experience design, and scalable applications. Currently crafting the next generation of digital products.",
+            "Software Engineer with over 3 years of experience building high-performance, scalable web applications for enterprise platforms serving millions of users. Proficient across the modern JavaScript ecosystem, I specialize in delivering robust end-to-end features using TypeScript, React.js, and Node.js.",
           buttons: [
             { label: "VIEW_WORK()", href: "#projects", isPrimary: true },
             {
@@ -165,6 +233,67 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             },
             { label: "CONTACT_ME", href: "#contact" },
           ],
+        },
+        propsSchema: {
+          greeting: {
+            type: "text",
+            label: "Greeting",
+            description: "The greeting text displayed at the top",
+            placeholder: "Enter greeting text...",
+          },
+          name: {
+            type: "text",
+            label: "Name",
+            description: "Your name or display name",
+            placeholder: "Enter your name...",
+          },
+          title: {
+            type: "text",
+            label: "Title",
+            description: "Your professional title or role",
+            placeholder: "Enter your title...",
+          },
+          showStatus: {
+            type: "boolean",
+            label: "Show Status",
+            description: "Display the status indicator",
+          },
+          statusText: {
+            type: "text",
+            label: "Status Text",
+            description: "The status text to display",
+            placeholder: "Enter status text...",
+          },
+          showCodeSnippet: {
+            type: "boolean",
+            label: "Show Code Snippet",
+            description: "Display the code snippet section",
+          },
+          showScrollIndicator: {
+            type: "select",
+            label: "Scroll Indicator",
+            description: "Choose the scroll indicator style",
+            options: [
+              { value: "true", label: "Show Scroll Indicator" },
+              { value: "false", label: "Hide Scroll Indicator" },
+            ],
+          },
+          typingTexts: {
+            type: "array",
+            label: "Typing Texts",
+            description: "Texts to cycle through in the typing animation",
+          },
+          description: {
+            type: "textarea",
+            label: "Description",
+            description: "Your professional description or bio",
+            placeholder: "Enter your description...",
+          },
+          buttons: {
+            type: "array",
+            label: "Action Buttons",
+            description: "Buttons displayed in the hero section",
+          },
         },
         defaultStyles: {
           backgroundColor: "#0f172a",
@@ -204,53 +333,94 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
         defaultProps: {
           title: "ABOUT",
           subtitle: "WHO I AM",
-          bio: "I'm a passionate full-stack developer with a keen eye for design and a love for clean, efficient code. My journey in tech began over 8 years ago, and I've been fortunate to work with amazing teams building products that impact thousands of users daily.",
-          location: "Mumbai, India",
-          yearsExperience: "8+",
-          currentRole: "Senior Developer",
+          bio: "Software Engineer with over 3 years of experience building high-performance, scalable web applications for enterprise platforms serving millions of users. Proficient across the modern JavaScript ecosystem, I specialize in delivering robust end-to-end features using TypeScript, React.js, and Node.js. My expertise spans frontend architecture, backend API development, performance optimization, and security enhancements within fast-paced Agile/CI/CD environments.",
+          location: "Mumbai, Maharashtra",
+          yearsExperience: "3+",
+          currentRole: "Software Development Engineer (Full-Stack)",
           timelineItems: [
             {
-              year: "2024",
-              title: "Senior Full Stack Developer",
-              company: "Tech Corp",
-              description:
-                "Leading development of scalable web applications using React, Node.js, and cloud technologies.",
-              type: "work",
-            },
-            {
               year: "2022",
-              title: "Full Stack Developer",
-              company: "StartupXYZ",
+              title: "Software Development Engineer (Full-Stack)",
+              company: "Jio Platforms Limited",
               description:
-                "Built entire product from ground up, implemented CI/CD pipelines and mentored junior developers.",
+                "Built and maintained 50%+ of core user-facing features using React.js and Redux-Saga, enabling thousands of daily transactions for nationwide retail partners.",
               type: "work",
             },
             {
-              year: "2020",
-              title: "Frontend Developer",
-              company: "Digital Agency",
+              year: "2019",
+              title: "B.E. in Computer Engineering",
+              company: "Pillai HOC College of Engineering and Technology",
               description:
-                "Created responsive web applications and collaborated with design teams on user experience.",
-              type: "work",
-            },
-            {
-              year: "2016",
-              title: "Computer Science Degree",
-              company: "University of Mumbai",
-              description:
-                "Graduated with honors, focused on software engineering and web technologies.",
+                "Graduated with focus on software engineering and web technologies.",
               type: "education",
             },
           ],
           showStats: true,
           stats: [
-            { number: "50+", label: "Projects", icon: "code" },
-            { number: "8+", label: "Years", icon: "calendar" },
-            { number: "15+", label: "Clients", icon: "users" },
-            { number: "∞", label: "Coffee", icon: "coffee" },
+            { number: "3+", label: "Years Experience", icon: "calendar" },
+            { number: "50%+", label: "Core Features", icon: "code" },
+            { number: "95%", label: "Security Improvement", icon: "shield" },
+            { number: "30%", label: "Performance Boost", icon: "zap" },
           ],
           showTimeline: true,
           compactMode: false,
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Section Title",
+            description: "The main title for the about section",
+            placeholder: "Enter section title...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Section Subtitle",
+            description: "The subtitle displayed below the main title",
+            placeholder: "Enter subtitle...",
+          },
+          bio: {
+            type: "textarea",
+            label: "Biography",
+            description: "Your personal story and background",
+            placeholder: "Tell your story...",
+          },
+          location: {
+            type: "text",
+            label: "Location",
+            description: "Your current location",
+            placeholder: "City, Country",
+          },
+          yearsExperience: {
+            type: "text",
+            label: "Years of Experience",
+            description: "Your years of professional experience",
+            placeholder: "e.g., 5+",
+          },
+          currentRole: {
+            type: "text",
+            label: "Current Role",
+            description: "Your current job title or role",
+            placeholder: "e.g., Senior Developer",
+          },
+          showStats: {
+            type: "boolean",
+            label: "Show Statistics",
+            description: "Display the statistics section",
+          },
+          showTimeline: {
+            type: "boolean",
+            label: "Show Timeline",
+            description: "Display the timeline section",
+          },
+          compactMode: {
+            type: "select",
+            label: "Layout Mode",
+            description: "Choose the layout style for the section",
+            options: [
+              { value: "false", label: "Full Layout" },
+              { value: "true", label: "Compact Layout" },
+            ],
+          },
         },
         defaultStyles: {
           backgroundColor: "#ffffff",
@@ -291,24 +461,45 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           title: "SKILLS.EXE",
           subtitle: "TECHNICAL EXPERTISE",
           description:
-            "A comprehensive breakdown of my technical arsenal and proficiency levels.",
+            "A comprehensive breakdown of my technical arsenal and proficiency levels across the modern JavaScript ecosystem.",
           skills: [
             {
-              name: "JavaScript",
+              name: "React.js",
               level: 95,
               category: "Frontend",
-              yearsExperience: 5,
+              yearsExperience: 3,
               status: "expert",
             },
             {
-              name: "React",
+              name: "Next.js",
               level: 90,
               category: "Frontend",
-              yearsExperience: 4,
+              yearsExperience: 3,
               status: "expert",
             },
             {
               name: "TypeScript",
+              level: 90,
+              category: "Frontend",
+              yearsExperience: 3,
+              status: "expert",
+            },
+            {
+              name: "JavaScript (ES6+)",
+              level: 95,
+              category: "Frontend",
+              yearsExperience: 3,
+              status: "expert",
+            },
+            {
+              name: "Redux",
+              level: 85,
+              category: "Frontend",
+              yearsExperience: 3,
+              status: "active",
+            },
+            {
+              name: "Redux-Saga",
               level: 85,
               category: "Frontend",
               yearsExperience: 3,
@@ -316,14 +507,42 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             },
             {
               name: "Node.js",
+              level: 85,
+              category: "Backend",
+              yearsExperience: 3,
+              status: "active",
+            },
+            {
+              name: "Express.js",
               level: 80,
               category: "Backend",
               yearsExperience: 3,
               status: "active",
             },
             {
-              name: "Python",
+              name: "Prisma ORM",
+              level: 80,
+              category: "Backend",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "MongoDB",
               level: 75,
+              category: "Database",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "SQL",
+              level: 75,
+              category: "Database",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "Firebase",
+              level: 70,
               category: "Backend",
               yearsExperience: 2,
               status: "active",
@@ -336,17 +555,87 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
               status: "learning",
             },
             {
-              name: "AWS",
+              name: "Jenkins",
               level: 65,
-              category: "Cloud",
-              yearsExperience: 1,
+              category: "DevOps",
+              yearsExperience: 2,
               status: "learning",
             },
             {
-              name: "MongoDB",
+              name: "CI/CD",
+              level: 75,
+              category: "DevOps",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "Vercel",
               level: 80,
-              category: "Database",
+              category: "DevOps",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "Netlify",
+              level: 75,
+              category: "DevOps",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "Git",
+              level: 90,
+              category: "DevOps",
               yearsExperience: 3,
+              status: "expert",
+            },
+            {
+              name: "GitHub",
+              level: 90,
+              category: "DevOps",
+              yearsExperience: 3,
+              status: "expert",
+            },
+            {
+              name: "Agile",
+              level: 85,
+              category: "Methodology",
+              yearsExperience: 3,
+              status: "active",
+            },
+            {
+              name: "Scrum",
+              level: 80,
+              category: "Methodology",
+              yearsExperience: 3,
+              status: "active",
+            },
+            {
+              name: "JWT",
+              level: 85,
+              category: "Security",
+              yearsExperience: 3,
+              status: "active",
+            },
+            {
+              name: "OAuth 2.0",
+              level: 80,
+              category: "Security",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "SSR",
+              level: 85,
+              category: "Frontend",
+              yearsExperience: 2,
+              status: "active",
+            },
+            {
+              name: "SSG",
+              level: 80,
+              category: "Frontend",
+              yearsExperience: 2,
               status: "active",
             },
           ],
@@ -354,7 +643,58 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           showProficiency: true,
           showExperience: true,
           showStatus: true,
-          categories: ["Frontend", "Backend", "DevOps", "Cloud", "Database"],
+          categories: [
+            "Frontend",
+            "Backend",
+            "Database",
+            "DevOps",
+            "Security",
+            "Methodology",
+          ],
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Section Title",
+            description: "The main title for the skills section",
+            placeholder: "Enter section title...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Section Subtitle",
+            description: "The subtitle displayed below the main title",
+            placeholder: "Enter subtitle...",
+          },
+          description: {
+            type: "textarea",
+            label: "Description",
+            description: "Brief description of your skills and expertise",
+            placeholder: "Describe your technical expertise...",
+          },
+          showProgressBars: {
+            type: "boolean",
+            label: "Show Progress Bars",
+            description: "Display visual progress bars for skill levels",
+          },
+          showProficiency: {
+            type: "boolean",
+            label: "Show Proficiency",
+            description: "Display proficiency indicators",
+          },
+          showExperience: {
+            type: "boolean",
+            label: "Show Experience",
+            description: "Display years of experience for each skill",
+          },
+          showStatus: {
+            type: "select",
+            label: "Status Display",
+            description: "Choose how to display skill status",
+            options: [
+              { value: "true", label: "Show Status" },
+              { value: "false", label: "Hide Status" },
+            ],
+          },
         },
         defaultStyles: {
           backgroundColor: "#ffffff",
@@ -399,69 +739,92 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           projects: [
             {
               id: "01",
-              title: "E-Commerce Platform",
+              title: "Portflection – Full-Stack Portfolio Builder",
               category: "Web Application",
               year: "2024",
               description:
-                "Full-stack e-commerce solution with real-time inventory management",
+                "Multi-tenant platform allowing users to create and deploy SEO-optimized portfolios without coding",
               longDescription:
-                "Built a comprehensive e-commerce platform using React, Node.js, and PostgreSQL. Features include real-time inventory tracking, payment processing, admin dashboard, and mobile-responsive design.",
+                "Developed a multi-tenant platform allowing users to create and deploy SEO-optimized portfolios without coding. Implemented Google/GitHub OAuth 2.0, JWT-based sessions, and schema validation (Zod + React Hook Form). Used Next.js SSR + SSG to achieve Lighthouse performance/accessibility/SEO scores above 95%.",
               technologies: [
-                "React",
-                "Node.js",
-                "PostgreSQL",
-                "Stripe",
-                "Redis",
+                "Next.js",
+                "TypeScript",
+                "Prisma",
+                "MongoDB",
+                "Tailwind CSS",
+                "OAuth 2.0",
+                "JWT",
+                "Zod",
+                "React Hook Form",
               ],
-              liveUrl: "https://example.com",
-              githubUrl: "https://github.com",
+              liveUrl: "https://portflection.com",
+              githubUrl: "https://github.com/datanok/portflection-v2",
               featured: true,
               status: "completed",
             },
             {
               id: "02",
-              title: "Portfolio CMS",
-              category: "Content Management",
-              year: "2024",
+              title: "B2B E-commerce Platform",
+              category: "Enterprise Application",
+              year: "2022-2024",
               description:
-                "Custom CMS for creative professionals with drag-and-drop interface",
+                "Built and maintained 50%+ of core user-facing features using React.js and Redux-Saga",
               longDescription:
-                "Developed a headless CMS specifically designed for creative professionals. Features include drag-and-drop page builder, asset management, and API-first architecture.",
-              technologies: ["Next.js", "TypeScript", "Prisma", "AWS S3"],
-              liveUrl: "https://example.com",
-              githubUrl: "https://github.com",
+                "Built and maintained 50%+ of core user-facing features using React.js and Redux-Saga, enabling thousands of daily transactions for nationwide retail partners. Implemented JWT-based authentication with single-device login, reducing unauthorized access incidents by 95%.",
+              technologies: [
+                "React.js",
+                "Redux-Saga",
+                "JWT",
+                "REST APIs",
+                "Node.js",
+                "Express.js",
+              ],
+              liveUrl: "https://jio.com",
+              githubUrl: "https://github.com/datanok",
               featured: true,
               status: "completed",
             },
             {
               id: "03",
-              title: "Task Management App",
-              category: "Mobile Application",
+              title: "SIM Inventory Management System",
+              category: "Enterprise Application",
               year: "2023",
               description:
-                "Cross-platform productivity app with team collaboration features",
+                "React.js-based digital logbook replacing manual tracking for 20+ machines",
               longDescription:
-                "Created a cross-platform task management application with real-time collaboration, file sharing, and progress tracking capabilities.",
-              technologies: ["React Native", "Firebase", "Redux", "Expo"],
-              liveUrl: "https://example.com",
-              githubUrl: "https://github.com",
+                "Designed React.js-based digital logbook replacing manual tracking for 20+ machines, processing 20M+ SIM kits annually, reducing data entry time by 40%. Delivered real-time dashboards improving visibility and reducing operator onboarding time by 25%.",
+              technologies: [
+                "React.js",
+                "Node.js",
+                "Real-time Dashboards",
+                "Inventory Management",
+                "Data Processing",
+              ],
+              liveUrl: "https://jio.com",
+              githubUrl: "https://github.com/datanok",
               featured: false,
               status: "completed",
             },
             {
               id: "04",
-              title: "Analytics Dashboard",
-              category: "Data Visualization",
+              title: "Refund Approval System",
+              category: "Enterprise Application",
               year: "2023",
               description:
-                "Real-time analytics dashboard with interactive data visualizations",
+                "Developed Refund Approval System and Etoptup Reprocess module",
               longDescription:
-                "Built an analytics dashboard for monitoring key business metrics with interactive charts, real-time updates, and customizable widgets.",
-              technologies: ["Vue.js", "D3.js", "Python", "FastAPI", "MongoDB"],
-              liveUrl: "https://example.com",
-              githubUrl: "https://github.com",
+                "Developed Refund Approval System and Etoptup Reprocess module, improving operational efficiency by 15% and cutting reconciliation errors by 1,000+ cases/month.",
+              technologies: [
+                "React.js",
+                "Node.js",
+                "Business Logic",
+                "Process Automation",
+                "Error Handling",
+              ],
+              liveUrl: "https://jio.com",
+              githubUrl: "https://github.com/datanok",
               featured: false,
-              status: "archived",
+              status: "completed",
             },
           ],
           showFilters: true,
@@ -542,20 +905,32 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             {
               icon: "mail",
               label: "Email",
-              value: "hello@johndoe.dev",
-              link: "mailto:hello@johndoe.dev",
+              value: "tanmaypatiltp25@gmail.com",
+              link: "mailto:tanmaypatiltp25@gmail.com",
             },
             {
               icon: "phone",
               label: "Phone",
-              value: "+91 98765 43210",
-              link: "tel:+919876543210",
+              value: "+91-8779557510",
+              link: "tel:+918779557510",
             },
             {
               icon: "mappin",
               label: "Location",
-              value: "Mumbai, India",
-              link: "https://maps.google.com/?q=Mumbai,India",
+              value: "Mumbai, Maharashtra",
+              link: "https://maps.google.com/?q=Mumbai,Maharashtra",
+            },
+            {
+              icon: "linkedin",
+              label: "LinkedIn",
+              value: "linkedin.com/in/tanmaypatil25",
+              link: "https://linkedin.com/in/tanmaypatil25",
+            },
+            {
+              icon: "github",
+              label: "GitHub",
+              value: "github.com/datanok",
+              link: "https://github.com/datanok",
             },
           ],
           showContactForm: true,
@@ -633,7 +1008,109 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
     icon: "Layout",
     isRequired: false,
     allowMultiple: false,
-    variants: [],
+    variants: [
+      {
+        id: "footer-typography",
+        name: "Typography Footer",
+        description:
+          "Minimal typography-focused footer with social links and quick links",
+        component: FooterComponents.TypographyFooter,
+        thumbnail: "/thumbnails/footer-typography.jpg",
+        category: "layout",
+        tags: ["footer", "typography", "social", "quick links"],
+        theme: "typography",
+        isPopular: true,
+        defaultProps: {
+          title: "LET'S_CONNECT()",
+          copyrightText: "© 2024 All rights reserved.",
+          socialLinks: [
+            {
+              platform: "GitHub",
+              url: "https://github.com",
+              username: "@janedoe",
+            },
+            {
+              platform: "LinkedIn",
+              url: "https://linkedin.com",
+              username: "/in/janedoe",
+            },
+            {
+              platform: "Twitter",
+              url: "https://twitter.com",
+              username: "@janedoe",
+            },
+            {
+              platform: "Email",
+              url: "mailto:hello@example.com",
+              username: "hello@example.com",
+            },
+          ],
+          contactInfo: {
+            email: "hello@example.com",
+            location: "Mumbai, India",
+            website: "https://example.com",
+          },
+          showSocialLinks: true,
+          showContactInfo: true,
+          showCopyright: true,
+          showMadeWith: true,
+          madeWithText: "Made with",
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Footer Title",
+            description: "The main title for the footer section",
+            placeholder: "Enter footer title...",
+          },
+          copyrightText: {
+            type: "text",
+            label: "Copyright Text",
+            description: "Copyright notice text",
+            placeholder: "© 2024 All rights reserved.",
+          },
+          showSocialLinks: {
+            type: "boolean",
+            label: "Show Social Links",
+            description: "Display social media links",
+          },
+          showContactInfo: {
+            type: "boolean",
+            label: "Show Contact Info",
+            description: "Display contact information",
+          },
+          showCopyright: {
+            type: "boolean",
+            label: "Show Copyright",
+            description: "Display copyright notice",
+          },
+          showMadeWith: {
+            type: "boolean",
+            label: "Show Made With",
+            description: "Display 'Made with love & precision' text",
+          },
+          madeWithText: {
+            type: "text",
+            label: "Made With Text",
+            description: "Text before the 'Made with love & precision' section",
+            placeholder: "Made with",
+          },
+        },
+        defaultStyles: {
+          backgroundColor: "#0a0a0a",
+          textColor: "#e5e5e5",
+          primaryColor: "#3b82f6",
+          secondaryColor: "#71717a",
+          paddingY: "64",
+          paddingX: "24",
+          textAlign: "left",
+          fontSize: "1rem",
+          fontWeight: "400",
+          borderRadius: "0",
+          shadow: "none",
+        },
+      },
+    ],
   },
   custom: {
     id: "custom",
@@ -663,12 +1140,67 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
         defaultProps: {
           title: "EXPERIENCE.LOG",
           subtitle: "PROFESSIONAL JOURNEY",
-          timelineType: "mixed",
+          timelineType: "experience",
+          sortOrder: "newest",
           showTechnologies: true,
           showAchievements: true,
           showLocation: true,
           showType: true,
-          sortOrder: "newest",
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Section Title",
+            description: "The main title for the timeline section",
+            placeholder: "Enter section title...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Section Subtitle",
+            description: "The subtitle displayed below the main title",
+            placeholder: "Enter subtitle...",
+          },
+          timelineType: {
+            type: "select",
+            label: "Timeline Type",
+            description: "Choose the timeline type",
+            options: [
+              { value: "experience", label: "Experience" },
+              { value: "education", label: "Education" },
+              { value: "mixed", label: "Mixed" },
+            ],
+            placeholder: "Select timeline type",
+          },
+          sortOrder: {
+            type: "select",
+            label: "Sort Order",
+            description: "Choose the sort order",
+            options: [
+              { value: "newest", label: "Newest First" },
+              { value: "oldest", label: "Oldest First" },
+            ],
+            placeholder: "Select sort order",
+          },
+          showTechnologies: {
+            type: "boolean",
+            label: "Show Technologies",
+            description: "Display technologies for each timeline item",
+          },
+          showAchievements: {
+            type: "boolean",
+            label: "Show Achievements",
+            description: "Display achievements for each timeline item",
+          },
+          showLocation: {
+            type: "boolean",
+            label: "Show Location",
+            description: "Display location for each timeline item",
+          },
+          showType: {
+            type: "boolean",
+            label: "Show Type",
+            description: "Display type indicators for timeline items",
+          },
         },
         defaultStyles: {
           backgroundColor: "#ffffff",

@@ -1,7 +1,6 @@
 import React from "react";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import { getComponent, componentRegistry } from "@/lib/portfolio/registry";
-import { LiveMarketplaceComponent } from "@/components/LiveMarketplaceComponent";
 
 interface ComponentRendererProps {
   component: PortfolioComponent;
@@ -12,61 +11,10 @@ export default function ComponentRenderer({
   component,
   preview = true,
 }: ComponentRendererProps) {
-  // Log the full component object in detail
-  console.log(
-    "ComponentRenderer - FULL component object:",
-    JSON.stringify(component, null, 2)
-  );
-
-  console.log("ComponentRenderer - component properties:", {
-    type: component.type,
-    variant: component.variant,
-    props: component.props,
-    styles: component.styles,
-    isMarketplace: component.isMarketplace,
-    hasComponentCode: !!component.componentCode,
-    componentCodeLength: component.componentCode?.length,
-    componentCodePreview: component.componentCode?.substring(0, 100) + "...",
-  });
-
-  // Check if this is a marketplace component first
-  if (component.isMarketplace && component.componentCode) {
-    console.log("✅ Rendering marketplace component:", component.variant);
-    return (
-      <LiveMarketplaceComponent
-        componentCode={component.componentCode}
-        componentProps={component.props}
-        className="w-full"
-      />
-    );
-  }
-
-  // Also check if it has componentCode but isMarketplace flag is missing
-  if (component.componentCode && !component.isMarketplace) {
-    console.log(
-      "✅ Rendering marketplace component (fallback):",
-      component.variant
-    );
-    return (
-      <LiveMarketplaceComponent
-        componentCode={component.componentCode}
-        componentProps={component.props}
-        className="w-full"
-      />
-    );
-  }
-
-  // If we get here, it's not a marketplace component
-  console.log("❌ Treating as static component, looking up in registry...");
-  console.log("❌ isMarketplace:", component.isMarketplace);
-  console.log("❌ hasComponentCode:", !!component.componentCode);
-
   const componentConfig = getComponent(
     component.type as any,
     component.variant
   );
-
-  console.log("ComponentRenderer - componentConfig:", componentConfig);
 
   if (!componentConfig) {
     console.error("Component not found:", {
@@ -109,13 +57,6 @@ export default function ComponentRenderer({
     primaryColor: styles.primaryColor,
     secondaryColor: styles.secondaryColor,
   };
-
-  // Debug: Log the styles being applied
-  console.log(`Component ${component.type} styles:`, {
-    defaultStyles: componentConfig.defaultStyles,
-    customStyles: component.styles,
-    mergedStyles: styles,
-  });
 
   // Convert styles to CSS properties and Tailwind classes
   const getStyleObject = () => {

@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle, Upload } from 'lucide-react';
-import { validateComponentCode } from '@/lib/componentCodeGenerator';
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, CheckCircle, Upload } from "lucide-react";
+import { validateComponentCode } from "@/lib/componentCodeGenerator";
 
 interface ComponentSubmissionForm {
   name: string;
@@ -27,24 +27,26 @@ interface ComponentSubmissionForm {
 
 export function ComponentSubmissionNew() {
   const [formData, setFormData] = useState<ComponentSubmissionForm>({
-    name: '',
-    description: '',
-    category: 'hero',
+    name: "",
+    description: "",
+    category: "hero",
     tags: [],
-    componentCode: '',
+    componentCode: "",
     isPremium: false,
-    compatibility: ['React 18+', 'TypeScript'],
+    compatibility: ["React 18+", "TypeScript"],
     dependencies: [],
   });
 
   const [validation, setValidation] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
   // Validate component code in real-time
   const handleCodeChange = (code: string) => {
-    setFormData(prev => ({ ...prev, componentCode: code }));
-    
+    setFormData((prev) => ({ ...prev, componentCode: code }));
+
     if (code.trim()) {
       const validationResult = validateComponentCode(code);
       setValidation(validationResult);
@@ -56,46 +58,47 @@ export function ComponentSubmissionNew() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitStatus('idle');
+    setSubmitStatus("idle");
 
     try {
       // Validate the component code
       const validationResult = validateComponentCode(formData.componentCode);
-      
+
       if (!validationResult.isValid) {
-        throw new Error(`Component validation failed: ${validationResult.errors.join(', ')}`);
+        throw new Error(
+          `Component validation failed: ${validationResult.errors.join(", ")}`
+        );
       }
 
       // Submit to API
-      const response = await fetch('/api/components/submit', {
-        method: 'POST',
+      const response = await fetch("/api/components/submit", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit component');
+        throw new Error("Failed to submit component");
       }
 
-      setSubmitStatus('success');
+      setSubmitStatus("success");
       // Reset form
       setFormData({
-        name: '',
-        description: '',
-        category: 'hero',
+        name: "",
+        description: "",
+        category: "hero",
         tags: [],
-        componentCode: '',
+        componentCode: "",
         isPremium: false,
-        compatibility: ['React 18+', 'TypeScript'],
+        compatibility: ["React 18+", "TypeScript"],
         dependencies: [],
       });
       setValidation(null);
-
     } catch (error) {
-      console.error('Submission error:', error);
-      setSubmitStatus('error');
+      console.error("Submission error:", error);
+      setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);
     }
@@ -119,7 +122,9 @@ export function ComponentSubmissionNew() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
                   placeholder="e.g., AnimatedHero, ContactForm"
                   required
                 />
@@ -129,7 +134,12 @@ export function ComponentSubmissionNew() {
                 <select
                   id="category"
                   value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      category: e.target.value,
+                    }))
+                  }
                   className="w-full p-2 border rounded-md"
                   required
                 >
@@ -151,7 +161,12 @@ export function ComponentSubmissionNew() {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 placeholder="Describe what your component does and its features..."
                 rows={3}
                 required
@@ -186,7 +201,7 @@ export default function MyComponent({
                 className="font-mono text-sm"
                 required
               />
-              
+
               {/* Real-time validation feedback */}
               {validation && (
                 <div className="mt-2">
@@ -197,7 +212,8 @@ export default function MyComponent({
                         Component code is valid! ✅
                         {validation.warnings.length > 0 && (
                           <div className="mt-1 text-sm">
-                            <strong>Warnings:</strong> {validation.warnings.join(', ')}
+                            <strong>Warnings:</strong>{" "}
+                            {validation.warnings.join(", ")}
                           </div>
                         )}
                       </AlertDescription>
@@ -208,9 +224,11 @@ export default function MyComponent({
                       <AlertDescription>
                         <strong>Validation Errors:</strong>
                         <ul className="mt-1 list-disc list-inside">
-                          {validation.errors.map((error: string, index: number) => (
-                            <li key={index}>{error}</li>
-                          ))}
+                          {validation.errors.map(
+                            (error: string, index: number) => (
+                              <li key={index}>{error}</li>
+                            )
+                          )}
                         </ul>
                       </AlertDescription>
                     </Alert>
@@ -225,11 +243,16 @@ export default function MyComponent({
                 <Label htmlFor="tags">Tags (comma-separated)</Label>
                 <Input
                   id="tags"
-                  value={formData.tags.join(', ')}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    tags: e.target.value.split(',').map(tag => tag.trim()).filter(Boolean)
-                  }))}
+                  value={formData.tags.join(", ")}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      tags: e.target.value
+                        .split(",")
+                        .map((tag) => tag.trim())
+                        .filter(Boolean),
+                    }))
+                  }
                   placeholder="e.g., animated, responsive, dark-mode"
                 />
               </div>
@@ -238,8 +261,13 @@ export default function MyComponent({
                 <Input
                   id="demoUrl"
                   type="url"
-                  value={formData.demoUrl || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, demoUrl: e.target.value }))}
+                  value={formData.demoUrl || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      demoUrl: e.target.value,
+                    }))
+                  }
                   placeholder="https://example.com/demo"
                 />
               </div>
@@ -251,8 +279,13 @@ export default function MyComponent({
                 <Input
                   id="documentationUrl"
                   type="url"
-                  value={formData.documentationUrl || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, documentationUrl: e.target.value }))}
+                  value={formData.documentationUrl || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      documentationUrl: e.target.value,
+                    }))
+                  }
                   placeholder="https://github.com/username/repo#readme"
                 />
               </div>
@@ -261,8 +294,13 @@ export default function MyComponent({
                 <Input
                   id="githubUrl"
                   type="url"
-                  value={formData.githubUrl || ''}
-                  onChange={(e) => setFormData(prev => ({ ...prev, githubUrl: e.target.value }))}
+                  value={formData.githubUrl || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      githubUrl: e.target.value,
+                    }))
+                  }
                   placeholder="https://github.com/username/repo"
                 />
               </div>
@@ -274,7 +312,12 @@ export default function MyComponent({
                 type="checkbox"
                 id="isPremium"
                 checked={formData.isPremium}
-                onChange={(e) => setFormData(prev => ({ ...prev, isPremium: e.target.checked }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isPremium: e.target.checked,
+                  }))
+                }
                 className="rounded"
               />
               <Label htmlFor="isPremium">This is a premium component</Label>
@@ -288,27 +331,32 @@ export default function MyComponent({
                   type="number"
                   min="0"
                   step="0.01"
-                  value={formData.price || ''}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    price: e.target.value ? parseFloat(e.target.value) : undefined
-                  }))}
+                  value={formData.price || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      price: e.target.value
+                        ? parseFloat(e.target.value)
+                        : undefined,
+                    }))
+                  }
                   placeholder="9.99"
                 />
               </div>
             )}
 
             {/* Submit Status */}
-            {submitStatus === 'success' && (
+            {submitStatus === "success" && (
               <Alert className="border-green-200 bg-green-50">
                 <CheckCircle className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-green-800">
-                  Component submitted successfully! It will be reviewed by our team.
+                  Component submitted successfully! It will be reviewed by our
+                  team.
                 </AlertDescription>
               </Alert>
             )}
 
-            {submitStatus === 'error' && (
+            {submitStatus === "error" && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
@@ -317,16 +365,16 @@ export default function MyComponent({
               </Alert>
             )}
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting || !validation?.isValid}
               className="w-full"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Component'}
+              {isSubmitting ? "Submitting..." : "Submit Component"}
             </Button>
           </form>
         </CardContent>
       </Card>
     </div>
   );
-} 
+}

@@ -16,8 +16,6 @@ export interface PortfolioComponent {
   styles: Record<string, any>;
   order: number;
   isActive?: boolean;
-  isMarketplace?: boolean;
-  componentCode?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -477,10 +475,6 @@ export async function cleanupNullSlugs() {
       select: { id: true, name: true },
     });
 
-    console.log(
-      `Found ${portfoliosWithNullSlugs.length} portfolios with null slugs`
-    );
-
     // Update each portfolio with a generated slug
     for (const portfolio of portfoliosWithNullSlugs) {
       const newSlug = await generateUniqueSlug(portfolio.name);
@@ -488,7 +482,6 @@ export async function cleanupNullSlugs() {
         where: { id: portfolio.id },
         data: { slug: newSlug },
       });
-      console.log(`Updated portfolio ${portfolio.id} with slug: ${newSlug}`);
     }
 
     return { success: true, updatedCount: portfoliosWithNullSlugs.length };

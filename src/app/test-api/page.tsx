@@ -41,13 +41,6 @@ export default function TestApiPage() {
         >
           Test Component Submit API
         </Button>
-
-        <Button
-          onClick={() => testApi("/api/components/marketplace")}
-          disabled={loading}
-        >
-          Test Marketplace API
-        </Button>
       </div>
 
       {results && (

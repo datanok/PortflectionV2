@@ -564,7 +564,7 @@ export default function PropertyPanel({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto max-h-[calc(100vh-200px)]">
+      <div className="flex-1 overflow-hidden overflow-y-auto max-h-[calc(100vh-200px)]">
         <Tabs
           value={activeTab}
           onValueChange={handleTabChange}

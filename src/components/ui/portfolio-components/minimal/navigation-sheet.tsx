@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { NavMenu } from "./nav-menu";
-import { ColorScheme } from '@/components/portfolioForms/types/ColorSchemes';
+import { ColorScheme } from "@/app/types/portfolio";
 
 interface NavigationSheetProps {
   activeSection: string;
@@ -13,7 +13,7 @@ interface NavigationSheetProps {
 export const NavigationSheet = ({
   activeSection,
   onNavClick,
-  theme
+  theme,
 }: NavigationSheetProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,21 +27,21 @@ export const NavigationSheet = ({
         style={{
           borderColor: theme.border,
           color: theme.body,
-          backgroundColor: 'transparent'
+          backgroundColor: "transparent",
         }}
       >
         {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
 
       {isOpen && (
-        <div 
+        <div
           className="absolute right-0 mt-2 w-56 p-2 rounded-lg shadow-lg z-50"
           style={{
             backgroundColor: theme.card,
             border: `1px solid ${theme.border}`,
           }}
         >
-          <NavMenu 
+          <NavMenu
             activeSection={activeSection}
             onNavClick={(section) => {
               onNavClick(section);

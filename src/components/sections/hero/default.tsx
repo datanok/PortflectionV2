@@ -1,7 +1,7 @@
 "use client";
 import { Button, type ButtonProps } from "../../ui/button";
 import { Badge } from "../../ui/badge";
-import { ArrowRightIcon, Sparkles, PlayIcon } from "lucide-react";
+import { ArrowRightIcon, Sparkles, PlayIcon, Star } from "lucide-react";
 import { Mockup, MockupFrame } from "../../ui/mockup";
 import Glow from "../../ui/glow";
 import { ReactNode, useState, useEffect } from "react";
@@ -62,14 +62,16 @@ export default function PortflectionHero({
   description = "Design beautiful, professional portfolios in minutes with Portflection's smart builder, sleek templates, and real-time editing — no design skills needed.",
   badge = (
     <Badge
-    className="text-white shadow-md px-3 py-1.5 text-sm font-medium"
-    style={{
-      backgroundImage: "linear-gradient(to right, var(--color-brand), var(--color-brand-foreground))",
-    }}
-  >
-    🚀 Try Portflection Beta — it’s free!
-  </Badge>
-  
+      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full border"
+      style={{
+        backgroundColor: "var(--color-primary)",
+        color: "var(--color-primary-foreground)",
+        borderColor: "var(--color-border)",
+      }}
+    >
+      <Star className="w-4 h-4" />
+      Try Portflection Beta — it&apos;s free!
+    </Badge>
   ),
   buttons = [
     {
@@ -102,113 +104,181 @@ export default function PortflectionHero({
   };
 
   return (
-    <section className="relative overflow-hidden pb-0 sm:pb-8 md:pb-16">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-500/3 via-transparent to-pink-400/3 pointer-events-none" />
+    <section className="relative overflow-hidden py-12 sm:py-20 md:py-28">
+      {/* Modern gradient background */}
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          background:
+            "radial-gradient(circle at 20% 80%, var(--color-primary) 0%, transparent 50%), radial-gradient(circle at 80% 20%, var(--color-accent) 0%, transparent 50%)",
+        }}
+      />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-28 flex flex-col items-center text-center gap-8">
-        {/* Badge */}
-        {badge !== false && <div>{badge}</div>}
+      {/* Subtle grid pattern */}
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage:
+            "linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
 
-        {/* Title + Subtitle */}
-        <div className="space-y-6 max-w-4xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight bg-gradient-to-r from-red-500 to-pink-400 bg-clip-text text-transparent">
-            {typeof title === "string" ? (
-              <>
-                {displayText}
-                {!isComplete && <span className="animate-pulse">|</span>}
-              </>
-            ) : (
-              title
-            )}
-          </h1>
-          <p className="max-w-2xl mx-auto text-muted-foreground text-lg md:text-xl leading-relaxed">
-            {description}
-          </p>
-        </div>
+      <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-6 lg:px-8">
+        <div className="text-center space-y-8">
+          {/* Badge */}
+          {badge !== false && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              {badge}
+            </div>
+          )}
 
-        {/* Buttons */}
-        {buttons && buttons.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-4">
-            {buttons.map((button, index) => (
-              <Button
-                key={index}
-                variant={button.variant || "default"}
-                size="lg"
-                disabled={button.disabled}
-                className={`transition-all duration-200 hover:scale-105 ${
-                  button.variant === "default"
-                    ? "bg-gradient-to-r from-red-500 to-pink-400 text-white hover:shadow-lg"
-                    : "border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/5"
-                }`}
-                onClick={button.onClick}
-                asChild={!button.onClick}
-              >
-                {button.onClick ? (
-                  <button>
-                    {button.icon}
-                    {button.text}
-                    {button.iconRight}
-                  </button>
-                ) : (
-                  <a href={button.href} className="flex items-center">
-                    {button.icon}
-                    {button.text}
-                    {button.iconRight}
-                  </a>
-                )}
-              </Button>
-            ))}
-            {videoUrl && (
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={handleVideoPlay}
-                className="border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/5"
-              >
-                <PlayIcon className="mr-2 size-4" />
-                Watch Demo
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Mockup */}
-        {mockup !== false && (
-          <div className="w-full pt-16 max-w-4xl">
-            <MockupFrame
-              className="hover:scale-[1.02] transition-transform duration-500"
-              size="small"
+          {/* Title + Subtitle */}
+          <div className="space-y-6 max-w-4xl mx-auto">
+            <h1
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight tracking-tight"
+              style={{ color: "var(--color-foreground)" }}
             >
-              <Mockup type="responsive" className="w-full">
-                {mockup || (
-                  <div className="relative group">
-                    <Image
-                      src={HeroImg}
-                      alt="Portfolio preview"
-                      className="w-full rounded-lg shadow-xl"
-                    />
-                    {videoUrl && !isVideoPlaying && (
-                      <button
-                        onClick={handleVideoPlay}
-                        className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/30 rounded-lg transition-all duration-200"
-                      >
-                        <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-110">
-                          <PlayIcon className="w-6 h-6 text-gray-800 ml-1" />
-                        </div>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </Mockup>
-            </MockupFrame>
-            {/* Subtle glow effect */}
-            {/* <Glow
-              variant="top"
-              className="bg-gradient-to-r from-red-500/5 to-pink-400/5 opacity-60"
-            /> */}
+              {typeof title === "string" ? (
+                <>
+                  {displayText}
+                  {!isComplete && (
+                    <span
+                      className="animate-pulse"
+                      style={{ color: "var(--color-primary)" }}
+                    >
+                      |
+                    </span>
+                  )}
+                </>
+              ) : (
+                title
+              )}
+            </h1>
+            <p
+              className="max-w-2xl mx-auto text-base sm:text-lg md:text-xl leading-relaxed px-4 sm:px-0"
+              style={{ color: "var(--color-muted-foreground)" }}
+            >
+              {description}
+            </p>
           </div>
-        )}
+
+          {/* Buttons */}
+          {buttons && buttons.length > 0 && (
+            <div className="flex flex-wrap justify-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 px-4 sm:px-0">
+              {buttons.map((button, index) => (
+                <Button
+                  key={index}
+                  variant={button.variant || "default"}
+                  size="lg"
+                  disabled={button.disabled}
+                  className="transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                  onClick={button.onClick}
+                  asChild={!button.onClick}
+                >
+                  {button.onClick ? (
+                    <button>
+                      {button.icon}
+                      {button.text}
+                      {button.iconRight}
+                    </button>
+                  ) : (
+                    <a href={button.href} className="flex items-center">
+                      {button.icon}
+                      {button.text}
+                      {button.iconRight}
+                    </a>
+                  )}
+                </Button>
+              ))}
+              {videoUrl && (
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={handleVideoPlay}
+                  className="border-2 transition-all duration-300 hover:scale-105"
+                  style={{
+                    borderColor: "var(--color-border)",
+                    color: "var(--color-foreground)",
+                  }}
+                >
+                  <PlayIcon className="mr-2 size-4" />
+                  Watch Demo
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Testimonial */}
+          {testimonial && (
+            <div
+              className="max-w-md mx-auto p-6 rounded-2xl border mx-4 sm:mx-auto"
+              style={{
+                backgroundColor: "var(--color-card)",
+                borderColor: "var(--color-border)",
+                color: "var(--color-card-foreground)",
+              }}
+            >
+              <p className="text-sm italic mb-3">"{testimonial.text}"</p>
+              <div className="flex items-center gap-3">
+                {testimonial.avatar && (
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.author}
+                    className="w-8 h-8 rounded-full"
+                  />
+                )}
+                <div>
+                  <p className="font-medium text-sm">{testimonial.author}</p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--color-muted-foreground)" }}
+                  >
+                    {testimonial.role}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Mockup */}
+          {mockup !== false && (
+            <div className="w-full pt-12 sm:pt-16 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 px-4 sm:px-0">
+              <MockupFrame
+                className="hover:scale-[1.02] transition-transform duration-700"
+                size="small"
+              >
+                <Mockup type="responsive" className="w-full">
+                  {mockup || (
+                    <div className="relative group">
+                      <Image
+                        src={HeroImg}
+                        alt="Portfolio preview"
+                        className="w-full rounded-lg shadow-2xl"
+                      />
+                      {videoUrl && !isVideoPlaying && (
+                        <button
+                          onClick={handleVideoPlay}
+                          className="absolute inset-0 flex items-center justify-center rounded-lg transition-all duration-300 hover:bg-black/20"
+                        >
+                          <div
+                            className="w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+                            style={{
+                              backgroundColor: "var(--color-primary)",
+                              color: "var(--color-primary-foreground)",
+                            }}
+                          >
+                            <PlayIcon className="w-6 h-6 ml-1" />
+                          </div>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </Mockup>
+              </MockupFrame>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
