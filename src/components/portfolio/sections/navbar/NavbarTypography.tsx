@@ -63,15 +63,19 @@ const TypographyNavbar: React.FC<ComponentProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Use the navigation hook
   const { activeSection, scrollToSection, scrollToTop } =
     usePortfolioNavigation();
 
-  // Generate navItems from sections if provided, otherwise use default
+  const filteredSections =
+    sections &&
+    sections.filter(
+      (section) => section.type !== "navbar" && section.type !== "footer"
+    );
+
   const navItems =
     propNavItems ||
-    (sections
-      ? sections.map((section, index) => ({
+    (filteredSections
+      ? filteredSections.map((section, index) => ({
           label: section.type?.toUpperCase() || `SECTION ${index + 1}`,
           href: `#${section.type}`,
           isActive: index === 0,

@@ -19,7 +19,6 @@ interface HeroSectionProps {
   githubUrl?: string;
   linkedinUrl?: string;
   emailUrl?: string;
-  showScrollIndicator?: boolean;
 
   // Style Props
   backgroundColor?: string;
@@ -49,7 +48,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   githubUrl = "https://github.com",
   linkedinUrl = "https://linkedin.com",
   emailUrl = "mailto:john@example.com",
-  showScrollIndicator = true,
   backgroundColor = "#ffffff",
   textColor = "#111827",
   primaryColor = "#3b82f6",
@@ -208,25 +206,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             )}
           </div>
         </div>
-
-        {/* Scroll Indicator */}
-        {showScrollIndicator && (
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="flex flex-col items-center gap-2">
-              <span
-                className="text-sm font-medium"
-                style={{ color: secondaryColor }}
-              >
-                Scroll to explore
-              </span>
-              <ChevronDown
-                size={24}
-                style={{ color: primaryColor }}
-                className="animate-pulse"
-              />
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );

@@ -24,6 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { FieldMetadata } from "@/lib/portfolio/registry";
 
 interface ContentEditorProps {
@@ -70,6 +77,7 @@ export default function ContentEditor({
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "pending">(
     "saved"
   );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Debounce local data changes for auto-save
   const debouncedData = useDebounce(localData, 500);
@@ -109,6 +117,8 @@ export default function ContentEditor({
   const fieldConfigs: FieldConfig[] = useMemo(() => {
     const { defaultProps, propsSchema } = componentConfig;
 
+    console.log("Component Config:", { defaultProps, propsSchema }); // Debug log
+
     return Object.entries(defaultProps).map(([key, value]) => {
       let type: FieldConfig["type"] = "text";
       let metadata: FieldMetadata | undefined;
@@ -125,6 +135,8 @@ export default function ContentEditor({
         else if (Array.isArray(value)) type = "array";
         else if (typeof value === "object" && value !== null) type = "object";
       }
+
+      console.log(`Field ${key}:`, { type, metadata, value }); // Debug log
 
       return { key, type, metadata };
     });
@@ -991,6 +1003,7 @@ export default function ContentEditor({
   const renderField = (field: FieldConfig) => {
     const { key, type } = field;
     const value = localData[key];
+    console.log("Field:", { key, type, value }); // Debug log
 
     if (type === "array") {
       const arrayValue = Array.isArray(value) ? value : [];
@@ -1127,12 +1140,26 @@ export default function ContentEditor({
       );
     }
 
-    // Simple field (text, textarea, boolean, select) - now directly editable
     return (
       <Card key={key} className="mb-4">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">
+          <CardTitle className="text-sm font-medium flex items-center gap-2 justify-between">
             {field.metadata?.label || key}
+            {(field.metadata?.label?.toLowerCase().includes("image") ||
+              field.metadata?.label?.toLowerCase().includes("photo") ||
+              field.metadata?.label?.toLowerCase().includes("picture") ||
+              field.metadata?.label?.toLowerCase().includes("avatar") ||
+              key.toLowerCase().includes("image") ||
+              key.toLowerCase().includes("photo") ||
+              key.toLowerCase().includes("picture") ||
+              key.toLowerCase().includes("avatar")) && (
+              <span
+                className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                onClick={() => setIsDialogOpen(true)}
+              >
+                <Info className="w-3 h-3" />
+              </span>
+            )}
           </CardTitle>
           {field.metadata?.description && (
             <p className="text-xs text-muted-foreground mt-1">
@@ -1156,11 +1183,7 @@ export default function ContentEditor({
               value={String(value || "")}
               onValueChange={(newValue) => {
                 // Convert string values to appropriate types for specific fields
-                if (
-                  key === "showScrollIndicator" ||
-                  key === "showStatus" ||
-                  key === "showCodeSnippet"
-                ) {
+                if (key === "showStatus" || key === "showCodeSnippet") {
                   handleFieldUpdate(key, newValue === "true");
                 } else {
                   handleFieldUpdate(key, newValue);
@@ -1246,6 +1269,127 @@ export default function ContentEditor({
           {fieldConfigs.map(renderField)}
         </div>
       )}
+
+      {/* Info Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>How to upload images</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 text-sm text-muted-foreground">
+            <p>
+              Upload functionality hasn&apos;t been implemented yet. In the
+              meantime, you can host your image on any free service and paste
+              the link here.
+            </p>
+
+            <div className="bg-muted/50 rounded-lg p-4 border">
+              <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                Steps to upload your image:
+              </h4>
+
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                      Imgur
+                    </span>
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      •
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-foreground">Go to </span>
+                    <a
+                      href="https://imgur.com/upload"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      imgur.com/upload
+                    </a>
+                    <span className="text-foreground">
+                      , upload your image, then copy the &quot;Direct
+                      Link&quot;.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                      Postimages
+                    </span>
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      •
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-foreground">Go to </span>
+                    <a
+                      href="https://postimages.org/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      postimages.org
+                    </a>
+                    <span className="text-foreground">
+                      , upload, then copy the &quot;Direct Link&quot;.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                      Drive/Dropbox
+                    </span>
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      •
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-foreground">
+                      Upload your file, set visibility to &quot;Anyone with the
+                      link can view&quot;, and copy the share link.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                      GitHub
+                    </span>
+                    <span className="text-xs text-muted-foreground hidden sm:block">
+                      •
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-foreground">
+                      Push your image to a repo and copy the raw URL.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

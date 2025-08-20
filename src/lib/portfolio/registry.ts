@@ -121,10 +121,23 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           ctaText: "View My Work",
           ctaLink: "#projects",
           showSocialLinks: true,
-          githubUrl: "https://github.com/datanok",
-          linkedinUrl: "https://linkedin.com/in/tanmaypatil25",
-          emailUrl: "mailto:tanmaypatiltp25@gmail.com",
-          showScrollIndicator: true,
+          socialLinks: [
+            {
+              platform: "GitHub",
+              url: "https://github.com/datanok",
+              username: "@datanok",
+            },
+            {
+              platform: "LinkedIn",
+              url: "https://linkedin.com/in/tanmaypatil25",
+              username: "@tanmaypatil25",
+            },
+            {
+              platform: "Email",
+              url: "mailto:tanmaypatiltp25@gmail.com",
+              username: "tanmaypatiltp25@gmail.com",
+            },
+          ],
         },
         propsSchema: {
           title: {
@@ -168,14 +181,10 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             label: "Show Social Links",
             description: "Display social media links",
           },
-          showScrollIndicator: {
-            type: "select",
-            label: "Scroll Indicator",
-            description: "Choose the scroll indicator style",
-            options: [
-              { value: "true", label: "Show Scroll Indicator" },
-              { value: "false", label: "Hide Scroll Indicator" },
-            ],
+          socialLinks: {
+            type: "array",
+            label: "Social Links",
+            description: "Social media links to display",
           },
         },
         defaultStyles: {
@@ -198,7 +207,8 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
         description:
           "Dramatic hero section with typing animation, code display, and developer-focused design perfect for portfolio landing pages",
         component: HeroComponents.TypographyHero,
-        thumbnail: "/thumbnails/typography-hero.jpg",
+        thumbnail:
+          "https://res.cloudinary.com/portflection/image/upload/v1755714165/Portflection%20Assets/TypograpgyHero_qtsdtr.png",
         category: "content",
         tags: [
           "hero",
@@ -213,10 +223,14 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           greeting: "HELLO_WORLD();",
           name: "TANMAY_PATIL",
           title: "SOFTWARE_DEVELOPMENT_ENGINEER",
+          profileImage: "",
+          showProfileImage: false,
+          visualDisplay: "code",
           showStatus: true,
           statusText: "AVAILABLE_FOR_HIRE",
           showCodeSnippet: true,
-          showScrollIndicator: true,
+          tagline:
+            "Building digital experiences with clean code & creative solutions",
           typingTexts: [
             "FULL_STACK_DEVELOPER",
             "REACT_DEVELOPER",
@@ -233,6 +247,23 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             },
             { label: "CONTACT_ME", href: "#contact" },
           ],
+          socialLinks: [
+            {
+              platform: "GitHub",
+              url: "https://github.com/datanok",
+              username: "@datanok",
+            },
+            {
+              platform: "LinkedIn",
+              url: "https://linkedin.com/in/tanmaypatil25",
+              username: "@tanmaypatil25",
+            },
+            {
+              platform: "Email",
+              url: "mailto:tanmaypatiltp25@gmail.com",
+              username: "tanmaypatiltp25@gmail.com",
+            },
+          ],
         },
         propsSchema: {
           greeting: {
@@ -240,6 +271,30 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             label: "Greeting",
             description: "The greeting text displayed at the top",
             placeholder: "Enter greeting text...",
+          },
+          showProfileImage: {
+            type: "boolean",
+            label: "Show Profile Image",
+            description: "Display the profile image",
+          },
+          profileImage: {
+            type: "text",
+            label: "Profile Image",
+            description: "The image to display in the hero section",
+            placeholder: "Enter your profile image URL...",
+          },
+          visualDisplay: {
+            type: "select",
+            label: "Visual Display",
+            description:
+              "Choose the visual element to display in the hero section",
+            options: [
+              { value: "code", label: "Code Snippet" },
+              { value: "profile", label: "Profile Image" },
+              { value: "geometric", label: "Geometric Animation" },
+              { value: "minimal", label: "Minimal Design" },
+              { value: "none", label: "None" },
+            ],
           },
           name: {
             type: "text",
@@ -253,6 +308,13 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             description: "Your professional title or role",
             placeholder: "Enter your title...",
           },
+          tagline: {
+            type: "text",
+            label: "Tagline",
+            description: "A short tagline to describe yourself",
+            placeholder: "Enter your tagline...",
+          },
+
           showStatus: {
             type: "boolean",
             label: "Show Status",
@@ -269,15 +331,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             label: "Show Code Snippet",
             description: "Display the code snippet section",
           },
-          showScrollIndicator: {
-            type: "select",
-            label: "Scroll Indicator",
-            description: "Choose the scroll indicator style",
-            options: [
-              { value: "true", label: "Show Scroll Indicator" },
-              { value: "false", label: "Hide Scroll Indicator" },
-            ],
-          },
+
           typingTexts: {
             type: "array",
             label: "Typing Texts",
@@ -293,6 +347,11 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             type: "array",
             label: "Action Buttons",
             description: "Buttons displayed in the hero section",
+          },
+          socialLinks: {
+            type: "array",
+            label: "Social Links",
+            description: "Social media links to display",
           },
         },
         defaultStyles: {

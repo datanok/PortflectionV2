@@ -186,7 +186,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
 
         <div className="grid lg:grid-cols-12 gap-16">
           {/* Left Column - Contact Info */}
-          <div className="lg:col-span-5 space-y-12">
+          <div className="lg:col-span-5 space-y-6">
             {/* Contact Methods */}
             {description && (
               <p
@@ -196,7 +196,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                 {description}
               </p>
             )}
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div
                 className="text-xl font-bold uppercase tracking-wider"
                 style={{

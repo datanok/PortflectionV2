@@ -94,7 +94,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
           <img
             src={variant.thumbnail}
             alt={variant.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-fill rounded-xl shadow"
           />
         ) : (
           <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
