@@ -37,6 +37,8 @@ import { PortfolioComponent as TypesPortfolioComponent } from "@/lib/portfolio/t
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Type adapter to convert between the two PortfolioComponent types
 const adaptToTypesComponent = (
@@ -337,11 +339,11 @@ export default function PortfolioEditor({
                   <Menu className="w-4 h-4" />
                 )}
               </Button>
-              <input
+              <Input
                 type="text"
                 value={portfolioName}
                 onChange={(e) => setPortfolioName(e.target.value)}
-                className="text-sm font-medium bg-transparent border-none outline-none text-foreground flex-1 min-w-0"
+                className="text-sm font-medium border-none outline-none text-foreground flex-1 min-w-0"
                 placeholder="Portfolio Name"
               />
             </div>
@@ -388,9 +390,9 @@ export default function PortfolioEditor({
           </div>
 
           {/* Desktop Header */}
-          <div className="hidden md:flex items-center justify-between p-4">
+          <div className="hidden md:flex items-center justify-between p-2">
             <div className="flex items-center gap-4">
-              <input
+              <Input
                 type="text"
                 value={portfolioName}
                 onChange={(e) => setPortfolioName(e.target.value)}
@@ -398,13 +400,11 @@ export default function PortfolioEditor({
                 placeholder="Portfolio Name"
               />
               <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isPublic"
-                  checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
-                  className="rounded border-border"
-                />
+               <Checkbox
+  id="isPublic"
+  checked={isPublic}
+  onCheckedChange={setIsPublic}
+/>
                 <label
                   htmlFor="isPublic"
                   className="text-sm text-muted-foreground"
@@ -519,11 +519,11 @@ export default function PortfolioEditor({
             ${isMobile && activePanel !== "components" ? "hidden" : ""}
           `}
           >
-            <div className="p-3 md:p-4 border-b border-border">
+            {/* <div className="p-3 md:p-4 border-b border-border">
               <h2 className="text-base md:text-lg font-semibold text-foreground">
                 Components
               </h2>
-            </div>
+            </div> */}
             <div className="flex-1 overflow-y-auto">
               <ComponentPalette onComponentSelect={handleAddComponent} />
             </div>

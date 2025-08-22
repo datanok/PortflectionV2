@@ -3,7 +3,6 @@ export interface ComponentProps {
   [key: string]: any;
 }
 
-// New interface for field metadata to support dropdowns and other field types
 export interface FieldMetadata {
   type: "text" | "textarea" | "boolean" | "array" | "object" | "select";
   options?: Array<{ value: string; label: string }>; // For select/dropdown fields

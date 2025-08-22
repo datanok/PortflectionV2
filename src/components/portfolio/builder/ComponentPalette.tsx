@@ -353,9 +353,9 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       className={`bg-background border-r border-border flex flex-col h-full min-h-0 ${className}`}
     >
       {/* Header */}
-      <div className="p-4 border-b border-border">
+      <div className="p-2 border-b border-border">
         {/* Search */}
-        <div className="relative mb-3">
+        <div className="relative mb-2">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search..."
@@ -377,7 +377,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                 <span className="sm:hidden">Filter</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuContent align="start" className="">
               {filterOptions.map((option) => {
                 const Icon = option.icon;
                 return (
@@ -427,7 +427,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
 
       {/* Popular Components Quick Access */}
       {activeFilter === "popular" && !searchQuery.trim() && (
-        <div className="p-4 bg-primary/5 border-b border-border">
+        <div className="p-2 bg-primary/5 border-b border-border">
           <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-1">
             <Star className="w-4 h-4 text-primary" />
             <span className="hidden sm:inline">Popular</span>
@@ -449,7 +449,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
 
       {/* Component Sections */}
       <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="pb-4">
+        <div className="pb-2">
           {(Object.keys(componentRegistry) as SectionType[]).map(
             (sectionId) => (
               <SectionGroup
@@ -467,7 +467,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border bg-muted">
+      <div className="p-2 border-t border-border bg-muted">
         <div className="text-xs text-muted-foreground text-center">
           <p className="hidden sm:block">Drag to add components</p>
           <p className="sm:hidden">Tap to add components</p>
