@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
 
 // Simple icon components since we can't import
 const GithubLogo = ({ fill, width, height }) => (
@@ -150,6 +151,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
   shadow = "none",
   theme = "code",
   visualDisplay = "code",
+  globalTheme,
 }) => {
   const [currentTypingIndex, setCurrentTypingIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
@@ -274,10 +276,8 @@ const TypographyHero: React.FC<ComponentProps> = ({
       paddingRight: `${paddingX}px`,
       borderRadius: `${borderRadius}px`,
       boxShadow: shadow !== "none" ? shadow : undefined,
-      fontFamily:
-        theme === "minimal"
-          ? "'Inter', 'system-ui', sans-serif"
-          : "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+      fontFamily: PortfolioFontLoader.getThemeFontStyle(globalTheme, "body")
+        .fontFamily,
       position: "relative",
       minHeight: "100vh",
       display: "flex",

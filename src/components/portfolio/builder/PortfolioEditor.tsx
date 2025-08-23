@@ -10,6 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Type,
+  Code,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -95,6 +97,11 @@ export default function PortfolioEditor({
     "components" | "canvas" | "properties"
   >("canvas");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Property panel tab state
+  const [activePropertyTab, setActivePropertyTab] = useState<
+    "content" | "style" | "advanced"
+  >("content");
 
   // Portfolio metadata
   const [portfolioName, setPortfolioName] = useState(
@@ -314,6 +321,7 @@ export default function PortfolioEditor({
   };
 
   const handleComponentSelect = (component: ActionsPortfolioComponent) => {
+    console.log("Component selected:", component);
     setSelectedComponent(component);
     if (isMobile) {
       setActivePanel("properties");
@@ -324,14 +332,19 @@ export default function PortfolioEditor({
     <DndProvider backend={HTML5Backend}>
       <div className="flex flex-col h-screen bg-background w-full overflow-hidden">
         {/* Enhanced Header with Bulk Editor */}
-        <div className="border-b border-border bg-card flex-shrink-0">
-          {/* Mobile Header */}
-          <div className="md:hidden flex items-center justify-between p-3">
-            <div className="flex items-center gap-3">
+        <div className="border-b border-border bg-card flex-shrink-0 shadow-sm">
+          <div className="flex items-center justify-between p-2 gap-2">
+            {/* Left side - Mobile menu + Portfolio name + Public toggle */}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              {/* Mobile menu */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+                className="md:hidden p-1.5 h-8 w-8"
+                aria-label={
+                  isMobileSidebarOpen ? "Close sidebar" : "Open sidebar"
+                }
               >
                 {isMobileSidebarOpen ? (
                   <X className="w-4 h-4" />
@@ -339,115 +352,108 @@ export default function PortfolioEditor({
                   <Menu className="w-4 h-4" />
                 )}
               </Button>
+
+              {/* Portfolio name */}
               <Input
-                type="text"
                 value={portfolioName}
                 onChange={(e) => setPortfolioName(e.target.value)}
-                className="text-sm font-medium border-none outline-none text-foreground flex-1 min-w-0"
+                className="text-sm md:text-base font-medium bg-transparent border-none focus:ring-1 focus:ring-primary h-8 px-2 flex-1 min-w-0"
                 placeholder="Portfolio Name"
               />
+
+              {/* Public toggle - compact */}
+              <div className="flex items-center gap-1.5">
+                <Checkbox
+                  id="isPublic"
+                  checked={isPublic}
+                  onCheckedChange={setIsPublic}
+                  className="h-4 w-4"
+                />
+                <label
+                  htmlFor="isPublic"
+                  className="text-xs font-medium text-muted-foreground whitespace-nowrap"
+                >
+                  Public
+                </label>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            {/* Center - Property tabs (when component selected) */}
+            {selectedComponent && (
+              <div className="flex gap-1">
+                {[
+                  { tab: "content", Icon: Type, label: "Content" },
+                  { tab: "style", Icon: Palette, label: "Style" },
+                  { tab: "advanced", Icon: Settings, label: "Advanced" },
+                ].map(({ tab, Icon, label }) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActivePropertyTab(tab)}
+                    className={`flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-colors h-8 ${
+                      activePropertyTab === tab
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    aria-label={`Switch to ${label} tab`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Right side - Action buttons */}
+            <div className="flex items-center gap-1">
               <BulkStyleModal
                 components={components.map(adaptToTypesComponent)}
-                onUpdateComponents={(updates) => {
-                  const updatedComponents = components.map((comp) => ({
-                    ...comp,
-                    styles: {
-                      ...comp.styles,
-                      ...updates.styles,
-                    },
-                  }));
-                  setComponents(updatedComponents);
-                }}
+                onUpdateComponents={(updates) =>
+                  setComponents(
+                    components.map((comp) => ({
+                      ...comp,
+                      styles: { ...comp.styles, ...updates.styles },
+                    }))
+                  )
+                }
                 trigger={
-                  <Button variant="outline" size="sm" className="px-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2 gap-1"
+                    aria-label="Bulk style editor"
+                  >
                     <Sparkles className="w-4 h-4" />
+                    <span className="hidden lg:inline text-xs">Bulk</span>
                   </Button>
                 }
               />
+
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsPreviewOpen(true)}
-                className="px-2"
+                className="h-8 px-2 gap-1"
+                aria-label="Preview portfolio"
               >
                 <Eye className="w-4 h-4" />
+                <span className="hidden lg:inline text-xs">Preview</span>
               </Button>
+
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
                 size="sm"
-                className="px-2"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-2 gap-1"
+                aria-label={isSaving ? "Saving" : "Save portfolio"}
               >
                 {isSaving ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-              </Button>
-            </div>
-          </div>
-
-          {/* Desktop Header */}
-          <div className="hidden md:flex items-center justify-between p-2">
-            <div className="flex items-center gap-4">
-              <Input
-                type="text"
-                value={portfolioName}
-                onChange={(e) => setPortfolioName(e.target.value)}
-                className="text-xl font-semibold bg-transparent border-none outline-none text-foreground"
-                placeholder="Portfolio Name"
-              />
-              <div className="flex items-center gap-2">
-               <Checkbox
-  id="isPublic"
-  checked={isPublic}
-  onCheckedChange={setIsPublic}
-/>
-                <label
-                  htmlFor="isPublic"
-                  className="text-sm text-muted-foreground"
-                >
-                  Public
-                </label>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <BulkStyleModal
-                components={components.map(adaptToTypesComponent)}
-                onUpdateComponents={(updates) => {
-                  const updatedComponents = components.map((comp) => ({
-                    ...comp,
-                    styles: {
-                      ...comp.styles,
-                      ...updates.styles,
-                    },
-                  }));
-                  setComponents(updatedComponents);
-                }}
-                trigger={
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Bulk Style
-                  </Button>
-                }
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsPreviewOpen(true)}
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                Preview
-              </Button>
-              <Button onClick={handleSave} disabled={isSaving}>
-                {isSaving ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4 mr-2" />
-                )}
-                {isSaving ? "Saving..." : "Save"}
+                <span className="hidden md:inline text-xs">
+                  {isSaving ? "Saving..." : "Save"}
+                </span>
               </Button>
             </div>
           </div>
@@ -580,6 +586,7 @@ export default function PortfolioEditor({
                 onDuplicate={handleDuplicateComponent}
                 onMoveUp={(id) => handleMoveComponent(id, "up")}
                 onMoveDown={(id) => handleMoveComponent(id, "down")}
+                activeTab={activePropertyTab}
               />
             </div>
           </div>

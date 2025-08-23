@@ -344,7 +344,6 @@ export default function GlobalThemeControls({
                   className="flex items-center gap-2"
                 >
                   {React.createElement(tab.icon, { className: "w-4 h-4" })}
-                  {tab.label}
                 </Button>
               ))}
             </div>

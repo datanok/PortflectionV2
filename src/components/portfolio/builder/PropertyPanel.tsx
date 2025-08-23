@@ -50,7 +50,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   Tooltip,
   TooltipContent,
@@ -67,6 +67,7 @@ interface PropertyPanelProps {
   onDuplicate?: (component: PortfolioComponent) => void;
   onMoveUp?: (id: string) => void;
   onMoveDown?: (id: string) => void;
+  activeTab?: "content" | "style" | "advanced";
 }
 
 export default function PropertyPanel({
@@ -76,8 +77,8 @@ export default function PropertyPanel({
   onDuplicate,
   onMoveUp,
   onMoveDown,
+  activeTab = "content",
 }: PropertyPanelProps) {
-  const [activeTab, setActiveTab] = useState("content");
   const [componentTabStates, setComponentTabStates] = useState<
     Record<string, string>
   >({});
@@ -149,24 +150,6 @@ export default function PropertyPanel({
     },
     [component, colors]
   );
-
-  // Update active tab when component changes, but preserve tab state per component
-  React.useEffect(() => {
-    if (component) {
-      const savedTab = componentTabStates[component.id] || "content";
-      setActiveTab(savedTab);
-    }
-  }, [component?.id, componentTabStates]);
-
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-    if (component) {
-      setComponentTabStates((prev) => ({
-        ...prev,
-        [component.id]: tabId,
-      }));
-    }
-  };
 
   // Group style keys
   const styleGroups = useMemo(() => {
@@ -457,27 +440,27 @@ export default function PropertyPanel({
   const ComponentIcon = getComponentIcon(component.type || "");
 
   return (
-    <div className="w-full sm:w-72 lg:w-80 xl:w-96 bg-gradient-to-b from-background to-muted/20 border-l border-border flex flex-col relative z-10">
+    <div className="w-full sm:w-64 lg:w-72 xl:w-80 bg-gradient-to-b from-background to-muted/20 border-l border-border flex flex-col relative z-10">
       {/* Header */}
-      <div className="p-4 border-b border-border bg-gradient-to-r from-background to-muted/30">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center">
-              <ComponentIcon className="w-5 h-5 text-primary" />
+      <div className="p-3 border-b border-border bg-gradient-to-r from-background to-muted/30">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center">
+              <ComponentIcon className="w-4 h-4 text-primary" />
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm font-semibold text-foreground truncate">
                 {component.type
                   ? component.type.charAt(0).toUpperCase() +
                     component.type.slice(1)
                   : "Component"}
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground truncate">
                 {component.variant}
               </p>
             </div>
           </div>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-xs shrink-0">
             {component.type}
           </Badge>
         </div>
@@ -492,9 +475,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onMoveUp(component.id)}
-                    className="flex-1 h-8"
+                    className="flex-1 h-7 px-2"
                   >
-                    <MoveUp className="w-4 h-4" />
+                    <MoveUp className="w-3 h-3" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Move Up</TooltipContent>
@@ -507,9 +490,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onMoveDown(component.id)}
-                    className="flex-1 h-8"
+                    className="flex-1 h-7 px-2"
                   >
-                    <MoveDown className="w-4 h-4" />
+                    <MoveDown className="w-3 h-3" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Move Down</TooltipContent>
@@ -522,9 +505,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onDuplicate(component)}
-                    className="flex-1 h-8"
+                    className="flex-1 h-7 px-2"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-3 h-3" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Duplicate</TooltipContent>
@@ -537,9 +520,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onDelete(component.id)}
-                    className="flex-1 h-8 text-destructive hover:text-destructive-foreground"
+                    className="flex-1 h-7 px-2 text-destructive hover:text-destructive-foreground"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3 h-3" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Delete</TooltipContent>
@@ -549,71 +532,26 @@ export default function PropertyPanel({
         </div>
       </div>
 
-      {/* Live Preview Toggle */}
-      <div className="p-3 border-b border-border bg-muted/30">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Live Preview</span>
-          </div>
-          <Switch
-            checked={showLivePreview}
-            onCheckedChange={setShowLivePreview}
-          />
-        </div>
-      </div>
-
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden overflow-y-auto max-h-[calc(100vh-200px)]">
-        <Tabs
-          value={activeTab}
-          onValueChange={handleTabChange}
-          className="w-full h-full"
-        >
-          <TabsList className="grid w-full grid-cols-3 h-12 min-w-0">
-            <TabsTrigger
-              value="content"
-              className="flex items-center gap-2 min-w-0"
-            >
-              <Type className="w-4 h-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Content</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="style"
-              className="flex items-center gap-2 min-w-0"
-            >
-              <Palette className="w-4 h-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Style</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="advanced"
-              className="flex items-center gap-2 min-w-0"
-            >
-              <Settings className="w-4 h-4 flex-shrink-0" />
-              <span className="hidden sm:inline truncate">Advanced</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent
-            value="content"
-            className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]"
-          >
+      <div className="flex-1 overflow-hidden overflow-y-auto max-h-[calc(100vh-180px)]">
+        {activeTab === "content" && (
+          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
             {/* Variant Selection */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Layers className="w-4 h-4" />
-                  Component Variant
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium flex items-center gap-2">
+                  <Layers className="w-3 h-3" />
+                  Variant
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2">
                 <Select
                   value={component.variant}
                   onValueChange={(value) => {
                     handleChange("variant", value);
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-8">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -633,38 +571,34 @@ export default function PropertyPanel({
                 {availableVariants.length > 0 && (
                   <p className="text-xs text-muted-foreground">
                     {availableVariants.length} variant
-                    {availableVariants.length !== 1 ? "s" : ""} available
+                    {availableVariants.length !== 1 ? "s" : ""}
                   </p>
                 )}
                 <div className="flex items-center gap-2 text-xs text-primary bg-primary/10 p-2 rounded">
-                  <Sparkles className="w-3 h-3" />
-                  <span>
-                    Your changes are preserved when switching variants
-                  </span>
+                  <Sparkles className="w-3 h-3 flex-shrink-0" />
+                  <span className="text-xs">Changes preserved</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Content Editor */}
             <ContentEditor
+              key={`${component.type}-${component.variant}-${component.id}`}
               data={component.props || {}}
               onUpdate={(newProps) => handleChange("props", newProps)}
               componentType={component.type}
               componentVariant={component.variant}
             />
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent
-            value="style"
-            className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]"
-          >
+        {activeTab === "style" && (
+          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
             {/* ColorPanel for all color fields */}
             {colorKeys.length > 0 && (
               <Card key="Colors">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    Colors
-                  </CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-xs font-medium">Colors</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <ColorPanel colors={colors} setColors={setColors} />
@@ -675,8 +609,8 @@ export default function PropertyPanel({
             {Object.entries(styleGroups).map(([group, keys]) =>
               group !== "Colors" && keys.length > 0 ? (
                 <Card key={group}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium">
                       {group}
                     </CardTitle>
                   </CardHeader>
@@ -686,29 +620,26 @@ export default function PropertyPanel({
                 </Card>
               ) : null
             )}
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent
-            value="advanced"
-            className="p-4 space-y-6 overflow-y-auto max-h-[calc(100vh-300px)]"
-          >
+        {activeTab === "advanced" && (
+          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
             {/* Component Info */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Component Info
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium flex items-center gap-2">
+                  <Settings className="w-3 h-3" />
+                  Info
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
-                  <Label className="text-xs text-muted-foreground">
-                    Component ID
-                  </Label>
+                  <Label className="text-xs text-muted-foreground">ID</Label>
                   <Input
                     value={component.id}
                     readOnly
-                    className="mt-1 h-8 bg-muted/50"
+                    className="mt-1 h-7 bg-muted/50 text-xs"
                   />
                 </div>
                 <div>
@@ -719,7 +650,7 @@ export default function PropertyPanel({
                     onChange={(e) =>
                       handleChange("order", parseInt(e.target.value))
                     }
-                    className="mt-1 h-8"
+                    className="mt-1 h-7 text-xs"
                   />
                 </div>
               </CardContent>
@@ -727,16 +658,16 @@ export default function PropertyPanel({
 
             {/* Raw Data */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Code className="w-4 h-4" />
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium flex items-center gap-2">
+                  <Code className="w-3 h-3" />
                   Raw Data
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 <div>
                   <Label className="text-xs text-muted-foreground">
-                    Styles (JSON)
+                    Styles
                   </Label>
                   <Textarea
                     value={JSON.stringify(component.styles, null, 2)}
@@ -749,13 +680,11 @@ export default function PropertyPanel({
                       }
                     }}
                     placeholder="Edit styles as JSON..."
-                    className="mt-1 font-mono text-xs h-24"
+                    className="mt-1 font-mono text-xs h-20"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-muted-foreground">
-                    Props (JSON)
-                  </Label>
+                  <Label className="text-xs text-muted-foreground">Props</Label>
                   <Textarea
                     value={JSON.stringify(component.props, null, 2)}
                     onChange={(e) => {
@@ -767,13 +696,13 @@ export default function PropertyPanel({
                       }
                     }}
                     placeholder="Edit props as JSON..."
-                    className="mt-1 font-mono text-xs h-24"
+                    className="mt-1 font-mono text-xs h-20"
                   />
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -76,11 +76,13 @@ export default function DynamicBreadcrumb() {
   const pathSegments = pathname
     .split("/")
     .filter((segment) => segment && !shouldHideSegment(segment));
+  const isPortfolioEdit = pathname?.includes("/dashboard/portfolios/edit/");
 
   // Don't show breadcrumb on home page or if only dashboard
   if (
     pathSegments.length === 0 ||
-    (pathSegments.length === 1 && pathSegments[0] === "dashboard")
+    (pathSegments.length === 1 && pathSegments[0] === "dashboard") ||
+    isPortfolioEdit
   ) {
     return null;
   }

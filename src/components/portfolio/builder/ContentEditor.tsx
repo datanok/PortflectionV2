@@ -82,10 +82,26 @@ export default function ContentEditor({
   // Debounce local data changes for auto-save
   const debouncedData = useDebounce(localData, 500);
 
-  // Update local data when props change
+  // Get defaultProps and propsSchema from the registry for the selected variant
+  const componentConfig = useMemo(() => {
+    const config = getComponent(componentType as any, componentVariant);
+    return {
+      defaultProps: config?.defaultProps || {},
+      propsSchema: config?.propsSchema || {},
+    };
+  }, [componentType, componentVariant]);
+
+  // Update local data when props change or component type changes
   useEffect(() => {
-    setLocalData(data);
-  }, [data]);
+    // When component type changes, we need to merge with new defaultProps
+    if (Object.keys(componentConfig.defaultProps).length > 0) {
+      // Merge incoming data with defaultProps, but prioritize incoming data
+      const mergedData = { ...componentConfig.defaultProps, ...data };
+      setLocalData(mergedData);
+    } else {
+      setLocalData(data);
+    }
+  }, [data, componentType, componentVariant, componentConfig.defaultProps]);
 
   // Auto-save when debounced data changes
   useEffect(() => {
@@ -97,27 +113,9 @@ export default function ContentEditor({
     }
   }, [debouncedData, data, onUpdate]);
 
-  // Get defaultProps and propsSchema from the registry for the selected variant
-  const componentConfig = useMemo(() => {
-    const config = getComponent(componentType as any, componentVariant);
-    return {
-      defaultProps: config?.defaultProps || {},
-      propsSchema: config?.propsSchema || {},
-    };
-  }, [componentType, componentVariant]);
-
-  // Merge defaultProps with localData when componentConfig changes
-  useEffect(() => {
-    if (Object.keys(componentConfig.defaultProps).length > 0) {
-      setLocalData((prev) => ({ ...componentConfig.defaultProps, ...prev }));
-    }
-  }, [componentConfig.defaultProps]);
-
   // Generate field configs from defaultProps and propsSchema
   const fieldConfigs: FieldConfig[] = useMemo(() => {
     const { defaultProps, propsSchema } = componentConfig;
-
-    console.log("Component Config:", { defaultProps, propsSchema }); // Debug log
 
     return Object.entries(defaultProps).map(([key, value]) => {
       let type: FieldConfig["type"] = "text";
@@ -135,8 +133,6 @@ export default function ContentEditor({
         else if (Array.isArray(value)) type = "array";
         else if (typeof value === "object" && value !== null) type = "object";
       }
-
-      console.log(`Field ${key}:`, { type, metadata, value }); // Debug log
 
       return { key, type, metadata };
     });
@@ -1003,7 +999,6 @@ export default function ContentEditor({
   const renderField = (field: FieldConfig) => {
     const { key, type } = field;
     const value = localData[key];
-    console.log("Field:", { key, type, value }); // Debug log
 
     if (type === "array") {
       const arrayValue = Array.isArray(value) ? value : [];
