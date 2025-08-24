@@ -5,11 +5,13 @@ import { getComponent, componentRegistry } from "@/lib/portfolio/registry";
 interface ComponentRendererProps {
   component: PortfolioComponent;
   preview?: boolean;
+  deviceSize?: "mobile" | "tablet" | "desktop";
 }
 
 export default function ComponentRenderer({
   component,
   preview = true,
+  deviceSize = "desktop",
 }: ComponentRendererProps) {
   const componentConfig = getComponent(
     component.type as any,
@@ -184,6 +186,9 @@ export default function ComponentRenderer({
       className={`
       component-wrapper relative
       ${preview ? "preview-mode" : ""}
+      ${deviceSize === "mobile" ? "mobile-preview" : ""}
+      ${deviceSize === "tablet" ? "tablet-preview" : ""}
+      ${deviceSize === "desktop" ? "desktop-preview" : ""}
       ${getDynamicClasses()}
     `}
       style={getStyleObject()}
@@ -226,6 +231,108 @@ export default function ComponentRenderer({
         .preview-mode :global(textarea) {
           font-size: 0.875rem !important;
           padding: 0.5rem !important;
+        }
+
+        /* Mobile Preview Styles */
+        .mobile-preview :global(*) {
+          font-size: 0.85em !important;
+        }
+        .mobile-preview :global(h1) {
+          font-size: 1.75rem !important;
+          line-height: 1.2 !important;
+        }
+        .mobile-preview :global(h2) {
+          font-size: 1.5rem !important;
+          line-height: 1.3 !important;
+        }
+        .mobile-preview :global(h3) {
+          font-size: 1.25rem !important;
+          line-height: 1.4 !important;
+        }
+        .mobile-preview :global(p) {
+          font-size: 0.875rem !important;
+          line-height: 1.5 !important;
+        }
+        .mobile-preview :global(button) {
+          font-size: 0.75rem !important;
+          padding: 0.375rem 0.75rem !important;
+        }
+        .mobile-preview :global(input),
+        .mobile-preview :global(textarea) {
+          font-size: 0.75rem !important;
+          padding: 0.375rem !important;
+        }
+        .mobile-preview :global(.container) {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+
+        /* Tablet Preview Styles */
+        .tablet-preview :global(*) {
+          font-size: 0.9em !important;
+        }
+        .tablet-preview :global(h1) {
+          font-size: 2rem !important;
+          line-height: 1.25 !important;
+        }
+        .tablet-preview :global(h2) {
+          font-size: 1.75rem !important;
+          line-height: 1.3 !important;
+        }
+        .tablet-preview :global(h3) {
+          font-size: 1.375rem !important;
+          line-height: 1.4 !important;
+        }
+        .tablet-preview :global(p) {
+          font-size: 0.9375rem !important;
+          line-height: 1.5 !important;
+        }
+        .tablet-preview :global(button) {
+          font-size: 0.8125rem !important;
+          padding: 0.4375rem 0.875rem !important;
+        }
+        .tablet-preview :global(input),
+        .tablet-preview :global(textarea) {
+          font-size: 0.8125rem !important;
+          padding: 0.4375rem !important;
+        }
+        .tablet-preview :global(.container) {
+          padding-left: 1.5rem !important;
+          padding-right: 1.5rem !important;
+        }
+
+        /* Desktop Preview Styles */
+        .desktop-preview :global(*) {
+          font-size: 1em !important;
+        }
+        .desktop-preview :global(h1) {
+          font-size: 2.5rem !important;
+          line-height: 1.2 !important;
+        }
+        .desktop-preview :global(h2) {
+          font-size: 2rem !important;
+          line-height: 1.25 !important;
+        }
+        .desktop-preview :global(h3) {
+          font-size: 1.5rem !important;
+          line-height: 1.3 !important;
+        }
+        .desktop-preview :global(p) {
+          font-size: 1rem !important;
+          line-height: 1.6 !important;
+        }
+        .desktop-preview :global(button) {
+          font-size: 0.875rem !important;
+          padding: 0.5rem 1rem !important;
+        }
+        .desktop-preview :global(input),
+        .desktop-preview :global(textarea) {
+          font-size: 0.875rem !important;
+          padding: 0.5rem !important;
+        }
+        .desktop-preview :global(.container) {
+          padding-left: 2rem !important;
+          padding-right: 2rem !important;
         }
       `}</style>
     </section>

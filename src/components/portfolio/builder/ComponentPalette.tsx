@@ -1,5 +1,11 @@
 // components/portfolio/builder/ComponentPalette.tsx
-import React, { useState, useMemo, useCallback } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
 import { useDrag } from "react-dnd";
 import {
   Search,
@@ -13,12 +19,13 @@ import {
   ChevronRight,
   Filter,
   Eye,
+  Plus,
+  Minus,
+  Sparkles,
+  X,
 } from "lucide-react";
 import {
   componentRegistry,
-  getPopularVariants,
-  getVariantsByCategory,
-  searchVariants,
   ComponentVariant,
   SectionType,
 } from "@/lib/portfolio/registry";
@@ -53,7 +60,59 @@ type FilterType =
   | "form"
   | string;
 
-// Draggable Component Item
+// Lazy Image Component
+const LazyImage: React.FC<{ src: string; alt: string; className?: string }> = ({
+  src,
+  alt,
+  className,
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const [error, setError] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={imgRef} className={`relative ${className}`}>
+      {isInView && !error ? (
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full h-full object-cover transition-opacity duration-300 ${
+            isLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setError(true)}
+        />
+      ) : null}
+
+      {(!isInView || error || !isLoaded) && (
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-primary/60 rounded-lg flex items-center justify-center">
+            <div className="w-4 h-4 bg-primary rounded" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 interface DraggableComponentProps {
   variant: ComponentVariant;
   sectionId: SectionType;
@@ -67,14 +126,12 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
 }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "component",
-    item: () => {
-      return {
-        type: { id: sectionId },
-        variant,
-        sectionId,
-        componentId: `${sectionId}-${variant.id}-${Date.now()}`,
-      };
-    },
+    item: () => ({
+      type: { id: sectionId },
+      variant,
+      sectionId,
+      componentId: `${sectionId}-${variant.id}-${Date.now()}`,
+    }),
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -82,161 +139,227 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
 
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
-  const handleClick = () => {
-    if (onSelect) {
-      onSelect(variant);
-    }
-  };
-
   return (
-    <div
-      ref={drag as any}
-      className={`
-        group relative bg-card border border-border rounded-lg p-2 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/50
-        ${isDragging ? "opacity-50 scale-95" : ""}
-        ${variant.isPremium ? "ring-1 ring-yellow-400/50" : ""}
-      `}
-    >
-      {/* Component Info - Compact List View */}
-      <div className="flex items-center justify-between">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary/10 rounded flex items-center justify-center flex-shrink-0">
-              <div className="w-3 h-3 bg-primary rounded" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-medium text-foreground truncate">
-                {variant.name}
-              </h4>
-              <p className="text-xs text-muted-foreground truncate">
-                {variant.description}
-              </p>
-            </div>
+    <>
+      <div
+        ref={drag as any}
+        onClick={() => onSelect?.(variant)}
+        className={`
+          group relative bg-gradient-to-br from-card to-card/80 border border-border/60 rounded-xl p-3 
+          cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 
+          hover:border-primary/30 hover:-translate-y-0.5 active:scale-95
+          ${isDragging ? "opacity-40 scale-95 rotate-2" : ""}
+          ${
+            variant.isPremium
+              ? "ring-1 ring-amber-400/30 bg-gradient-to-br from-amber-50/50 to-card"
+              : ""
+          }
+        `}
+      >
+        {/* Premium Badge */}
+        {variant.isPremium && (
+          <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full flex items-center justify-center shadow-lg">
+            <Sparkles className="w-3 h-3 text-white" />
           </div>
+        )}
+
+        {/* Component Preview - Lazy loaded */}
+        <div className="w-full aspect-video bg-gradient-to-br from-muted/50 to-muted rounded-lg mb-3 overflow-hidden group-hover:scale-105 transition-transform duration-300">
+          {variant.thumbnail ? (
+            <LazyImage
+              src={variant.thumbnail}
+              alt={variant.name}
+              className="w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
+                <div className="w-5 h-5 bg-primary/60 rounded flex items-center justify-center">
+                  <div className="w-2 h-2 bg-primary rounded-sm" />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center gap-1 ml-2">
-          {variant.isPremium && (
-            <div className="w-3 h-3 text-yellow-500 flex-shrink-0">★</div>
+        {/* Component Info */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-sm text-foreground truncate pr-2">
+              {variant.name}
+            </h4>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary/10"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowPreviewDialog(true);
+              }}
+            >
+              <Eye className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {variant.description}
+          </p>
+
+          {/* Tags */}
+          {variant.tags && variant.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {variant.tags.slice(0, 2).map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="text-xs px-1.5 py-0.5 h-auto"
+                >
+                  {tag}
+                </Badge>
+              ))}
+              {variant.tags.length > 2 && (
+                <Badge
+                  variant="outline"
+                  className="text-xs px-1.5 py-0.5 h-auto"
+                >
+                  +{variant.tags.length - 2}
+                </Badge>
+              )}
+            </div>
           )}
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowPreviewDialog(true);
-            }}
-          >
-            <Eye className="w-3 h-3" />
-          </Button>
+        </div>
+
+        {/* Hover Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none">
+          <div className="absolute bottom-2 left-2 right-2">
+            <div className="bg-background/90 backdrop-blur-sm rounded-lg px-2 py-1 text-xs font-medium text-center shadow-lg border border-border/50">
+              Click to add or drag
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Preview Dialog */}
       <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {variant.isPremium && (
-                <div className="w-4 h-4 text-yellow-500">★</div>
+                <div className="w-5 h-5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full flex items-center justify-center">
+                  <Sparkles className="w-3 h-3 text-white" />
+                </div>
               )}
               {variant.name}
             </DialogTitle>
-            <DialogDescription>{variant.description}</DialogDescription>
+            <DialogDescription className="text-sm leading-relaxed">
+              {variant.description}
+            </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            {/* Thumbnail */}
-            <div className="aspect-video bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="space-y-6">
+            {/* Large Preview - Lazy loaded */}
+            <div className="aspect-video bg-gradient-to-br from-muted/50 to-muted rounded-xl overflow-hidden border border-border/50">
               {variant.thumbnail ? (
-                <img
+                <LazyImage
                   src={variant.thumbnail}
                   alt={variant.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full"
                 />
               ) : (
-                <div className="w-16 h-16 bg-primary/10 rounded flex items-center justify-center">
-                  <div className="w-8 h-8 bg-primary rounded" />
-                </div>
-              )}
-            </div>
-
-            {/* Component Details */}
-            <div className="space-y-3">
-              <div>
-                <h4 className="font-medium text-sm mb-2">Category</h4>
-                <Badge variant="outline" className="text-xs">
-                  {variant.category}
-                </Badge>
-              </div>
-
-              {variant.tags && variant.tags.length > 0 && (
-                <div>
-                  <h4 className="font-medium text-sm mb-2">Tags</h4>
-                  <div className="flex flex-wrap gap-1">
-                    {variant.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-primary/60 rounded-xl" />
                   </div>
                 </div>
               )}
-
-              {variant.isPopular && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Star className="w-4 h-4 text-primary" />
-                  <span>Popular component</span>
-                </div>
-              )}
-
-              {variant.isPremium && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="w-4 h-4 text-yellow-500">★</div>
-                  <span>Premium component</span>
-                </div>
-              )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-2 pt-4 border-t">
+            {/* Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-semibold text-sm mb-2 text-foreground">
+                    Category
+                  </h4>
+                  <Badge variant="outline" className="capitalize">
+                    {variant.category}
+                  </Badge>
+                </div>
+
+                {variant.tags && variant.tags.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-sm mb-2 text-foreground">
+                      Tags
+                    </h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {variant.tags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="text-xs"
+                        >
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                {variant.isPopular && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="p-1 bg-primary/10 rounded-full">
+                      <Star className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="text-foreground font-medium">
+                      Popular component
+                    </span>
+                  </div>
+                )}
+
+                {variant.isPremium && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="p-1 bg-gradient-to-r from-amber-400/20 to-orange-400/20 rounded-full">
+                      <Sparkles className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <span className="text-foreground font-medium">
+                      Premium component
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4 border-t border-border/50">
               <Button
                 onClick={() => {
                   setShowPreviewDialog(false);
-                  if (onSelect) {
-                    onSelect(variant);
-                  }
+                  onSelect?.(variant);
                 }}
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg"
               >
+                <Plus className="w-4 h-4 mr-2" />
                 Add Component
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setShowPreviewDialog(false)}
+                className="px-6"
               >
+                <X className="w-4 h-4 mr-2" />
                 Close
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Click overlay */}
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-lg flex items-center justify-center pointer-events-none"
-        onClick={handleClick}
-      >
-        <div className="bg-background/90 backdrop-blur-sm rounded px-2 py-1 text-xs font-medium">
-          Click to add
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
-// Section Group Component
+// Modern Section Group
 interface SectionGroupProps {
   sectionId: SectionType;
   isExpanded: boolean;
@@ -254,19 +377,12 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
   searchQuery,
   activeFilter,
 }) => {
-  // Get section data from registry
   const section = componentRegistry[sectionId];
+  const sectionComponents = section?.variants || [];
 
-  // Get components for this section
-  const sectionComponents = useMemo(() => {
-    return section?.variants || [];
-  }, [section]);
-
-  // Filter variants based on search and filter
   const filteredVariants = useMemo(() => {
     let variants = sectionComponents;
 
-    // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       variants = variants.filter(
@@ -277,46 +393,45 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
       );
     }
 
-    // Apply category filter
     if (activeFilter !== "all" && activeFilter !== "popular") {
       variants = variants.filter(
         (variant) => variant.category === activeFilter
       );
     }
 
-    // Apply popular filter
     if (activeFilter === "popular") {
       variants = variants.filter((variant) => variant.isPopular);
     }
 
     return variants;
-  }, [sectionComponents, searchQuery, activeFilter, sectionId]);
+  }, [sectionComponents, searchQuery, activeFilter]);
 
-  if (filteredVariants.length === 0) {
-    return null;
-  }
+  if (filteredVariants.length === 0) return null;
 
   return (
-    <div className="border-b border-border">
+    <div className="mb-1">
       <button
-        onClick={() => {
-          onToggle();
-        }}
-        className={`w-full flex items-center justify-between p-2 text-left transition-colors ${
-          isExpanded
-            ? "bg-primary/10 border-l-4 border-primary"
-            : "hover:bg-muted"
-        }`}
+        onClick={onToggle}
+        className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-200 group
+          ${
+            isExpanded
+              ? "bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 shadow-sm"
+              : "hover:bg-muted/50"
+          }`}
       >
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 bg-primary/10 rounded flex items-center justify-center">
-            {/* Icon based on section type */}
-            <div className="w-3 h-3 bg-primary rounded flex items-center justify-center text-background text-xs font-bold">
-              {sectionId.charAt(0).toUpperCase()}
-            </div>
+        <div className="flex items-center gap-3">
+          <div
+            className={`p-1.5 rounded-lg transition-colors duration-200
+            ${
+              isExpanded
+                ? "bg-primary/20"
+                : "bg-muted/80 group-hover:bg-primary/10"
+            }`}
+          >
+            <div className="w-4 h-4 bg-primary/60 rounded" />
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm text-foreground truncate">
+          <div className="text-left">
+            <h3 className="font-semibold text-sm text-foreground">
               {section?.name || sectionId}
             </h3>
             <p className="text-xs text-muted-foreground">
@@ -325,36 +440,36 @@ const SectionGroup: React.FC<SectionGroupProps> = ({
             </p>
           </div>
         </div>
-        {isExpanded ? (
-          <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-        )}
+        <div
+          className={`p-1 rounded-full transition-all duration-200
+          ${isExpanded ? "bg-primary/20 rotate-180" : "group-hover:bg-muted"}`}
+        >
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+        </div>
       </button>
 
       <div
-        className={`overflow-auto transition-all duration-200 ease-in-out ${
-          isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        className={`overflow-hidden transition-all duration-300 ease-out
+        ${
+          isExpanded ? "max-h-[2000px] opacity-100 mt-2" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="p-2 bg-muted/50">
-          <div className="space-y-2">
-            {filteredVariants.map((variant) => (
-              <DraggableComponent
-                key={variant.id}
-                variant={variant}
-                sectionId={sectionId}
-                onSelect={onComponentSelect}
-              />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-3 px-1">
+          {filteredVariants.map((variant) => (
+            <DraggableComponent
+              key={variant.id}
+              variant={variant}
+              sectionId={sectionId}
+              onSelect={onComponentSelect}
+            />
+          ))}
         </div>
       </div>
     </div>
   );
 };
 
-// Main Component Palette
+// Main Component Palette - Ultra Modern
 export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
   onComponentSelect,
   className = "",
@@ -362,7 +477,7 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [expandedSections, setExpandedSections] = useState<Set<SectionType>>(
-    new Set(["hero", "about", "projects"]) // Default expanded sections
+    new Set(["hero", "about", "projects"])
   );
 
   const toggleSection = useCallback((sectionId: SectionType) => {
@@ -375,28 +490,21 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       }
       return newExpanded;
     });
-  }, []); // Removed expandedSections dependency to prevent infinite re-renders
-
-  const expandAll = useCallback(() => {
-    const allSections = Object.keys(componentRegistry) as SectionType[];
-    setExpandedSections(new Set(allSections));
   }, []);
 
-  const collapseAll = useCallback(() => {
-    setExpandedSections(new Set());
-  }, []);
+  const expandAll = () =>
+    setExpandedSections(
+      new Set(Object.keys(componentRegistry) as SectionType[])
+    );
+  const collapseAll = () => setExpandedSections(new Set());
 
-  // Get unique categories from registry - memoized to prevent infinite re-renders
   const uniqueCategories = useMemo(() => {
     const categories = new Set<string>();
     Object.values(componentRegistry).forEach((section) => {
-      section.variants.forEach((variant) => {
-        categories.add(variant.category);
-      });
+      section.variants.forEach((variant) => categories.add(variant.category));
     });
-    const sortedCategories = Array.from(categories).sort();
-    return sortedCategories;
-  }, []); // Empty dependency array since componentRegistry is static
+    return Array.from(categories).sort();
+  }, []);
 
   const filterOptions = useMemo(
     () => [
@@ -420,58 +528,59 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
     [uniqueCategories]
   );
 
-  const activeFilterOption = useMemo(
-    () => filterOptions.find((option) => option.value === activeFilter),
-    [filterOptions, activeFilter]
+  const activeFilterOption = filterOptions.find(
+    (option) => option.value === activeFilter
   );
 
-  // Memoize popular variants to prevent re-renders
   const popularVariants = useMemo(() => {
     const allVariants = Object.values(componentRegistry).flatMap(
       (section) => section.variants
     );
-    const popular = allVariants.filter((variant) => variant.isPopular);
-    return popular.slice(0, 4).map((variant) => {
-      const sectionId = Object.keys(componentRegistry).find((key) =>
-        componentRegistry[key as SectionType].variants.some(
-          (v) => v.id === variant.id
-        )
-      ) as SectionType;
-      return { variant, sectionId: sectionId || "custom" };
-    });
+    return allVariants
+      .filter((variant) => variant.isPopular)
+      .slice(0, 6)
+      .map((variant) => {
+        const sectionId = Object.keys(componentRegistry).find((key) =>
+          componentRegistry[key as SectionType].variants.some(
+            (v) => v.id === variant.id
+          )
+        ) as SectionType;
+        return { variant, sectionId: sectionId || "custom" };
+      });
   }, []);
 
   return (
     <div
-      className={`bg-background border-r border-border flex flex-col h-full min-h-0 w-64 ${className}`}
+      className={`bg-gradient-to-b from-background to-background/95 flex flex-col h-full ${className}`}
     >
-      {/* Header */}
-      <div className="p-2 border-b border-border">
-        {/* Search */}
-        <div className="relative mb-2">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      {/* Modern Header */}
+      <div className="p-4 border-b border-border/50 bg-card/50 backdrop-blur-sm">
+        {/* Search Bar */}
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search..."
+            placeholder="Search components..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-8 text-sm"
+            className="pl-10 h-9 bg-background/50 border-border/50 focus:bg-background transition-colors"
           />
         </div>
 
-        {/* Filters and Actions */}
-        <div className="flex items-center justify-between gap-1">
+        {/* Controls */}
+        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="flex-1 h-8 text-xs"
+                className="flex-1 h-8 justify-start bg-background/50"
               >
-                <Filter className="w-3 h-3 mr-1" />
+                <Filter className="w-3.5 h-3.5 mr-2" />
                 <span className="truncate">{activeFilterOption?.label}</span>
+                <ChevronDown className="w-3 h-3 ml-auto opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="">
+            <DropdownMenuContent align="start" className="w-48">
               {filterOptions.map((option) => {
                 const Icon = option.icon;
                 return (
@@ -479,10 +588,12 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                     key={option.value}
                     onClick={() => setActiveFilter(option.value)}
                     className={
-                      activeFilter === option.value ? "bg-primary/10" : ""
+                      activeFilter === option.value
+                        ? "bg-primary/10 text-primary"
+                        : ""
                     }
                   >
-                    <Icon className="w-4 h-4 mr-2" />
+                    <Icon className="w-4 h-4 mr-3" />
                     {option.label}
                   </DropdownMenuItem>
                 );
@@ -490,56 +601,53 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={expandAll}
-              className={`h-8 w-8 p-0 text-xs ${
-                expandedSections.size === Object.keys(componentRegistry).length
-                  ? "bg-primary/10 text-primary"
-                  : ""
-              }`}
-            >
-              +
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={collapseAll}
-              className={`h-8 w-8 p-0 text-xs ${
-                expandedSections.size === 0 ? "bg-primary/10 text-primary" : ""
-              }`}
-            >
-              -
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={expandAll}
+            className="h-8 w-8 p-0 bg-background/50"
+            title="Expand all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={collapseAll}
+            className="h-8 w-8 p-0 bg-background/50"
+            title="Collapse all"
+          >
+            <Minus className="w-3.5 h-3.5" />
+          </Button>
         </div>
       </div>
 
-      {/* Popular Components Quick Access */}
-      {activeFilter === "popular" && !searchQuery.trim() && (
-        <div className="p-2 bg-primary/5 border-b border-border">
-          <h3 className="text-sm font-medium text-foreground mb-2 flex items-center gap-1">
-            <Star className="w-4 h-4 text-primary" />
-            <span>Popular</span>
-          </h3>
-          <div className="space-y-2">
-            {popularVariants.map(({ variant, sectionId }) => (
-              <DraggableComponent
-                key={variant.id}
-                variant={variant}
-                sectionId={sectionId}
-                onSelect={onComponentSelect}
-              />
-            ))}
+      {/* Popular Section */}
+      {(activeFilter === "popular" || activeFilter === "all") &&
+        !searchQuery.trim() && (
+          <div className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-b border-border/30">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-1 bg-primary/20 rounded-lg">
+                <Star className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="font-semibold text-sm text-foreground">Popular</h3>
+            </div>
+            <div className="grid grid-cols-1 gap-3">
+              {popularVariants.slice(0, 3).map(({ variant, sectionId }) => (
+                <DraggableComponent
+                  key={variant.id}
+                  variant={variant}
+                  sectionId={sectionId}
+                  onSelect={onComponentSelect}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Component Sections */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="pb-2">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border/50 scrollbar-track-transparent">
+        <div className="p-4 space-y-2">
           {(Object.keys(componentRegistry) as SectionType[]).map(
             (sectionId) => (
               <SectionGroup
@@ -553,14 +661,6 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               />
             )
           )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="p-2 border-t border-border bg-muted">
-        <div className="text-xs text-muted-foreground text-center">
-          <p>Click to add components</p>
-          <p className="mt-1">Built-in components</p>
         </div>
       </div>
     </div>

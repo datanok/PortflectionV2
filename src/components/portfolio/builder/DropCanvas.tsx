@@ -8,6 +8,7 @@ interface DropCanvasProps {
   components: PortfolioComponent[];
   onSelect: (component: PortfolioComponent) => void;
   selectedId?: string | null;
+  deviceSize?: "mobile" | "tablet" | "desktop";
   onDrop?: (component: PortfolioComponent) => void;
 }
 
@@ -15,6 +16,7 @@ export default function DropCanvas({
   components,
   onSelect,
   selectedId,
+  deviceSize = "desktop",
   onDrop,
 }: DropCanvasProps) {
   const [, drop] = useDrop(() => ({
@@ -38,7 +40,7 @@ export default function DropCanvas({
       ref={drop as any}
       className="flex-1 overflow-y-auto overflow-x-hidden bg-background min-h-0 min-w-0"
     >
-      <div className="w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl mx-auto px-2 sm:px-4 box-border">
+      <div className="w-full sm:px-4 box-border">
         {components.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 sm:h-80 lg:h-96 text-gray-400 border-2 border-dashed rounded-lg p-6 text-center">
             <div className="w-20 h-20 mb-4 bg-background rounded-full flex items-center justify-center">
@@ -87,7 +89,11 @@ export default function DropCanvas({
                   </div>
                 )}
 
-                <ComponentRenderer component={component} preview={true} />
+                <ComponentRenderer
+                  component={component}
+                  preview={true}
+                  deviceSize={deviceSize}
+                />
 
                 {/* Subtle separator between components (except last one) */}
                 {index < components.length - 1 && (
