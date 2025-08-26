@@ -79,11 +79,7 @@ export default function PropertyPanel({
   onMoveDown,
   activeTab = "content",
 }: PropertyPanelProps) {
-  const [componentTabStates, setComponentTabStates] = useState<
-    Record<string, string>
-  >({});
-  const [saveMode, setSaveMode] = useState(false);
-  const [showLivePreview, setShowLivePreview] = useState(true);
+
 
   // Debounce refs for color updates
   const debounceRefs = useRef<Record<string, NodeJS.Timeout>>({});
@@ -445,19 +441,12 @@ export default function PropertyPanel({
       <div className="p-3 border-b border-border bg-gradient-to-r from-background to-muted/30">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center">
-              <ComponentIcon className="w-4 h-4 text-primary" />
-            </div>
+
             <div className="min-w-0 flex-1">
               <h2 className="text-sm font-semibold text-foreground truncate">
-                {component.type
-                  ? component.type.charAt(0).toUpperCase() +
-                    component.type.slice(1)
-                  : "Component"}
-              </h2>
-              <p className="text-xs text-muted-foreground truncate">
                 {component.variant}
-              </p>
+              </h2>
+
             </div>
           </div>
           <Badge variant="secondary" className="text-xs shrink-0">
@@ -475,9 +464,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onMoveUp(component.id)}
-                    className="flex-1 h-7 px-2"
+                    className="flex-1 h-5 px-2"
                   >
-                    <MoveUp className="w-3 h-3" />
+                    <MoveUp className="w-2 h-2" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Move Up</TooltipContent>
@@ -490,9 +479,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onMoveDown(component.id)}
-                    className="flex-1 h-7 px-2"
+                    className="flex-1 h-5 px-2"
                   >
-                    <MoveDown className="w-3 h-3" />
+                    <MoveDown className="w-2 h-2" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Move Down</TooltipContent>
@@ -505,9 +494,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onDuplicate(component)}
-                    className="flex-1 h-7 px-2"
+                    className="flex-1 h-5 px-2"
                   >
-                    <Copy className="w-3 h-3" />
+                    <Copy className="w-2 h-2" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Duplicate</TooltipContent>
@@ -520,9 +509,9 @@ export default function PropertyPanel({
                     variant="ghost"
                     size="sm"
                     onClick={() => onDelete(component.id)}
-                    className="flex-1 h-7 px-2 text-destructive hover:text-destructive-foreground"
+                    className="flex-1 h-5 px-2 text-destructive hover:text-destructive-foreground"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-2 h-2" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Delete</TooltipContent>
@@ -535,51 +524,54 @@ export default function PropertyPanel({
       {/* Main Content */}
       <div className="flex-1 overflow-hidden overflow-y-auto max-h-[calc(100vh-180px)]">
         {activeTab === "content" && (
-          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
+          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-200px)]">
             {/* Variant Selection */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-medium flex items-center gap-2">
-                  <Layers className="w-3 h-3" />
-                  Variant
+            <Card className="p-2">
+              <CardHeader className="p-2 pb-0">
+                <CardTitle className="text-xs font-medium flex items-center justify-between">
+                  <span className="flex items-center gap-1">
+                    <Layers className="w-3 h-3" />
+                    Variant
+                  </span>
+                  <span className="flex items-center gap-1 text-primary text-[10px] bg-primary/10 px-1 py-0.5 rounded">
+                    <Sparkles className="w-2 h-2" />
+                    Changes saved
+                  </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+
+              <CardContent className="p-2 pt-1 space-y-1">
                 <Select
                   value={component.variant}
-                  onValueChange={(value) => {
-                    handleChange("variant", value);
-                  }}
+                  onValueChange={(value) => handleChange("variant", value)}
                 >
-                  <SelectTrigger className="h-8">
-                    <SelectValue />
+                  <SelectTrigger className="h-7 text-xs px-2">
+                    <SelectValue placeholder="Select variant" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableVariants.length > 0 ? (
                       availableVariants.map((variant) => (
-                        <SelectItem key={variant.id} value={variant.id}>
+                        <SelectItem key={variant.id} value={variant.id} className="text-xs">
                           {variant.name}
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem value={component.variant}>
+                      <SelectItem value={component.variant} className="text-xs">
                         {component.variant}
                       </SelectItem>
                     )}
                   </SelectContent>
                 </Select>
+
                 {availableVariants.length > 0 && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[10px] text-muted-foreground">
                     {availableVariants.length} variant
                     {availableVariants.length !== 1 ? "s" : ""}
                   </p>
                 )}
-                <div className="flex items-center gap-2 text-xs text-primary bg-primary/10 p-2 rounded">
-                  <Sparkles className="w-3 h-3 flex-shrink-0" />
-                  <span className="text-xs">Changes preserved</span>
-                </div>
               </CardContent>
             </Card>
+
 
             {/* Content Editor */}
             <ContentEditor
@@ -593,38 +585,38 @@ export default function PropertyPanel({
         )}
 
         {activeTab === "style" && (
-          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
-            {/* ColorPanel for all color fields */}
-            {colorKeys.length > 0 && (
-              <Card key="Colors">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs font-medium">Colors</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <ColorPanel colors={colors} setColors={setColors} />
-                </CardContent>
-              </Card>
-            )}
-            {/* Render other style groups, skipping color fields */}
-            {Object.entries(styleGroups).map(([group, keys]) =>
-              group !== "Colors" && keys.length > 0 ? (
-                <Card key={group}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-xs font-medium">
-                      {group}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {keys.map(renderStyleField)}
-                  </CardContent>
-                </Card>
-              ) : null
-            )}
-          </div>
+          <div className="p-2 space-y-2 overflow-y-auto max-h-[calc(100vh-200px)]">
+  {/* ColorPanel for all color fields */}
+  {colorKeys.length > 0 && (
+    <Card key="Colors" className="p-2">
+      <CardHeader className="pb-1 px-2">
+        <CardTitle className="text-[11px] font-medium">Colors</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-1 px-2 py-1">
+        <ColorPanel colors={colors} setColors={setColors} />
+      </CardContent>
+    </Card>
+  )}
+
+  {/* Render other style groups, skipping color fields */}
+  {Object.entries(styleGroups).map(([group, keys]) =>
+    group !== "Colors" && keys.length > 0 ? (
+      <Card key={group} className="p-2">
+        <CardHeader className="pb-1 px-2">
+          <CardTitle className="text-[11px] font-medium">{group}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1 px-2 py-1">
+          {keys.map(renderStyleField)}
+        </CardContent>
+      </Card>
+    ) : null
+  )}
+</div>
+
         )}
 
         {activeTab === "advanced" && (
-          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
+          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-200px)]">
             {/* Component Info */}
             <Card>
               <CardHeader className="pb-2">

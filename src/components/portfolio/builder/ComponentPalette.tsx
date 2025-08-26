@@ -145,7 +145,7 @@ const DraggableComponent: React.FC<DraggableComponentProps> = ({
         ref={drag as any}
         onClick={() => onSelect?.(variant)}
         className={`
-          group relative bg-gradient-to-br from-card to-card/80 border border-border/60 rounded-xl p-3 
+          group relative bg-gradient-to-br from-card to-card/80 border  rounded-xl p-2
           cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 
           hover:border-primary/30 hover:-translate-y-0.5 active:scale-95
           ${isDragging ? "opacity-40 scale-95 rotate-2" : ""}
@@ -551,10 +551,10 @@ export const ComponentPalette: React.FC<ComponentPaletteProps> = ({
 
   return (
     <div
-      className={`bg-gradient-to-b from-background to-background/95 flex flex-col h-full ${className}`}
+      className={`bg-background flex flex-col h-full ${className}`}
     >
       {/* Modern Header */}
-      <div className="p-4 border-b border-border/50 bg-card/50 backdrop-blur-sm">
+      <div className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
         {/* Search Bar */}
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
