@@ -9,7 +9,7 @@ import { z } from "zod";
 
 // Types
 export interface PortfolioComponent {
-  id: string;
+  id?: string;
   type: string;
   variant: string;
   props: Record<string, any>;
@@ -36,11 +36,6 @@ export interface SavePortfolioData {
   thumbnail?: string;
 
   // Legacy fields for backward compatibility
-  portfolioType?:
-    | "developer"
-    | "designer"
-    | "contentCreator"
-    | "businessConsulting";
   title?: string;
   email?: string;
   phone?: string;
@@ -55,7 +50,6 @@ export interface SavePortfolioData {
     url: string;
     username: string;
   }>;
-  layoutType?: string;
   extraData?: Record<string, any>;
 }
 
@@ -70,12 +64,6 @@ export interface PortfolioListParams {
   sortOrder?: "asc" | "desc";
   status?: "all" | "published" | "draft";
   search?: string;
-  portfolioType?:
-    | "all"
-    | "developer"
-    | "designer"
-    | "contentCreator"
-    | "businessConsulting";
 }
 
 export interface PortfolioListResponse {
@@ -86,7 +74,6 @@ export interface PortfolioListResponse {
     description?: string;
     thumbnail?: string;
     isPublic: boolean;
-    portfolioType: string;
     tags: string[];
     views: number;
     lastViewedAt?: Date;
@@ -119,10 +106,6 @@ export interface PortfolioStatistics {
     recentViews: number;
     viewGrowth: number;
   };
-  portfolioTypes: Array<{
-    type: string;
-    count: number;
-  }>;
   recentActivity: Array<{
     id: string;
     name: string;
@@ -193,9 +176,7 @@ const SavePortfolioSchema = z.object({
   isPublic: z.boolean().default(false),
   tags: z.array(z.string()).max(10, "Too many tags").optional(),
   thumbnail: z.string().url("Invalid thumbnail URL").optional(),
-  portfolioType: z
-    .enum(["developer", "designer", "contentCreator", "businessConsulting"])
-    .optional(),
+
   title: z.string().optional(),
   email: z.string().email("Invalid email").optional(),
   phone: z.string().optional(),
@@ -214,7 +195,6 @@ const SavePortfolioSchema = z.object({
       })
     )
     .optional(),
-  layoutType: z.string().default("classic"),
   extraData: z.record(z.any()).optional(),
 });
 
@@ -276,7 +256,7 @@ export async function savePortfolio(data: SavePortfolioData) {
           isPublished: validatedData.isPublic,
           tags: validatedData.tags || [],
           thumbnail: validatedData.thumbnail,
-          portfolioType: validatedData.portfolioType || "developer",
+
           title: validatedData.title,
           email: validatedData.email,
           phone: validatedData.phone,
@@ -287,7 +267,6 @@ export async function savePortfolio(data: SavePortfolioData) {
           linkedinLink: validatedData.linkedinLink,
           personalWebsite: validatedData.personalWebsite,
           socials: validatedData.socials as any,
-          layoutType: validatedData.layoutType,
           extraData: validatedData.extraData as any,
         },
       });
@@ -398,7 +377,7 @@ export async function updatePortfolio(data: UpdatePortfolioData) {
           isPublished: updateData.isPublic,
           tags: updateData.tags,
           thumbnail: updateData.thumbnail,
-          portfolioType: updateData.portfolioType,
+
           title: updateData.title,
           email: updateData.email,
           phone: updateData.phone,
@@ -409,7 +388,6 @@ export async function updatePortfolio(data: UpdatePortfolioData) {
           linkedinLink: updateData.linkedinLink,
           personalWebsite: updateData.personalWebsite,
           socials: updateData.socials as any,
-          layoutType: updateData.layoutType,
           extraData: updateData.extraData as any,
           updatedAt: new Date(),
         },
@@ -565,7 +543,6 @@ export async function getPortfolio(idOrSlug: string) {
         linkedinLink: portfolio.linkedinLink,
         personalWebsite: portfolio.personalWebsite,
         socials: portfolio.socials as any,
-        layoutType: portfolio.layoutType,
         extraData: portfolio.extraData as any,
         components: portfolio.components.map((comp) => ({
           id: comp.id,
@@ -642,7 +619,6 @@ export async function listPortfolios(
       sortOrder = "desc",
       status = "all",
       search = "",
-      portfolioType = "all",
     } = params;
 
     // Build query filters - don't filter by slug to avoid Prisma errors
@@ -655,11 +631,6 @@ export async function listPortfolios(
       where.isPublished = true;
     } else if (status === "draft") {
       where.isPublished = false;
-    }
-
-    // Portfolio type filter
-    if (portfolioType !== "all") {
-      where.portfolioType = portfolioType;
     }
 
     // Search filter
@@ -685,7 +656,7 @@ export async function listPortfolios(
             description: true,
             thumbnail: true,
             isPublished: true,
-            portfolioType: true,
+
             tags: true,
             views: true,
             lastViewedAt: true,
@@ -809,7 +780,6 @@ export async function getPortfolioStatistics(): Promise<PortfolioStatistics> {
       draftPortfolios,
       totalViews,
       recentViews,
-      portfolioTypes,
       recentActivity,
       topPortfolios,
     ] = await Promise.all([
@@ -841,13 +811,6 @@ export async function getPortfolioStatistics(): Promise<PortfolioStatistics> {
             gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
           },
         },
-      }),
-
-      // Portfolio types distribution
-      prisma.portfolio.groupBy({
-        by: ["portfolioType"],
-        where: { userId: user.id },
-        _count: { portfolioType: true },
       }),
 
       // Recent activity
@@ -891,10 +854,7 @@ export async function getPortfolioStatistics(): Promise<PortfolioStatistics> {
         recentViews,
         viewGrowth,
       },
-      portfolioTypes: portfolioTypes.map((type) => ({
-        type: type.portfolioType,
-        count: type._count.portfolioType,
-      })),
+
       recentActivity: recentActivity.map((portfolio) => ({
         id: portfolio.id,
         name: portfolio.name,
@@ -989,7 +949,7 @@ export async function duplicatePortfolio(id: string, newName: string) {
       isPublic: false, // Always start as draft
       tags: original.tags,
       thumbnail: original.thumbnail,
-      portfolioType: original.portfolioType as any,
+
       title: original.title,
       email: original.email,
       phone: original.phone,
@@ -1000,7 +960,6 @@ export async function duplicatePortfolio(id: string, newName: string) {
       linkedinLink: original.linkedinLink,
       personalWebsite: original.personalWebsite,
       socials: original.socials as any,
-      layoutType: original.layoutType,
       extraData: original.extraData as any,
     };
 

@@ -13,6 +13,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const portfolioData = await getUserPortfolioData(id);
+  console.log(portfolioData, "asdas");
 
   if (!portfolioData) {
     return {
@@ -83,7 +84,7 @@ export default async function PortfolioPage(props: {
 }) {
   const params = await props.params;
   const portfolioData = await getUserPortfolioData(params.id);
-
+  console.log(portfolioData, "asdas");
   if (!portfolioData) notFound();
 
   // Transform old portfolio data format to new format
@@ -115,7 +116,6 @@ export default async function PortfolioPage(props: {
     linkedinLink: (portfolioData as any).linkedinLink,
     personalWebsite: (portfolioData as any).personalWebsite,
     socials: (portfolioData as any).socials,
-    layoutType: (portfolioData as any).layoutType,
     extraData: (portfolioData as any).extraData,
     user: (portfolioData as any).user,
   };

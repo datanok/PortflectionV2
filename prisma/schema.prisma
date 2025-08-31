@@ -98,7 +98,6 @@ model Portfolio {
   linkedinLink    String?
   personalWebsite String?
   socials         Json?     // Array of { type: string; url: string; username: string }
-  layoutType      String    @default("classic") // For backward compatibility
   extraData       Json?
 
   // Metadata

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "../../../../auth";
-import { AdminUserManagement } from "@/components/AdminUserManagement";
+import AdminUserManagement from "@/components/AdminUserManagement";
+import DynamicBreadcrumb from "@/components/DynamicBreadCrumb";
 
 export default async function AdminUsersPage() {
   const session = await auth.api.getSession({
@@ -20,6 +21,7 @@ export default async function AdminUsersPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-6xl mx-auto">
+        <DynamicBreadcrumb />
         <h1 className="text-3xl font-bold mb-8 text-center">
           Admin User Management
         </h1>

@@ -50,6 +50,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
   Tooltip,
@@ -84,6 +85,7 @@ export default function PropertyPanel({
   >({});
   const [saveMode, setSaveMode] = useState(false);
   const [showLivePreview, setShowLivePreview] = useState(true);
+  const [styleTab, setStyleTab] = useState("colors");
 
   // Debounce refs for color updates
   const debounceRefs = useRef<Record<string, NodeJS.Timeout>>({});
@@ -401,16 +403,6 @@ export default function PropertyPanel({
     });
   };
 
-  // Debounced style change for color inputs
-  const debouncedStyleChange = (key: string, value: any) => {
-    if (debounceRefs.current[key]) {
-      clearTimeout(debounceRefs.current[key]);
-    }
-    debounceRefs.current[key] = setTimeout(() => {
-      handleStyleChange(key, value);
-    }, 200);
-  };
-
   const handleSave = () => {
     // Save to localStorage or backend
     localStorage.setItem(
@@ -440,118 +432,137 @@ export default function PropertyPanel({
   const ComponentIcon = getComponentIcon(component.type || "");
 
   return (
-    <div className="w-full sm:w-64 lg:w-72 xl:w-80 bg-gradient-to-b from-background to-muted/20 border-l border-border flex flex-col relative z-10">
+    <div className="w-full  bg-gradient-to-b from-background to-muted/20 border-l border-border flex flex-col relative z-10">
       {/* Header */}
-      <div className="p-3 border-b border-border bg-gradient-to-r from-background to-muted/30">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center">
-              <ComponentIcon className="w-4 h-4 text-primary" />
+      <div className="px-4 py-3 border-b border-border/50">
+        <div className="flex items-center justify-between group">
+          {/* Component Info */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="w-6 h-6 bg-primary/10 rounded-md flex items-center justify-center">
+              <ComponentIcon className="w-3 h-3 text-primary/80" />
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-sm font-semibold text-foreground truncate">
+              <h2 className="text-sm font-medium text-foreground truncate">
                 {component.type
                   ? component.type.charAt(0).toUpperCase() +
                     component.type.slice(1)
                   : "Component"}
               </h2>
-              <p className="text-xs text-muted-foreground truncate">
-                {component.variant}
-              </p>
+              {component.variant && (
+                <p className="text-xs text-muted-foreground/70 truncate">
+                  {component.variant}
+                </p>
+              )}
             </div>
           </div>
-          <Badge variant="secondary" className="text-xs shrink-0">
-            {component.type}
-          </Badge>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-1">
-          <TooltipProvider>
-            {onMoveUp && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onMoveUp(component.id)}
-                    className="flex-1 h-7 px-2"
-                  >
-                    <MoveUp className="w-3 h-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Move Up</TooltipContent>
-              </Tooltip>
-            )}
-            {onMoveDown && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onMoveDown(component.id)}
-                    className="flex-1 h-7 px-2"
-                  >
-                    <MoveDown className="w-3 h-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Move Down</TooltipContent>
-              </Tooltip>
-            )}
-            {onDuplicate && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDuplicate(component)}
-                    className="flex-1 h-7 px-2"
-                  >
-                    <Copy className="w-3 h-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Duplicate</TooltipContent>
-              </Tooltip>
-            )}
-            {onDelete && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(component.id)}
-                    className="flex-1 h-7 px-2 text-destructive hover:text-destructive-foreground"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Delete</TooltipContent>
-              </Tooltip>
-            )}
-          </TooltipProvider>
+          {/* Actions - Only visible on hover */}
+          <div className="flex items-center gap-0.5">
+            <TooltipProvider delayDuration={300}>
+              {onMoveUp && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onMoveUp(component.id)}
+                      className="w-7 h-7 hover:bg-muted/50"
+                    >
+                      <MoveUp className="w-3.5 h-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    Move Up
+                  </TooltipContent>
+                </Tooltip>
+              )}
+
+              {onMoveDown && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onMoveDown(component.id)}
+                      className="w-7 h-7 hover:bg-muted/50"
+                    >
+                      <MoveDown className="w-3.5 h-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    Move Down
+                  </TooltipContent>
+                </Tooltip>
+              )}
+
+              {onDuplicate && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDuplicate(component)}
+                      className="w-7 h-7 hover:bg-muted/50"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    Duplicate
+                  </TooltipContent>
+                </Tooltip>
+              )}
+
+              {onDelete && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDelete(component.id)}
+                      className="w-7 h-7 hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="text-xs">
+                    Delete
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </TooltipProvider>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden overflow-y-auto max-h-[calc(100vh-180px)]">
-        {activeTab === "content" && (
-          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
-            {/* Variant Selection */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-medium flex items-center gap-2">
-                  <Layers className="w-3 h-3" />
-                  Variant
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full overflow-y-auto">
+          {activeTab === "content" && (
+            <div className="p-4 space-y-6">
+              {/* Variant Selection */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-medium">
+                    {availableVariants.length > 0 && (
+                      <>
+                        {availableVariants.length} variant
+                        {availableVariants.length !== 1 ? "s" : ""}
+                      </>
+                    )}
+                  </h3>
+                  <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/50 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                    <Sparkles className="w-3 h-3" />
+                    <span>Changes preserved</span>
+                  </div>
+                </div>
+
                 <Select
                   value={component.variant}
-                  onValueChange={(value) => {
-                    handleChange("variant", value);
-                  }}
+                  onValueChange={(value) => handleChange("variant", value)}
                 >
-                  <SelectTrigger className="h-8">
+                  <SelectTrigger className="h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -568,141 +579,143 @@ export default function PropertyPanel({
                     )}
                   </SelectContent>
                 </Select>
-                {availableVariants.length > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    {availableVariants.length} variant
-                    {availableVariants.length !== 1 ? "s" : ""}
-                  </p>
-                )}
-                <div className="flex items-center gap-2 text-xs text-primary bg-primary/10 p-2 rounded">
-                  <Sparkles className="w-3 h-3 flex-shrink-0" />
-                  <span className="text-xs">Changes preserved</span>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Content Editor */}
-            <ContentEditor
-              key={`${component.type}-${component.variant}-${component.id}`}
-              data={component.props || {}}
-              onUpdate={(newProps) => handleChange("props", newProps)}
-              componentType={component.type}
-              componentVariant={component.variant}
-            />
-          </div>
-        )}
+              {/* Content Editor */}
+              <ContentEditor
+                key={`${component.type}-${component.variant}-${component.id}`}
+                data={component.props || {}}
+                onUpdate={(newProps) => handleChange("props", newProps)}
+                componentType={component.type}
+                componentVariant={component.variant}
+              />
+            </div>
+          )}
 
-        {activeTab === "style" && (
-          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
-            {/* ColorPanel for all color fields */}
-            {colorKeys.length > 0 && (
-              <Card key="Colors">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-xs font-medium">Colors</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <ColorPanel colors={colors} setColors={setColors} />
-                </CardContent>
-              </Card>
-            )}
-            {/* Render other style groups, skipping color fields */}
-            {Object.entries(styleGroups).map(([group, keys]) =>
-              group !== "Colors" && keys.length > 0 ? (
-                <Card key={group}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-xs font-medium">
-                      {group}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {keys.map(renderStyleField)}
-                  </CardContent>
-                </Card>
-              ) : null
-            )}
-          </div>
-        )}
-
-        {activeTab === "advanced" && (
-          <div className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-280px)]">
-            {/* Component Info */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-medium flex items-center gap-2">
-                  <Settings className="w-3 h-3" />
-                  Info
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <Label className="text-xs text-muted-foreground">ID</Label>
-                  <Input
-                    value={component.id}
-                    readOnly
-                    className="mt-1 h-7 bg-muted/50 text-xs"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Order</Label>
-                  <Input
-                    type="number"
-                    value={component.order}
-                    onChange={(e) =>
-                      handleChange("order", parseInt(e.target.value))
-                    }
-                    className="mt-1 h-7 text-xs"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Raw Data */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-xs font-medium flex items-center gap-2">
-                  <Code className="w-3 h-3" />
-                  Raw Data
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <Label className="text-xs text-muted-foreground">
+          {activeTab === "style" && (
+            <div className="p-4">
+              <Tabs
+                value={styleTab}
+                onValueChange={setStyleTab}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="colors" className="text-xs">
+                    Colors
+                  </TabsTrigger>
+                  <TabsTrigger value="styles" className="text-xs">
                     Styles
-                  </Label>
-                  <Textarea
-                    value={JSON.stringify(component.styles, null, 2)}
-                    onChange={(e) => {
-                      try {
-                        const parsed = JSON.parse(e.target.value);
-                        handleChange("styles", parsed);
-                      } catch (error) {
-                        // Invalid JSON, ignore
-                      }
-                    }}
-                    placeholder="Edit styles as JSON..."
-                    className="mt-1 font-mono text-xs h-20"
-                  />
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="colors" className="space-y-6 mt-4">
+                  {/* Colors */}
+                  {colorKeys.length > 0 && (
+                    <ColorPanel colors={colors} setColors={setColors} />
+                  )}
+                </TabsContent>
+
+                <TabsContent value="styles" className="space-y-6 mt-4">
+                  {/* Other Style Groups */}
+                  {Object.entries(styleGroups).map(([group, keys]) =>
+                    group !== "Colors" && keys.length > 0 ? (
+                      <div key={group} className="space-y-3">
+                        <h3 className="text-sm font-medium">{group}</h3>
+                        <div className="space-y-3">
+                          {keys.map(renderStyleField)}
+                        </div>
+                      </div>
+                    ) : null
+                  )}
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {activeTab === "advanced" && (
+            <div className="p-4 space-y-6">
+              {/* Component Info */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Settings className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-medium">Info</h3>
                 </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Props</Label>
-                  <Textarea
-                    value={JSON.stringify(component.props, null, 2)}
-                    onChange={(e) => {
-                      try {
-                        const parsed = JSON.parse(e.target.value);
-                        handleChange("props", parsed);
-                      } catch (error) {
-                        // Invalid JSON, ignore
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">ID</Label>
+                    <Input
+                      value={component.id}
+                      readOnly
+                      className="h-8 bg-muted/50 text-xs font-mono"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">
+                      Order
+                    </Label>
+                    <Input
+                      type="number"
+                      value={component.order}
+                      onChange={(e) =>
+                        handleChange("order", parseInt(e.target.value))
                       }
-                    }}
-                    placeholder="Edit props as JSON..."
-                    className="mt-1 font-mono text-xs h-20"
-                  />
+                      className="h-8 text-xs"
+                    />
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+              </div>
+
+              {/* Raw Data */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Code className="w-4 h-4 text-muted-foreground" />
+                  <h3 className="text-sm font-medium">Raw Data</h3>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">
+                      Styles
+                    </Label>
+                    <Textarea
+                      value={JSON.stringify(component.styles, null, 2)}
+                      onChange={(e) => {
+                        try {
+                          const parsed = JSON.parse(e.target.value);
+                          handleChange("styles", parsed);
+                        } catch (error) {
+                          // Invalid JSON, ignore
+                        }
+                      }}
+                      placeholder="Edit styles as JSON..."
+                      className="font-mono text-xs h-24 resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">
+                      Props
+                    </Label>
+                    <Textarea
+                      value={JSON.stringify(component.props, null, 2)}
+                      onChange={(e) => {
+                        try {
+                          const parsed = JSON.parse(e.target.value);
+                          handleChange("props", parsed);
+                        } catch (error) {
+                          // Invalid JSON, ignore
+                        }
+                      }}
+                      placeholder="Edit props as JSON..."
+                      className="font-mono text-xs h-24 resize-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

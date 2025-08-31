@@ -45,7 +45,8 @@ export function PortfolioDataProvider({
   children,
   value,
 }: PortfolioDataProviderProps) {
-  // Runtime validation could be added here if needed
+  // Runtime validation could be added here if needed'
+  alert(value);
   return (
     <PortfolioContext.Provider value={value}>
       {children}
@@ -62,41 +63,4 @@ export function usePortfolioData() {
     );
   }
   return context;
-}
-
-// Typed hooks for specific portfolio types
-export function useDeveloperPortfolioData() {
-  const data = usePortfolioData();
-  if (!isDeveloperPortfolio(data)) {
-    throw new Error("This hook can only be used with developer portfolio data");
-  }
-  return data;
-}
-
-export function useDesignerPortfolioData() {
-  const data = usePortfolioData();
-  if (!isDesignerPortfolio(data)) {
-    throw new Error("This hook can only be used with designer portfolio data");
-  }
-  return data;
-}
-
-export function useContentCreatorPortfolioData() {
-  const data = usePortfolioData();
-  if (!isContentCreatorPortfolio(data)) {
-    throw new Error(
-      "This hook can only be used with content creator portfolio data"
-    );
-  }
-  return data;
-}
-
-export function useBusinessConsultantPortfolioData() {
-  const data = usePortfolioData();
-  if (!isBusinessConsultantPortfolio(data)) {
-    throw new Error(
-      "This hook can only be used with business consultant portfolio data"
-    );
-  }
-  return data;
 }

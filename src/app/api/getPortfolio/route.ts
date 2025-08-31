@@ -70,7 +70,6 @@ export async function GET(req: NextRequest) {
       linkedinLink: portfolio.linkedinLink,
       personalWebsite: portfolio.personalWebsite,
       socials: portfolio.socials,
-      layoutType: portfolio.layoutType,
       extraData: portfolio.extraData,
       user: portfolio.user,
     };

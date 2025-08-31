@@ -39,10 +39,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import { cn } from "@/lib/utils";
-import {
-  generateCompleteStyleCSS,
-  BackgroundEffectSettings,
-} from "@/lib/backgroundEffects";
+import { generateCompleteStyleCSS } from "@/lib/backgroundEffects";
 
 interface BulkStyleModalProps {
   components: PortfolioComponent[];
@@ -61,24 +58,7 @@ interface BulkStyleSettings {
   textAlign?: "left" | "center" | "right";
   paddingY?: string;
   paddingX?: string;
-  // Background Effects
-  backgroundEffect?:
-    | "none"
-    | "gradient-grid"
-    | "dots"
-    | "lines"
-    | "waves"
-    | "mesh"
-    | "noise";
-  backgroundEffectColor?: string;
-  backgroundEffectOpacity?: string;
-  backgroundEffectSize?: string;
-  backgroundEffectBlend?:
-    | "normal"
-    | "multiply"
-    | "screen"
-    | "overlay"
-    | "soft-light";
+
   // Gradient Options
   gradientType?: "linear" | "radial" | "conic";
   gradientDirection?:
@@ -117,12 +97,7 @@ export default function BulkStyleModal({
     textAlign: "left",
     paddingY: "",
     paddingX: "",
-    // Background Effects
-    backgroundEffect: "none",
-    backgroundEffectColor: "#3b82f6",
-    backgroundEffectOpacity: "0.1",
-    backgroundEffectSize: "20px",
-    backgroundEffectBlend: "normal",
+
     // Gradient Options
     gradientType: "linear",
     gradientDirection: "to-r",
@@ -138,19 +113,8 @@ export default function BulkStyleModal({
   const handleBulkUpdate = useCallback(() => {
     const styleUpdates: Record<string, any> = {};
 
-    // Generate CSS for background effects and advanced styling
+    // Generate CSS for advanced styling
     const effectSettings = {
-      backgroundEffect:
-        bulkSettings.backgroundEffect &&
-        bulkSettings.backgroundEffect !== "none"
-          ? ({
-              type: bulkSettings.backgroundEffect,
-              color: bulkSettings.backgroundEffectColor,
-              opacity: bulkSettings.backgroundEffectOpacity,
-              size: bulkSettings.backgroundEffectSize,
-              blend: bulkSettings.backgroundEffectBlend,
-            } as BackgroundEffectSettings)
-          : undefined,
       gradient:
         bulkSettings.gradientType && bulkSettings.gradientColors
           ? {
@@ -167,14 +131,24 @@ export default function BulkStyleModal({
               color: bulkSettings.borderColor,
             }
           : undefined,
-      boxShadow: bulkSettings.boxShadow,
+      shadow: bulkSettings.boxShadow
+        ? {
+            type: "box" as const,
+            color: "rgba(0,0,0,0.1)",
+            blur: "4px",
+            spread: "0px",
+            offsetX: "0px",
+            offsetY: "2px",
+          }
+        : undefined,
       backdropBlur: bulkSettings.backdropBlur,
     };
 
     // Generate CSS for effects
     const effectCSS = generateCompleteStyleCSS(effectSettings);
-    if (effectCSS) {
-      styleUpdates.customCSS = effectCSS;
+    if (effectCSS && Object.keys(effectCSS).length > 0) {
+      // Merge the generated CSS properties into styleUpdates
+      Object.assign(styleUpdates, effectCSS);
     }
 
     // Only include non-empty basic values
@@ -212,12 +186,7 @@ export default function BulkStyleModal({
       textAlign: "left",
       paddingY: "",
       paddingX: "",
-      // Background Effects
-      backgroundEffect: "none",
-      backgroundEffectColor: "#3b82f6",
-      backgroundEffectOpacity: "0.1",
-      backgroundEffectSize: "20px",
-      backgroundEffectBlend: "normal",
+
       // Gradient Options
       gradientType: "linear",
       gradientDirection: "to-r",
@@ -252,707 +221,560 @@ export default function BulkStyleModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden p-0">
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 border border-primary/20">
-                  <Paintbrush className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <DialogTitle className="text-xl font-semibold tracking-tight">
-                    Bulk Style Editor
-                  </DialogTitle>
-                  <p className="text-sm text-muted-foreground">
-                    Apply styles to all components at once
-                  </p>
-                </div>
+      <DialogContent className="max-w-6xl max-h-[95vh] p-0 flex flex-col">
+        {/* Header */}
+        <DialogHeader className="px-4 sm:px-6 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 border border-primary/20">
+                <Paintbrush className="w-5 h-5 text-primary" />
               </div>
-              <Badge variant="secondary" className="gap-2 w-fit">
-                <Target className="w-3 h-3" />
-                {totalComponents} components
-              </Badge>
+              <div>
+                <DialogTitle className="text-xl font-semibold tracking-tight">
+                  Bulk Style Editor
+                </DialogTitle>
+                <p className="text-sm text-muted-foreground">
+                  Apply styles to all components at once
+                </p>
+              </div>
             </div>
-          </DialogHeader>
-
-          {/* Component Summary */}
-          <div className="px-4 sm:px-6 py-3 border-b bg-muted/30">
-            <div className="flex items-center gap-2 mb-2">
-              <Layers className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Components to Update</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(componentCounts).map(([type, count]) => (
-                <Badge
-                  key={type}
-                  variant="outline"
-                  className="text-xs font-medium"
-                >
-                  {type}: {count}
-                </Badge>
-              ))}
-            </div>
+            <Badge variant="secondary" className="gap-2 w-fit">
+              <Target className="w-3 h-3" />
+              {totalComponents} components
+            </Badge>
           </div>
+        </DialogHeader>
 
-          {/* Content */}
-          <div className="flex-1 overflow-hidden">
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="h-full flex flex-col"
-            >
-              <div className="px-4 sm:px-6 py-3 border-b bg-background/50">
-                <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-10">
-                  <TabsTrigger value="colors" className="gap-1.5 text-sm">
-                    <Palette className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Colors</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="typography" className="gap-1.5 text-sm">
-                    <Type className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Typography</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="layout" className="gap-1.5 text-sm">
-                    <Layout className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Layout</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="effects" className="gap-1.5 text-sm">
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">Effects</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+        {/* Component Summary */}
 
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
-                <TabsContent value="colors" className="space-y-6 mt-0">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Background Color */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-muted border" />
-                          Background Color
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={bulkSettings.backgroundColor || "#ffffff"}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                backgroundColor: e.target.value,
-                              }))
-                            }
-                            className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
-                          />
-                          <Input
-                            value={bulkSettings.backgroundColor || ""}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                backgroundColor: e.target.value,
-                              }))
-                            }
-                            placeholder="#ffffff"
-                            className="flex-1 h-9"
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
+        {/* Content */}
+        <div className="flex-1 min-h-0 flex flex-col">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex-1 flex flex-col min-h-0"
+          >
+            <div className="px-4 sm:px-6 py-3 border-b bg-background/50 flex-shrink-0">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-10">
+                <TabsTrigger value="colors" className="gap-1.5 text-sm">
+                  <Palette className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Colors</span>
+                </TabsTrigger>
+                <TabsTrigger value="typography" className="gap-1.5 text-sm">
+                  <Type className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Typography</span>
+                </TabsTrigger>
+                <TabsTrigger value="layout" className="gap-1.5 text-sm">
+                  <Layout className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Layout</span>
+                </TabsTrigger>
+                <TabsTrigger value="effects" className="gap-1.5 text-sm">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Effects</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-                    {/* Text Color */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-foreground" />
-                          Text Color
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={bulkSettings.textColor || "#000000"}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                textColor: e.target.value,
-                              }))
-                            }
-                            className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
-                          />
-                          <Input
-                            value={bulkSettings.textColor || ""}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                textColor: e.target.value,
-                              }))
-                            }
-                            placeholder="#000000"
-                            className="flex-1 h-9"
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Primary Color */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-primary" />
-                          Primary Color
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={bulkSettings.primaryColor || "#3b82f6"}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                primaryColor: e.target.value,
-                              }))
-                            }
-                            className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
-                          />
-                          <Input
-                            value={bulkSettings.primaryColor || ""}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                primaryColor: e.target.value,
-                              }))
-                            }
-                            placeholder="#3b82f6"
-                            className="flex-1 h-9"
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Secondary Color */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-secondary" />
-                          Secondary Color
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={bulkSettings.secondaryColor || "#64748b"}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                secondaryColor: e.target.value,
-                              }))
-                            }
-                            className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
-                          />
-                          <Input
-                            value={bulkSettings.secondaryColor || ""}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                secondaryColor: e.target.value,
-                              }))
-                            }
-                            placeholder="#64748b"
-                            className="flex-1 h-9"
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="typography" className="space-y-6 mt-0">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Font Size */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <Type className="w-4 h-4" />
-                          Font Size
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Select
-                          value={bulkSettings.fontSize || ""}
-                          onValueChange={(value) =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              fontSize: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-9">
-                            <SelectValue placeholder="Select size" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="sm">Small</SelectItem>
-                            <SelectItem value="base">Base</SelectItem>
-                            <SelectItem value="lg">Large</SelectItem>
-                            <SelectItem value="xl">Extra Large</SelectItem>
-                            <SelectItem value="2xl">2XL</SelectItem>
-                            <SelectItem value="3xl">3XL</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </CardContent>
-                    </Card>
-
-                    {/* Font Weight */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <Zap className="w-4 h-4" />
-                          Font Weight
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Select
-                          value={bulkSettings.fontWeight || ""}
-                          onValueChange={(value) =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              fontWeight: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-9">
-                            <SelectValue placeholder="Select weight" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="normal">Normal</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="semibold">Semibold</SelectItem>
-                            <SelectItem value="bold">Bold</SelectItem>
-                            <SelectItem value="black">Black</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </CardContent>
-                    </Card>
-
-                    {/* Text Align */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <Layout className="w-4 h-4" />
-                          Text Align
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Select
-                          value={bulkSettings.textAlign || "left"}
-                          onValueChange={(value: "left" | "center" | "right") =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              textAlign: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="left">Left</SelectItem>
-                            <SelectItem value="center">Center</SelectItem>
-                            <SelectItem value="right">Right</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </CardContent>
-                    </Card>
-
-                    {/* Border Radius */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-sm bg-muted border" />
-                          Border Radius
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Input
-                          value={bulkSettings.borderRadius || ""}
-                          onChange={(e) =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              borderRadius: e.target.value,
-                            }))
-                          }
-                          placeholder="0px"
-                          className="h-9"
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="layout" className="space-y-6 mt-0">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* Vertical Padding */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-4 h-2 bg-muted rounded border" />
-                          Vertical Padding
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Input
-                          value={bulkSettings.paddingY || ""}
-                          onChange={(e) =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              paddingY: e.target.value,
-                            }))
-                          }
-                          placeholder="120px"
-                          className="h-9"
-                        />
-                      </CardContent>
-                    </Card>
-
-                    {/* Horizontal Padding */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-2 h-4 bg-muted rounded border" />
-                          Horizontal Padding
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Input
-                          value={bulkSettings.paddingX || ""}
-                          onChange={(e) =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              paddingX: e.target.value,
-                            }))
-                          }
-                          placeholder="32px"
-                          className="h-9"
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="effects" className="space-y-6 mt-0">
-                  {/* Preview Section */}
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
+              <TabsContent value="colors" className="space-y-6 mt-0">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Background Color */}
                   <Card className="border-0 shadow-sm">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm font-medium flex items-center gap-2">
-                        <Eye className="w-4 h-4" />
-                        Live Preview
+                        <div className="w-3 h-3 rounded-full bg-muted border" />
+                        Background Color
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div
-                        className="w-full h-32 rounded-xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center relative overflow-hidden backdrop-blur-sm"
-                        style={{
-                          ...(bulkSettings.backgroundColor && {
-                            backgroundColor: bulkSettings.backgroundColor,
-                          }),
-                          ...(bulkSettings.backgroundEffect &&
-                            bulkSettings.backgroundEffect !== "none" && {
-                              backgroundImage: generateCompleteStyleCSS({
-                                backgroundEffect: {
-                                  type: bulkSettings.backgroundEffect,
-                                  color: bulkSettings.backgroundEffectColor,
-                                  opacity: bulkSettings.backgroundEffectOpacity,
-                                  size: bulkSettings.backgroundEffectSize,
-                                  blend: bulkSettings.backgroundEffectBlend,
-                                } as BackgroundEffectSettings,
-                              }),
-                            }),
-                          ...(bulkSettings.gradientType &&
-                            bulkSettings.gradientColors && {
-                              background: generateCompleteStyleCSS({
-                                gradient: {
-                                  type: bulkSettings.gradientType,
-                                  direction: bulkSettings.gradientDirection,
-                                  colors: bulkSettings.gradientColors,
-                                },
-                              }),
-                            }),
-                          ...(bulkSettings.boxShadow && {
-                            boxShadow: bulkSettings.boxShadow,
-                          }),
-                          ...(bulkSettings.backdropBlur && {
-                            backdropFilter: `blur(${bulkSettings.backdropBlur})`,
-                          }),
-                          ...(bulkSettings.borderWidth &&
-                            bulkSettings.borderColor && {
-                              border: `${bulkSettings.borderWidth} ${bulkSettings.borderStyle} ${bulkSettings.borderColor}`,
-                            }),
-                        }}
-                      >
-                        <div className="text-center">
-                          <div className="text-sm font-medium mb-1">
-                            Preview
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {bulkSettings.backgroundEffect &&
-                            bulkSettings.backgroundEffect !== "none"
-                              ? `${bulkSettings.backgroundEffect} effect`
-                              : "No background effect"}
-                          </div>
-                        </div>
+                    <CardContent className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          type="color"
+                          value={bulkSettings.backgroundColor || "#ffffff"}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              backgroundColor: e.target.value,
+                            }))
+                          }
+                          className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
+                        />
+                        <Input
+                          value={bulkSettings.backgroundColor || ""}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              backgroundColor: e.target.value,
+                            }))
+                          }
+                          placeholder="#ffffff"
+                          className="flex-1 h-9"
+                        />
                       </div>
                     </CardContent>
                   </Card>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {/* Background Effect Type */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" />
-                          Background Effect
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Select
-                          value={bulkSettings.backgroundEffect || "none"}
-                          onValueChange={(
-                            value:
-                              | "none"
-                              | "gradient-grid"
-                              | "dots"
-                              | "lines"
-                              | "waves"
-                              | "mesh"
-                              | "noise"
-                          ) =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              backgroundEffect: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            <SelectItem value="gradient-grid">
-                              Gradient Grid
-                            </SelectItem>
-                            <SelectItem value="dots">Dots Pattern</SelectItem>
-                            <SelectItem value="lines">Lines Pattern</SelectItem>
-                            <SelectItem value="waves">Waves</SelectItem>
-                            <SelectItem value="mesh">Mesh Gradient</SelectItem>
-                            <SelectItem value="noise">Noise Texture</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </CardContent>
-                    </Card>
-
-                    {/* Background Effect Color */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-primary" />
-                          Effect Color
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={
-                              bulkSettings.backgroundEffectColor || "#3b82f6"
-                            }
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                backgroundEffectColor: e.target.value,
-                              }))
-                            }
-                            className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
-                          />
-                          <Input
-                            value={bulkSettings.backgroundEffectColor || ""}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                backgroundEffectColor: e.target.value,
-                              }))
-                            }
-                            placeholder="#3b82f6"
-                            className="flex-1 h-9"
-                          />
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Background Effect Opacity */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <Eye className="w-4 h-4" />
-                          Effect Opacity
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <Input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            value={
-                              bulkSettings.backgroundEffectOpacity || "0.1"
-                            }
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                backgroundEffectOpacity: e.target.value,
-                              }))
-                            }
-                            className="w-full"
-                          />
-                          <div className="text-xs text-muted-foreground text-center">
-                            {bulkSettings.backgroundEffectOpacity || "0.1"}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Additional effect controls continue in same pattern... */}
-                    {/* I'll include a few more key ones for demonstration */}
-
-                    {/* Gradient Type */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <Globe className="w-4 h-4" />
-                          Gradient Type
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <Select
-                          value={bulkSettings.gradientType || "linear"}
-                          onValueChange={(
-                            value: "linear" | "radial" | "conic"
-                          ) =>
-                            setBulkSettings((prev) => ({
-                              ...prev,
-                              gradientType: value,
-                            }))
-                          }
-                        >
-                          <SelectTrigger className="h-9">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="linear">Linear</SelectItem>
-                            <SelectItem value="radial">Radial</SelectItem>
-                            <SelectItem value="conic">Conic</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </CardContent>
-                    </Card>
-
-                    {/* Box Shadow */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-sm bg-muted border shadow-sm" />
-                          Box Shadow
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
+                  {/* Text Color */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-foreground" />
+                        Text Color
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex gap-2">
                         <Input
-                          value={bulkSettings.boxShadow || ""}
+                          type="color"
+                          value={bulkSettings.textColor || "#000000"}
                           onChange={(e) =>
                             setBulkSettings((prev) => ({
                               ...prev,
-                              boxShadow: e.target.value,
+                              textColor: e.target.value,
                             }))
                           }
-                          placeholder="0 4px 6px -1px rgba(0,0,0,0.1)"
-                          className="h-9 text-xs"
+                          className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
                         />
-                      </CardContent>
-                    </Card>
+                        <Input
+                          value={bulkSettings.textColor || ""}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              textColor: e.target.value,
+                            }))
+                          }
+                          placeholder="#000000"
+                          className="flex-1 h-9"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                    {/* Border Color */}
-                    <Card className="border-0 shadow-sm">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full border-2 border-border" />
-                          Border Color
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={bulkSettings.borderColor || "#e5e7eb"}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                borderColor: e.target.value,
-                              }))
-                            }
-                            className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
-                          />
-                          <Input
-                            value={bulkSettings.borderColor || ""}
-                            onChange={(e) =>
-                              setBulkSettings((prev) => ({
-                                ...prev,
-                                borderColor: e.target.value,
-                              }))
-                            }
-                            placeholder="#e5e7eb"
-                            className="flex-1 h-9"
-                          />
+                  {/* Primary Color */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-primary" />
+                        Primary Color
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          type="color"
+                          value={bulkSettings.primaryColor || "#3b82f6"}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              primaryColor: e.target.value,
+                            }))
+                          }
+                          className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
+                        />
+                        <Input
+                          value={bulkSettings.primaryColor || ""}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              primaryColor: e.target.value,
+                            }))
+                          }
+                          placeholder="#3b82f6"
+                          className="flex-1 h-9"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Secondary Color */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-secondary" />
+                        Secondary Color
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          type="color"
+                          value={bulkSettings.secondaryColor || "#64748b"}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              secondaryColor: e.target.value,
+                            }))
+                          }
+                          className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
+                        />
+                        <Input
+                          value={bulkSettings.secondaryColor || ""}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              secondaryColor: e.target.value,
+                            }))
+                          }
+                          placeholder="#64748b"
+                          className="flex-1 h-9"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="typography" className="space-y-6 mt-0">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Font Size */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Type className="w-4 h-4" />
+                        Font Size
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Select
+                        value={bulkSettings.fontSize || ""}
+                        onValueChange={(value) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            fontSize: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="Select size" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sm">Small</SelectItem>
+                          <SelectItem value="base">Base</SelectItem>
+                          <SelectItem value="lg">Large</SelectItem>
+                          <SelectItem value="xl">Extra Large</SelectItem>
+                          <SelectItem value="2xl">2XL</SelectItem>
+                          <SelectItem value="3xl">3XL</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+                  </Card>
+
+                  {/* Font Weight */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Zap className="w-4 h-4" />
+                        Font Weight
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Select
+                        value={bulkSettings.fontWeight || ""}
+                        onValueChange={(value) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            fontWeight: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="Select weight" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="semibold">Semibold</SelectItem>
+                          <SelectItem value="bold">Bold</SelectItem>
+                          <SelectItem value="black">Black</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+                  </Card>
+
+                  {/* Text Align */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Layout className="w-4 h-4" />
+                        Text Align
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Select
+                        value={bulkSettings.textAlign || "left"}
+                        onValueChange={(value: "left" | "center" | "right") =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            textAlign: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="left">Left</SelectItem>
+                          <SelectItem value="center">Center</SelectItem>
+                          <SelectItem value="right">Right</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+                  </Card>
+
+                  {/* Border Radius */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-sm bg-muted border" />
+                        Border Radius
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Input
+                        value={bulkSettings.borderRadius || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            borderRadius: e.target.value,
+                          }))
+                        }
+                        placeholder="0px"
+                        className="h-9"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="layout" className="space-y-6 mt-0">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {/* Vertical Padding */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-4 h-2 bg-muted rounded border" />
+                        Vertical Padding
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Input
+                        value={bulkSettings.paddingY || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            paddingY: e.target.value,
+                          }))
+                        }
+                        placeholder="120px"
+                        className="h-9"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Horizontal Padding */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-2 h-4 bg-muted rounded border" />
+                        Horizontal Padding
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Input
+                        value={bulkSettings.paddingX || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            paddingX: e.target.value,
+                          }))
+                        }
+                        placeholder="32px"
+                        className="h-9"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="effects" className="space-y-6 mt-0">
+                {/* Preview Section */}
+                <Card className="border-0 shadow-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <Eye className="w-4 h-4" />
+                      Live Preview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div
+                      className="w-full h-32 rounded-xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center relative overflow-hidden backdrop-blur-sm"
+                      style={{
+                        ...(bulkSettings.backgroundColor && {
+                          backgroundColor: bulkSettings.backgroundColor,
+                        }),
+                        ...generateCompleteStyleCSS({
+                          gradient:
+                            bulkSettings.gradientType &&
+                            bulkSettings.gradientColors
+                              ? {
+                                  type: bulkSettings.gradientType,
+                                  direction: bulkSettings.gradientDirection,
+                                  colors: bulkSettings.gradientColors,
+                                }
+                              : undefined,
+                          border:
+                            bulkSettings.borderWidth && bulkSettings.borderColor
+                              ? {
+                                  style: bulkSettings.borderStyle,
+                                  width: bulkSettings.borderWidth,
+                                  color: bulkSettings.borderColor,
+                                }
+                              : undefined,
+                          shadow: bulkSettings.boxShadow
+                            ? {
+                                type: "box",
+                                color: "rgba(0,0,0,0.1)",
+                                blur: "4px",
+                                spread: "0px",
+                                offsetX: "0px",
+                                offsetY: "2px",
+                              }
+                            : undefined,
+                          backdropBlur: bulkSettings.backdropBlur,
+                        }),
+                      }}
+                    >
+                      <div className="text-center">
+                        <div className="text-sm font-medium mb-1">Preview</div>
+                        <div className="text-xs text-muted-foreground">
+                          Style Preview
                         </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-              </div>
-            </Tabs>
-          </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-          {/* Footer */}
-          <div className="px-4 sm:px-6 py-4 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={() => {
-                  console.log("🔍 [BulkStyleModal] Apply button clicked");
-                  handleBulkUpdate();
-                }}
-                className="flex-1 h-10"
-                size="lg"
-              >
-                <SparklesIcon className="w-4 h-4 mr-2" />
-                Apply to All Components
-              </Button>
-              <Button
-                onClick={() => {
-                  console.log("🔍 [BulkStyleModal] Reset button clicked");
-                  handleReset();
-                }}
-                variant="outline"
-                size="lg"
-                className="h-10 sm:w-auto"
-              >
-                <RotateCcw className="w-4 h-4 sm:mr-0 mr-2" />
-                <span className="sm:hidden">Reset</span>
-              </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* Gradient Type */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        Gradient Type
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Select
+                        value={bulkSettings.gradientType || "linear"}
+                        onValueChange={(value: "linear" | "radial" | "conic") =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            gradientType: value,
+                          }))
+                        }
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="linear">Linear</SelectItem>
+                          <SelectItem value="radial">Radial</SelectItem>
+                          <SelectItem value="conic">Conic</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </CardContent>
+                  </Card>
+
+                  {/* Box Shadow */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-sm bg-muted border shadow-sm" />
+                        Box Shadow
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Input
+                        value={bulkSettings.boxShadow || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            boxShadow: e.target.value,
+                          }))
+                        }
+                        placeholder="0 4px 6px -1px rgba(0,0,0,0.1)"
+                        className="h-9 text-xs"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Border Color */}
+                  <Card className="border-0 shadow-sm">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full border-2 border-border" />
+                        Border Color
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          type="color"
+                          value={bulkSettings.borderColor || "#e5e7eb"}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              borderColor: e.target.value,
+                            }))
+                          }
+                          className="w-12 h-9 p-1 rounded-lg border cursor-pointer"
+                        />
+                        <Input
+                          value={bulkSettings.borderColor || ""}
+                          onChange={(e) =>
+                            setBulkSettings((prev) => ({
+                              ...prev,
+                              borderColor: e.target.value,
+                            }))
+                          }
+                          placeholder="#e5e7eb"
+                          className="flex-1 h-9"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
             </div>
+          </Tabs>
+        </div>
+
+        {/* Footer */}
+        <div className="px-4 sm:px-6 py-4 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button
+              onClick={() => {
+                console.log("🔍 [BulkStyleModal] Apply button clicked");
+                handleBulkUpdate();
+              }}
+              className="flex-1 h-10"
+              size="lg"
+            >
+              <SparklesIcon className="w-4 h-4 mr-2" />
+              Apply to All Components
+            </Button>
+            <Button
+              onClick={() => {
+                console.log("🔍 [BulkStyleModal] Reset button clicked");
+                handleReset();
+              }}
+              variant="outline"
+              size="lg"
+              className="h-10 sm:w-auto"
+            >
+              <RotateCcw className="w-4 h-4 sm:mr-0 mr-2" />
+              <span className="sm:hidden">Reset</span>
+            </Button>
           </div>
         </div>
       </DialogContent>

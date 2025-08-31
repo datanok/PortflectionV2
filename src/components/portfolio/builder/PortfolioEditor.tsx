@@ -46,6 +46,7 @@ import {
   updatePortfolio,
   PortfolioComponent,
 } from "@/actions/portfolio-actions";
+import { motion } from "framer-motion";
 
 // Simplified types
 interface Portfolio {
@@ -335,23 +336,23 @@ export default function PortfolioEditor({
       <div className="flex flex-col h-screen bg-background overflow-hidden">
         {/* Header */}
         <header className="border-b bg-card shadow-sm flex-shrink-0">
-          <div className="flex items-center justify-between p-3 gap-3">
+          <div className="flex items-center justify-between p-2 sm:p-3 gap-2 sm:gap-3">
             {/* Left side */}
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
               {isMobile ? (
                 /* Mobile: Menu button only */
                 <Button
                   variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setIsMobileSidebarOpen(true);
-                  }}
+                  size="icon"
+                  onClick={() => setIsMobileSidebarOpen(true)}
+                  className="shrink-0"
                 >
-                  <Menu className="w-4 h-4" />
+                  <Menu className="w-5 h-5" />
                 </Button>
               ) : (
-                /* Desktop: Component toggle + Portfolio info + Device sizes */
+                /* Desktop: Component toggle + Portfolio info + Device sizes + Zoom */
                 <>
+                  {/* Components toggle */}
                   <Button
                     variant="outline"
                     size="sm"
@@ -361,29 +362,28 @@ export default function PortfolioEditor({
                         setSelectedComponent(null);
                       }
                     }}
-                    className="gap-2"
+                    className="gap-2 shrink-0"
                   >
                     <Layers className="w-4 h-4" />
-                    Components
+                    <span className="hidden md:inline">Components</span>
                   </Button>
-                  <Separator orientation="vertical" className="h-6" />
+
+                  <Separator
+                    orientation="vertical"
+                    className="h-6 hidden sm:block"
+                  />
 
                   {/* Portfolio name */}
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Portfolio Name"
-                    className="bg-transparent border-none focus:ring-1 flex-1 min-w-0"
+                    className="bg-transparent border-none focus:ring-1 flex-1 min-w-0 text-sm"
                   />
 
                   {/* Device size options */}
-                  <div className="flex items-center gap-1 border rounded-lg p-1">
+                  <div className="flex items-center gap-1 border rounded-lg p-1 overflow-x-auto">
                     {[
-                      {
-                        size: "mobile" as const,
-                        icon: Smartphone,
-                        label: "Mobile",
-                      },
                       {
                         size: "tablet" as const,
                         icon: Tablet,
@@ -398,21 +398,21 @@ export default function PortfolioEditor({
                       <button
                         key={size}
                         onClick={() => setDeviceSize(size)}
-                        className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors ${
+                        className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors flex-shrink-0 ${
                           deviceSize === size
                             ? "bg-primary text-primary-foreground"
                             : "hover:bg-muted"
                         }`}
                         title={label}
                       >
-                        <Icon className="w-3 h-3" />
+                        <Icon className="w-4 h-4" />
                         <span className="hidden lg:inline">{label}</span>
                       </button>
                     ))}
                   </div>
 
                   {/* Zoom controls */}
-                  <div className="flex items-center gap-1 border rounded-lg p-1">
+                  <div className="flex items-center gap-1 border rounded-lg p-1 flex-shrink-0">
                     <button
                       onClick={() =>
                         setCanvasZoom(Math.max(0.5, canvasZoom - 0.1))
@@ -420,7 +420,7 @@ export default function PortfolioEditor({
                       className="px-2 py-1 text-xs hover:bg-muted rounded transition-colors"
                       title="Zoom Out"
                     >
-                      -
+                      −
                     </button>
                     <span className="px-2 py-1 text-xs text-muted-foreground min-w-[3rem] text-center">
                       {Math.round(canvasZoom * 100)}%
@@ -447,7 +447,7 @@ export default function PortfolioEditor({
             </div>
 
             {/* Right side */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               {isMobile ? (
                 /* Mobile: Save button only */
                 <Button
@@ -464,7 +464,7 @@ export default function PortfolioEditor({
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
               ) : (
-                /* Desktop: All actions + Property tabs */
+                /* Desktop: Bulk + Save */
                 <>
                   <BulkStyleModal
                     components={components}
@@ -497,26 +497,6 @@ export default function PortfolioEditor({
                     )}
                     {isSaving ? "Saving..." : "Save"}
                   </Button>
-
-                  {/* Property tabs (when component selected) */}
-                  {selectedComponent && (
-                    <div className="flex gap-1 ml-2 border rounded-lg p-1">
-                      {propertyTabs.map(({ tab, Icon, label }) => (
-                        <button
-                          key={tab}
-                          onClick={() => setActivePropertyTab(tab)}
-                          className={`flex items-center gap-1 px-3 py-1.5 text-xs rounded transition-colors ${
-                            activePropertyTab === tab
-                              ? "bg-primary text-primary-foreground"
-                              : "hover:bg-muted"
-                          }`}
-                        >
-                          <Icon className="w-3 h-3" />
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -660,27 +640,14 @@ export default function PortfolioEditor({
               isMobile && activePanel !== "canvas" ? "hidden" : ""
             } ${isMobile ? "pb-20" : ""}`}
           >
-            <div className="h-full overflow-y-auto flex items-center justify-center p-4">
-              {/* Device Size Indicator */}
-              {/* {!isMobile && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <div className="bg-background/95 backdrop-blur-sm border rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground">
-                    {deviceSize === "mobile" && "Mobile (375×667)"}
-                    {deviceSize === "tablet" && "Tablet (768×1024)"}
-                    {deviceSize === "desktop" && "Desktop (Full Width)"}
-                  </div>
-                </div>
-              )} */}
-
+            <div className="overflow-y-auto flex items-center justify-center">
               {/* Device Preview Container */}
               <div
                 className={`
                   bg-white dark:bg-gray-900 shadow-lg rounded-lg transition-all duration-300
                   ${deviceSize === "mobile" ? "w-[375px] h-[667px]" : ""}
                   ${deviceSize === "tablet" ? "w-[768px] h-[1024px]" : ""}
-                  ${
-                    deviceSize === "desktop" ? "w-full max-w-4xl h-[800px]" : ""
-                  }
+                  ${deviceSize === "desktop" ? "w-full  h-[800px]" : ""}
                 `}
                 style={{
                   transform: `scale(${canvasZoom})`,
@@ -741,14 +708,49 @@ export default function PortfolioEditor({
           >
             {selectedComponent && (
               <>
-                <div className="p-4 border-b bg-muted/30">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-medium">Properties</h3>
+                <div className="w-full">
+                  <div className="flex items-center justify-between bg-muted/30 rounded-xl shadow-sm px-2 py-1">
+                    {/* Tabs */}
+                    <div className="flex flex-1 gap-2">
+                      {propertyTabs.map(({ tab, Icon, label }: any) => {
+                        const isActive = activePropertyTab === tab;
+                        return (
+                          <motion.button
+                            key={tab}
+                            onClick={() => setActivePropertyTab(tab)}
+                            className={`relative cursor-pointer flex flex-1 flex-row items-center justify-center rounded-lg px-2 py-2 text-xs transition-colors min-w-[60px] ${
+                              isActive
+                                ? "bg-primary text-primary-foreground shadow-md"
+                                : "hover:bg-muted"
+                            }`}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <Icon className="w-4 h-4" />
+                            {/* <span className="truncate">{label}</span> */}
+                            {isActive && (
+                              <motion.div
+                                layoutId="activeTab"
+                                className="absolute inset-0 rounded-lg bg-primary/20 pointer-events-none"
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 300,
+                                  damping: 25,
+                                }}
+                              />
+                            )}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Close Button (Desktop only) */}
                     {!isMobile && (
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size="icon"
                         onClick={() => setSelectedComponent(null)}
+                        className="ml-2 rounded-full hover:bg-destructive/20 transition-colors"
                       >
                         <X className="w-4 h-4" />
                       </Button>

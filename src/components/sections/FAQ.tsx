@@ -20,7 +20,7 @@ const FAQ = () => {
     {
       question: "What is Portflection?",
       answer:
-        "Portflection is an easy-to-use portfolio builder that helps professionals create and showcase their work using modern, customizable templates tailored for developers, designers, content creators, and business consultants.",
+        "Portflection is an easy-to-use portfolio builder that helps professionals create and showcase their work using modern, customizable templates.",
       category: "General",
     },
     {

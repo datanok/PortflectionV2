@@ -195,22 +195,22 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="px-4 py-6 sm:px-6 md:px-10">
+    <div>
       <div className="flex flex-col gap-6 mt-4">
         {/* Stats Cards */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
-          <Card className="shadow-sm w-full">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
+          <Card className="shadow-sm w-full border border-border/40">
+            <CardHeader className="flex flex-row items-center justify-between ">
+              <CardTitle className="text-xs font-medium text-muted-foreground">
                 Total Portfolios
               </CardTitle>
-              <FolderIcon className="h-4 w-4" />
+              <FolderIcon className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="">
+              <div className="text-lg font-semibold">
                 {portfolioListLoading ? "..." : totalCount}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[11px] text-muted-foreground mt-0.5">
                 {portfolioListLoading
                   ? ""
                   : `${totalCount} total portfolio${
@@ -220,52 +220,35 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm w-full">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-              <FileTextIcon className="h-4 w-4" />
+          <Card className="shadow-sm w-full border border-border/40">
+            <CardHeader className="flex flex-row items-center justify-between  ">
+              <CardTitle className="text-xs font-medium text-muted-foreground">
+                Total Views
+              </CardTitle>
+              <FileTextIcon className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="">
+              <div className="text-lg font-semibold">
                 {analyticsLoading ? "..." : analyticsData?.totalViews || 0}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[11px] text-muted-foreground mt-0.5">
                 {analyticsLoading ? "" : "Last 30 days"}
               </p>
             </CardContent>
           </Card>
 
-          {/* <Card className="shadow-sm w-full">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Top Country</CardTitle>
-              <Globe className="h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold truncate">
-                {analyticsLoading ? "..." : getTopCountry()}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {analyticsLoading
-                  ? ""
-                  : analyticsData?.viewsByCountry?.length
-                  ? `${analyticsData.viewsByCountry[0].count} views`
-                  : "No country data"}
-              </p>
-            </CardContent>
-          </Card> */}
-
-          <Card className="shadow-sm w-full">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">
+          <Card className="shadow-sm w-full border border-border/40">
+            <CardHeader className="flex flex-row items-center justify-between ">
+              <CardTitle className="text-xs font-medium text-muted-foreground">
                 Top Referrer
               </CardTitle>
-              <ArrowUpRight className="h-4 w-4" />
+              <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold truncate">
+            <CardContent className="">
+              <div className="text-lg font-semibold truncate">
                 {analyticsLoading ? "..." : getTopReferrer()}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-[11px] text-muted-foreground mt-0.5">
                 {analyticsLoading
                   ? ""
                   : analyticsData?.viewsByReferrer?.length
@@ -284,9 +267,6 @@ export default function DashboardPage() {
                 <Shield className="h-5 w-5" />
                 Admin Access
               </CardTitle>
-              <CardDescription>
-                Quick access to admin functions and component management
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -313,14 +293,6 @@ export default function DashboardPage() {
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   Component Review
-                </Button>
-                <Button
-                  variant="outline"
-                  className="justify-start"
-                  onClick={() => router.push("/components/marketplace")}
-                >
-                  <Store className="h-4 w-4 mr-2" />
-                  Component Marketplace
                 </Button>
               </div>
             </CardContent>

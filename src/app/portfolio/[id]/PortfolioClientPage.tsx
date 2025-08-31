@@ -39,13 +39,11 @@ interface PortfolioData {
   linkedinLink?: string;
   personalWebsite?: string;
   socials?: any;
-  layoutType?: string;
   extraData?: any;
 }
 
 export default function PortfolioClientPage({
   portfolioData,
-  portfolioType,
   isPreview = false,
 }: {
   portfolioData: PortfolioData;

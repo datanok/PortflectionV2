@@ -85,7 +85,6 @@ const SavePortfolioSchema = z.object({
       })
     )
     .optional(),
-  layoutType: z.string().default("classic"),
   extraData: z.record(z.any()).optional(),
 });
 
@@ -139,7 +138,6 @@ export async function POST(request: NextRequest) {
       linkedinLink,
       personalWebsite,
       socials,
-      layoutType,
       extraData,
     } = validationResult.data;
 
@@ -188,7 +186,6 @@ export async function POST(request: NextRequest) {
           linkedinLink,
           personalWebsite,
           socials: socials as any,
-          layoutType,
           extraData: extraData as any,
         },
       });
@@ -356,7 +353,6 @@ export async function PUT(request: NextRequest) {
           linkedinLink: updateData.linkedinLink,
           personalWebsite: updateData.personalWebsite,
           socials: updateData.socials as any,
-          layoutType: updateData.layoutType,
           extraData: updateData.extraData as any,
           updatedAt: new Date(),
         },

@@ -38,9 +38,9 @@ export default function DropCanvas({
   return (
     <div
       ref={drop as any}
-      className="flex-1 overflow-y-auto overflow-x-hidden bg-background min-h-0 min-w-0"
+      className="flex-1 overflow-y-auto overflow-x-hidden bg-muted"
     >
-      <div className="w-full sm:px-4 box-border">
+      <div className="w-full box-border">
         {components.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 sm:h-80 lg:h-96 text-gray-400 border-2 border-dashed rounded-lg p-6 text-center">
             <div className="w-20 h-20 mb-4 bg-background rounded-full flex items-center justify-center">

@@ -143,7 +143,6 @@ export async function GET(
       linkedinLink: portfolio.linkedinLink,
       personalWebsite: portfolio.personalWebsite,
       socials: portfolio.socials,
-      layoutType: portfolio.layoutType,
       extraData: portfolio.extraData,
 
       // Components
