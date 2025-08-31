@@ -91,27 +91,18 @@ export default function ContentEditor({
     };
   }, [componentType, componentVariant]);
 
-  // Update local data when props change or component type changes
+  // Merge defaultProps with localData when componentConfig changes
+  // Only merge if we don't have existing data (new component)
   useEffect(() => {
     // When component type changes, we need to merge with new defaultProps
     if (Object.keys(componentConfig.defaultProps).length > 0) {
-      // Merge incoming data with defaultProps, but prioritize incoming data
-      const mergedData = { ...componentConfig.defaultProps, ...data };
-      setLocalData(mergedData);
-    } else {
-      setLocalData(data);
+      // Only merge if we don't have existing data
+      const hasExistingData = Object.keys(data).length > 0;
+      if (!hasExistingData) {
+        setLocalData((prev) => ({ ...componentConfig.defaultProps, ...prev }));
+      }
     }
-  }, [data, componentType, componentVariant, componentConfig.defaultProps]);
-
-  // Auto-save when debounced data changes
-  useEffect(() => {
-    if (JSON.stringify(debouncedData) !== JSON.stringify(data)) {
-      setSaveStatus("saving");
-      onUpdate(debouncedData);
-      // Simulate save completion
-      setTimeout(() => setSaveStatus("saved"), 300);
-    }
-  }, [debouncedData, data, onUpdate]);
+  }, [componentConfig.defaultProps, data]);
 
   // Generate field configs from defaultProps and propsSchema
   const fieldConfigs: FieldConfig[] = useMemo(() => {

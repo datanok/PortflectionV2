@@ -46,7 +46,10 @@ import {
   updatePortfolio,
   PortfolioComponent,
 } from "@/actions/portfolio-actions";
-import { motion } from "framer-motion";
+import { PortfolioComponent as TypesPortfolioComponent } from "@/lib/portfolio/types";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 // Simplified types
 interface Portfolio {
@@ -333,135 +336,30 @@ export default function PortfolioEditor({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex flex-col h-screen bg-background overflow-hidden">
-        {/* Header */}
-        <header className="border-b bg-card shadow-sm flex-shrink-0">
-          <div className="flex items-center justify-between p-2 sm:p-3 gap-2 sm:gap-3">
-          <div className="flex items-center justify-between p-2 sm:p-3 gap-2 sm:gap-3">
-            {/* Left side */}
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              {isMobile ? (
-                /* Mobile: Menu button only */
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsMobileSidebarOpen(true)}
-                  className="shrink-0"
-                >
-                  <Menu className="w-5 h-5" />
-                </Button>
-              ) : (
-                /* Desktop: Component toggle + Portfolio info + Device sizes + Zoom */
-                <>
-                  {/* Components toggle */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setIsComponentPaletteOpen(!isComponentPaletteOpen);
-                      if (!isComponentPaletteOpen && selectedComponent) {
-                        setSelectedComponent(null);
-                      }
-                    }}
-                    className="gap-2 shrink-0"
-                  >
-                    <Layers className="w-4 h-4" />
-                    <span className="hidden md:inline">Components</span>
-                  </Button>
-
-                  <Separator
-                    orientation="vertical"
-                    className="h-6 hidden sm:block"
-                  />
-
-                  {/* Portfolio name */}
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Portfolio Name"
-                    className="bg-transparent border-none focus:ring-1 flex-1 min-w-0 text-sm"
-                  />
-
-                  {/* Device size options */}
-                  <div className="flex items-center gap-1 border rounded-lg p-1 overflow-x-auto">
-                    {[
-                      {
-                        size: "tablet" as const,
-                        icon: Tablet,
-                        label: "Tablet",
-                      },
-                      {
-                        size: "desktop" as const,
-                        icon: MonitorIcon,
-                        label: "Desktop",
-                      },
-                    ].map(({ size, icon: Icon, label }) => (
-                      <button
-                        key={size}
-                        onClick={() => setDeviceSize(size)}
-                        className={`flex items-center gap-1 px-2 py-1 text-xs rounded transition-colors flex-shrink-0 ${
-                          deviceSize === size
-                            ? "bg-primary text-primary-foreground"
-                            : "hover:bg-muted"
-                        }`}
-                        title={label}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="hidden lg:inline">{label}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Compact Device Toggle for medium screens */}
-                  <div className="lg:hidden md:flex items-center gap-1 border rounded-lg p-1">
-                    <button
-                      onClick={() => {
-                        const sizes = ["mobile", "tablet", "desktop"];
-                        const currentIndex = sizes.indexOf(deviceSize);
-                        const nextIndex = (currentIndex + 1) % sizes.length;
-                        setDeviceSize(sizes[nextIndex] as any);
-                      }}
-                      className="flex items-center gap-1 px-2 py-1 text-xs rounded hover:bg-muted transition-colors"
-                      title={`Switch from ${deviceSize}`}
-                    >
-                      {deviceSize === "mobile" && <Smartphone className="w-3 h-3" />}
-                      {deviceSize === "tablet" && <Tablet className="w-3 h-3" />}
-                      {deviceSize === "desktop" && <MonitorIcon className="w-3 h-3" />}
-                    </button>
-                  </div>
-
-                  {/* Zoom controls */}
-                  <div className="flex items-center gap-1 border rounded-lg p-1 flex-shrink-0">
-                    <button
-                      onClick={() => setCanvasZoom(Math.max(0.25, canvasZoom - 0.1))}
-                      className="px-1.5 sm:px-2 py-1 text-xs hover:bg-muted rounded transition-colors disabled:opacity-50"
-                      title="Zoom Out"
-                      disabled={canvasZoom <= 0.25}
-                    >
-                      −
-                    </button>
-                    <span className="px-1.5 sm:px-2 py-1 text-xs text-muted-foreground min-w-[2.5rem] sm:min-w-[3rem] text-center">
-                      {Math.round(canvasZoom * 100)}%
-                    </span>
-                    <button
-                      onClick={() => setCanvasZoom(Math.min(1.5, canvasZoom + 0.1))}
-                      className="px-1.5 sm:px-2 py-1 text-xs hover:bg-muted rounded transition-colors disabled:opacity-50"
-                      title="Zoom In"
-                      disabled={canvasZoom >= 1.5}
-                    >
-                      +
-                    </button>
-                    <button
-                      onClick={() => setCanvasZoom(1)}
-                      className="hidden sm:block px-2 py-1 text-xs hover:bg-muted rounded transition-colors"
-                      title="Reset Zoom (100%)"
-                    >
-                      Reset
-                    </button>
-                  </div>
-                </>
-              )}
+      <div className="flex flex-col h-screen bg-background w-full overflow-hidden">
+        {/* Enhanced Header with Bulk Editor */}
+        <div className="border-b border-border bg-card flex-shrink-0">
+          {/* Mobile Header */}
+          <div className="md:hidden flex items-center justify-between p-3">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+              >
+                {isMobileSidebarOpen ? (
+                  <X className="w-4 h-4" />
+                ) : (
+                  <Menu className="w-4 h-4" />
+                )}
+              </Button>
+              <input
+                type="text"
+                value={portfolioName}
+                onChange={(e) => setPortfolioName(e.target.value)}
+                className="text-sm font-medium bg-transparent border-none outline-none text-foreground flex-1 min-w-0"
+                placeholder="Portfolio Name"
+              />
             </div>
 
             {/* Right side */}
@@ -497,7 +395,11 @@ export default function PortfolioEditor({
                       )
                     }
                     trigger={
-                      <Button variant="outline" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-1 sm:gap-2 px-2 sm:px-3"
+                      >
                         <Sparkles className="w-4 h-4" />
                         <span className="hidden md:inline">Bulk</span>
                       </Button>
@@ -523,253 +425,174 @@ export default function PortfolioEditor({
               )}
             </div>
           </div>
-        </header>
 
-        {/* Main Content */}
-        <div className="flex flex-1 min-h-0 relative">
-          {/* Left Sidebar - Components (Desktop) */}
-          {!isMobile && (
-            <aside
-              className={`${isComponentPaletteOpen ? "w-60 lg:w-72 xl:w-80" : "w-0"
-                } bg-card border-r transition-all duration-200 overflow-hidden flex-shrink-0 z-10`}
-            >
-              {isComponentPaletteOpen && (
-                <div className="h-full overflow-y-auto">
-                  <ComponentPalette onComponentSelect={handleAddComponent} />
-                </div>
-              )}
-            </aside>
-          )}
-
-          {/* Mobile Drawer Content */}
-          {isMobile && (
-            <Drawer
-              open={isMobileSidebarOpen}
-              onOpenChange={(open) => {
-                setIsMobileSidebarOpen(open);
-                if (!open) {
-                  setActivePanel("canvas");
-                }
-              }}
-            >
-              <DrawerContent className="h-[80vh] sm:h-[85vh]">
-                <DrawerHeader className="pb-2">
-                  <DrawerTitle className="text-lg">
-                    {activePanel === "components" ? "Components" : "Options"}
-                  </DrawerTitle>
-                </DrawerHeader>
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4">
-                  {activePanel === "components" ? (
-                    <ComponentPalette onComponentSelect={handleAddComponent} />
-                  ) : (
-                    <div className="space-y-4 sm:space-y-6">
-                      {/* Portfolio Settings */}
-                      <div className="space-y-3 sm:space-y-4">
-                        <h3 className="text-sm font-medium">
-                          Portfolio Settings
-                        </h3>
-
-                        {/* Portfolio Name */}
-                        <div className="space-y-2">
-                          <label className="text-xs text-muted-foreground">
-                            Portfolio Name
-                          </label>
-                          <Input
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Portfolio Name"
-                            className="w-full text-sm sm:text-base"
-                          />
-                        </div>
-
-                        {/* Public Toggle */}
-                        <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                          <Checkbox
-                            id="public"
-                            checked={isPublic}
-                            onCheckedChange={(checked) =>
-                              setIsPublic(checked === true)
-                            }
-                          />
-                          <label
-                            htmlFor="public"
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                          >
-                            Make portfolio public
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Device Size Selection */}
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Device Preview</h3>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            {
-                              size: "mobile" as const,
-                              icon: Smartphone,
-                              label: "Mobile",
-                              dimensions: "375×667"
-                            },
-                            {
-                              size: "tablet" as const,
-                              icon: Tablet,
-                              label: "Tablet",
-                              dimensions: "768×1024"
-                            },
-                            {
-                              size: "desktop" as const,
-                              icon: MonitorIcon,
-                              label: "Desktop",
-                              dimensions: "Responsive"
-                            },
-                          ].map(({ size, icon: Icon, label, dimensions }) => (
-                            <button
-                              key={size}
-                              onClick={() => setDeviceSize(size)}
-                              className={`flex flex-col items-center gap-2 p-3 border rounded-lg transition-colors ${deviceSize === size
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "hover:bg-muted"
-                                }`}
-                            >
-                              <Icon className="w-5 h-5" />
-                              <div className="text-center">
-                                <div className="text-xs font-medium">{label}</div>
-                                <div className="text-[10px] opacity-70">{dimensions}</div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Zoom Controls */}
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Zoom</h3>
-                        <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
-                          <button
-                            onClick={() => setCanvasZoom(Math.max(0.25, canvasZoom - 0.1))}
-                            className="flex-1 px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors disabled:opacity-50"
-                            disabled={canvasZoom <= 0.25}
-                          >
-                            Zoom Out
-                          </button>
-                          <span className="px-3 py-2 text-sm text-center min-w-[4rem] bg-background rounded">
-                            {Math.round(canvasZoom * 100)}%
-                          </span>
-                          <button
-                            onClick={() => setCanvasZoom(Math.min(1.5, canvasZoom + 0.1))}
-                            className="flex-1 px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors disabled:opacity-50"
-                            disabled={canvasZoom >= 1.5}
-                          >
-                            Zoom In
-                          </button>
-                        </div>
-                        <button
-                          onClick={() => setCanvasZoom(1)}
-                          className="w-full px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors"
-                        >
-                          Reset to 100%
-                        </button>
-                      </div>
-
-                      {/* Bulk Edit */}
-                      <div className="space-y-2">
-                        <h3 className="text-sm font-medium">Bulk Edit</h3>
-                        <BulkStyleModal
-                          components={components}
-                          onUpdateComponents={(updates) =>
-                            setComponents((prev) =>
-                              prev.map((comp) => ({
-                                ...comp,
-                                styles: { ...comp.styles, ...updates.styles },
-                              }))
-                            )
-                          }
-                          trigger={
-                            <Button variant="outline" className="w-full gap-2">
-                              <Sparkles className="w-4 h-4" />
-                              Bulk Style Editor
-                            </Button>
-                          }
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </DrawerContent>
-            </Drawer>
-          )}
-
-          {/* Canvas */}
-          <main
-            className={`flex-1 bg-muted/30 ${isMobile && activePanel !== "canvas" ? "hidden" : ""
-              } ${isMobile ? "pb-16 sm:pb-20" : ""} min-w-0`}
-          >
-            <div className="overflow-y-auto flex items-center justify-center">
-              {/* Device Preview Container */}
-              <div
-                className={`
-                  bg-white dark:bg-gray-900 shadow-lg rounded-lg transition-all duration-300
-                  ${deviceSize === "mobile" ? "w-[375px] h-[667px]" : ""}
-                  ${deviceSize === "tablet" ? "w-[768px] h-[1024px]" : ""}
-                  ${deviceSize === "desktop" ? "w-full  h-[800px]" : ""}
-                `}
-                style={{
-                  transform: `scale(${canvasZoom})`,
-                  transformOrigin: "center center",
-                  // Responsive widths based on device size and available space
-                  width: "100%",
-                  height:"100%",
-                  // Dynamic margin based on zoom level to prevent overflow
-                  margin: `${Math.max(10, 40 / canvasZoom)}px`,
-                }}
-              >
-                {/* Device Frame */}
-                <div className="relative w-full h-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-                  {/* Device Header (for mobile/tablet) */}
-                  {(deviceSize === "mobile" || deviceSize === "tablet") && (
-                    <div className="absolute top-0 left-0 right-0 h-6 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center z-10">
-                      <div className="w-12 sm:w-16 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
-                    </div>
-                  )}
-
-                  {/* Device Notch (for mobile) */}
-                  {deviceSize === "mobile" && (
-                    <div className="absolute top-1.5 sm:top-2 left-1/2 transform -translate-x-1/2 w-16 sm:w-20 h-1.5 sm:h-2 bg-gray-800 dark:bg-gray-200 rounded-b-lg z-10"></div>
-                  )}
-
-                  {/* Canvas Content */}
-                  <div
-                    className={`
-                      w-full h-full overflow-y-auto bg-white dark:bg-gray-900
-                      ${deviceSize === "mobile" || deviceSize === "tablet" ? "pt-6" : ""}
-                    `}
-                  >
-                    <DropCanvas
-                      components={components}
-                      onSelect={handleSelectComponent}
-                      selectedId={selectedComponent?.id || null}
-                      deviceSize={deviceSize}
-                      onDrop={(component) => {
-                        const newComponent = { ...component, id: uuidv4() };
-                        setComponents((prev) => [...prev, newComponent]);
-                        setSelectedComponent(newComponent);
-                      }}
-                    />
-                  </div>
-                </div>
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-between p-4">
+            <div className="flex items-center gap-4">
+              <input
+                type="text"
+                value={portfolioName}
+                onChange={(e) => setPortfolioName(e.target.value)}
+                className="text-xl font-semibold bg-transparent border-none outline-none text-foreground"
+                placeholder="Portfolio Name"
+              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isPublic"
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                  className="rounded border-border"
+                />
+                <label
+                  htmlFor="isPublic"
+                  className="text-sm text-muted-foreground"
+                >
+                  Public
+                </label>
               </div>
             </div>
-          </main>
+            <div className="flex items-center gap-2">
+              <BulkStyleModal
+                components={components.map(adaptToTypesComponent)}
+                onUpdateComponents={(updates) => {
+                  const updatedComponents = components.map((comp) => ({
+                    ...comp,
+                    styles: {
+                      ...comp.styles,
+                      ...updates.styles,
+                    },
+                  }));
+                  setComponents(updatedComponents);
+                }}
+                trigger={
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Bulk Style
+                  </Button>
+                }
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPreviewOpen(true)}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Zoom Controls */}
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium">Zoom</h3>
+          <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
+            <button
+              onClick={() => setCanvasZoom(Math.max(0.25, canvasZoom - 0.1))}
+              className="flex-1 px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors disabled:opacity-50"
+              disabled={canvasZoom <= 0.25}
+            >
+              Zoom Out
+            </button>
+            <span className="px-3 py-2 text-sm text-center min-w-[4rem] bg-background rounded">
+              {Math.round(canvasZoom * 100)}%
+            </span>
+            <button
+              onClick={() => setCanvasZoom(Math.min(1.5, canvasZoom + 0.1))}
+              className="flex-1 px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors disabled:opacity-50"
+              disabled={canvasZoom >= 1.5}
+            >
+              Zoom In
+            </button>
+          </div>
+          <button
+            onClick={() => setCanvasZoom(1)}
+            className="w-full px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors"
+          >
+            Reset to 100%
+          </button>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex min-h-0 relative overflow-hidden">
+          {/* Mobile Sidebar Overlay */}
+          {isMobile && isMobileSidebarOpen && (
+            <div
+              className="absolute inset-0 bg-black/50 z-40 md:hidden"
+              onClick={() => setIsMobileSidebarOpen(false)}
+            />
+          )}
+
+          {/* Left Sidebar - Component Palette */}
+          <div
+            className={`
+            ${
+              isMobile
+                ? `absolute left-0 top-0 h-full w-80 z-50 transform transition-transform duration-300 ${
+                    isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+                  } ${
+                    activePanel === "components"
+                      ? "relative translate-x-0 w-full"
+                      : "absolute"
+                  }`
+                : "w-60 sm:w-64 lg:w-72 xl:w-80 relative"
+            } 
+            border-r bg-card overflow-y-auto flex-shrink-0 md:block
+            ${isMobile && activePanel !== "components" ? "hidden" : ""}
+          `}
+          >
+            <div className="p-3 md:p-4 border-b border-border">
+              <h2 className="text-base md:text-lg font-semibold text-foreground">
+                Components
+              </h2>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <ComponentPalette onComponentSelect={handleAddComponent} />
+            </div>
+          </div>
+
+          {/* Main Canvas Area */}
+          <div
+            className={`
+            flex-1 min-w-0 overflow-hidden overflow-y-auto
+            ${isMobile && activePanel !== "canvas" ? "hidden" : ""}
+          `}
+          >
+            <DropCanvas
+              components={components.map(adaptToTypesComponent)}
+              onSelect={(component) => {
+                const actionsComponent = components.find(
+                  (c) => c.id === component.id
+                );
+                if (actionsComponent) {
+                  handleComponentSelect(actionsComponent);
+                }
+              }}
+              selectedId={selectedComponent?.id || null}
+              onDrop={handleDropComponent}
+            />
+          </div>
 
           {/* Right Sidebar - Edit */}
           <aside
-            className={`${isMobile
-              ? `w-full ${activePanel === "Edit" ? "" : "hidden"} pb-16 sm:pb-20`
-              : selectedComponent
+            className={`${
+              isMobile
+                ? `w-full ${
+                    activePanel === "Edit" ? "" : "hidden"
+                  } pb-16 sm:pb-20`
+                : selectedComponent
                 ? "w-64 lg:w-72 xl:w-80 border-l flex-shrink-0"
                 : "w-0 overflow-hidden"
-              } bg-card transition-all duration-200 z-10`}
+            } bg-card transition-all duration-200 z-10`}
           >
             {selectedComponent && (
               <>
@@ -852,12 +675,13 @@ export default function PortfolioEditor({
                     }
                   }}
                   disabled={disabled}
-                  className={`flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-colors min-w-0 flex-1 ${activePanel === id
-                    ? "bg-primary text-primary-foreground"
-                    : disabled
+                  className={`flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-colors min-w-0 flex-1 ${
+                    activePanel === id
+                      ? "bg-primary text-primary-foreground"
+                      : disabled
                       ? "text-muted-foreground/50"
                       : "text-muted-foreground hover:bg-muted"
-                    }`}
+                  }`}
                 >
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
                   <span className="text-[10px] sm:text-xs leading-tight text-center truncate w-full">

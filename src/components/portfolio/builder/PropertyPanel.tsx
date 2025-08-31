@@ -1,4 +1,10 @@
-import React, { useState, useRef, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useEffect,
+} from "react";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import { getComponent, componentRegistry } from "@/lib/portfolio/registry";
 import {
@@ -80,6 +86,17 @@ export default function PropertyPanel({
   onMoveDown,
   activeTab = "content",
 }: PropertyPanelProps) {
+  // Debug logging
+  useEffect(() => {
+    if (component) {
+      console.log("PropertyPanel - Component:", {
+        type: component.type,
+        variant: component.variant,
+        props: component.props,
+      });
+    }
+  }, [component]);
+  const [activeTab, setActiveTab] = useState("content");
   const [componentTabStates, setComponentTabStates] = useState<
     Record<string, string>
   >({});
@@ -456,84 +473,86 @@ export default function PropertyPanel({
             </div>
           </div>
 
-          {/* Actions - Only visible on hover */}
-          <div className="flex items-center gap-0.5">
-            <TooltipProvider delayDuration={300}>
-              {onMoveUp && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onMoveUp(component.id)}
-                      className="w-7 h-7 hover:bg-muted/50"
-                    >
-                      <MoveUp className="w-3.5 h-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    Move Up
-                  </TooltipContent>
-                </Tooltip>
-              )}
-
-              {onMoveDown && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onMoveDown(component.id)}
-                      className="w-7 h-7 hover:bg-muted/50"
-                    >
-                      <MoveDown className="w-3.5 h-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    Move Down
-                  </TooltipContent>
-                </Tooltip>
-              )}
-
-              {onDuplicate && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDuplicate(component)}
-                      className="w-7 h-7 hover:bg-muted/50"
-                    >
-                      <Copy className="w-3.5 h-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    Duplicate
-                  </TooltipContent>
-                </Tooltip>
-              )}
-
-              {onDelete && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDelete(component.id)}
-                      className="w-7 h-7 hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="text-xs">
-                    Delete
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </TooltipProvider>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex gap-1">
+          <TooltipProvider>
+            {onMoveUp && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onMoveUp(component.id)}
+                    className="flex-1 h-8"
+                  >
+                    <MoveUp className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Move Up</TooltipContent>
+              </Tooltip>
+            )}
+            {onMoveDown && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onMoveDown(component.id)}
+                    className="flex-1 h-8"
+                  >
+                    <MoveDown className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Move Down</TooltipContent>
+              </Tooltip>
+            )}
+            {onDuplicate && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDuplicate(component)}
+                    className="flex-1 h-8"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Duplicate</TooltipContent>
+              </Tooltip>
+            )}
+            {onDelete && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(component.id)}
+                    className="flex-1 h-8 text-destructive hover:text-destructive-foreground"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Delete</TooltipContent>
+              </Tooltip>
+            )}
+          </TooltipProvider>
         </div>
       </div>
+
+      {/* Live Preview Toggle */}
+      {/* <div className="p-3 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Live Preview</span>
+          </div>
+          <Switch
+            checked={showLivePreview}
+            onCheckedChange={setShowLivePreview}
+          />
+        </div>
+      </div> */}
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
