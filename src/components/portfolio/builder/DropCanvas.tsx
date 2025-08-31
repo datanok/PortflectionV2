@@ -1,8 +1,10 @@
+// components/builder/DropCanvas.tsx
 import React from "react";
 import { useDrop } from "react-dnd";
 import { v4 as uuidv4 } from "uuid";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import ComponentRenderer from "../renderer/ComponentRenderer";
+import DeviceFrame from "./DeviceFrame";
 
 interface DropCanvasProps {
   components: PortfolioComponent[];
@@ -30,7 +32,6 @@ export default function DropCanvas({
         styles: item.variant.defaultStyles || {},
         order: components.length,
       };
-
       onDrop?.(newComponent);
     },
   }));
@@ -82,28 +83,24 @@ export default function DropCanvas({
                     : "hover:ring-1 hover:ring-blue-300 hover:ring-inset"
                 }`}
               >
-                {/* Component selection indicator */}
                 {selectedId === component.id && (
                   <div className="absolute top-2 right-2 z-20 bg-blue-500 text-white text-xs px-2 py-1 rounded-full shadow-sm">
                     Selected
                   </div>
                 )}
-
                 <ComponentRenderer
                   component={component}
                   preview={true}
                   deviceSize={deviceSize}
                 />
-
-                {/* Subtle separator between components (except last one) */}
                 {index < components.length - 1 && (
                   <div className="h-px bg-background mx-4"></div>
                 )}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      </DeviceFrame>
     </div>
   );
 }

@@ -63,7 +63,7 @@ interface EditorProps {
   initialData?: Portfolio;
 }
 
-type PanelType = "components" | "canvas" | "properties";
+type PanelType = "components" | "canvas" | "Edit";
 type PropertyTab = "content" | "style" | "advanced";
 
 // Custom hooks for better separation of concerns
@@ -242,7 +242,7 @@ export default function PortfolioEditor({
       setSelectedComponent(duplicated);
 
       if (isMobile) {
-        setActivePanel("properties");
+        setActivePanel("Edit");
       }
 
       toast.success("Component duplicated");
@@ -257,7 +257,7 @@ export default function PortfolioEditor({
       if (component) {
         setIsComponentPaletteOpen(false);
         if (isMobile) {
-          setActivePanel("properties");
+          setActivePanel("Edit");
         }
       }
     },
@@ -324,8 +324,8 @@ export default function PortfolioEditor({
     { id: "components", label: "Components", icon: Layers },
     { id: "canvas", label: "Canvas", icon: Monitor },
     {
-      id: "properties",
-      label: "Properties",
+      id: "Edit",
+      label: "Edit",
       icon: Settings,
       disabled: !selectedComponent,
     },
@@ -337,7 +337,9 @@ export default function PortfolioEditor({
         {/* Header */}
         <header className="border-b bg-card shadow-sm flex-shrink-0">
           <div className="flex items-center justify-between p-2 sm:p-3 gap-2 sm:gap-3">
+          <div className="flex items-center justify-between p-2 sm:p-3 gap-2 sm:gap-3">
             {/* Left side */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
               {isMobile ? (
                 /* Mobile: Menu button only */
@@ -411,33 +413,49 @@ export default function PortfolioEditor({
                     ))}
                   </div>
 
+                  {/* Compact Device Toggle for medium screens */}
+                  <div className="lg:hidden md:flex items-center gap-1 border rounded-lg p-1">
+                    <button
+                      onClick={() => {
+                        const sizes = ["mobile", "tablet", "desktop"];
+                        const currentIndex = sizes.indexOf(deviceSize);
+                        const nextIndex = (currentIndex + 1) % sizes.length;
+                        setDeviceSize(sizes[nextIndex] as any);
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 text-xs rounded hover:bg-muted transition-colors"
+                      title={`Switch from ${deviceSize}`}
+                    >
+                      {deviceSize === "mobile" && <Smartphone className="w-3 h-3" />}
+                      {deviceSize === "tablet" && <Tablet className="w-3 h-3" />}
+                      {deviceSize === "desktop" && <MonitorIcon className="w-3 h-3" />}
+                    </button>
+                  </div>
+
                   {/* Zoom controls */}
                   <div className="flex items-center gap-1 border rounded-lg p-1 flex-shrink-0">
                     <button
-                      onClick={() =>
-                        setCanvasZoom(Math.max(0.5, canvasZoom - 0.1))
-                      }
-                      className="px-2 py-1 text-xs hover:bg-muted rounded transition-colors"
+                      onClick={() => setCanvasZoom(Math.max(0.25, canvasZoom - 0.1))}
+                      className="px-1.5 sm:px-2 py-1 text-xs hover:bg-muted rounded transition-colors disabled:opacity-50"
                       title="Zoom Out"
+                      disabled={canvasZoom <= 0.25}
                     >
                       −
                     </button>
-                    <span className="px-2 py-1 text-xs text-muted-foreground min-w-[3rem] text-center">
+                    <span className="px-1.5 sm:px-2 py-1 text-xs text-muted-foreground min-w-[2.5rem] sm:min-w-[3rem] text-center">
                       {Math.round(canvasZoom * 100)}%
                     </span>
                     <button
-                      onClick={() =>
-                        setCanvasZoom(Math.min(2, canvasZoom + 0.1))
-                      }
-                      className="px-2 py-1 text-xs hover:bg-muted rounded transition-colors"
+                      onClick={() => setCanvasZoom(Math.min(1.5, canvasZoom + 0.1))}
+                      className="px-1.5 sm:px-2 py-1 text-xs hover:bg-muted rounded transition-colors disabled:opacity-50"
                       title="Zoom In"
+                      disabled={canvasZoom >= 1.5}
                     >
                       +
                     </button>
                     <button
                       onClick={() => setCanvasZoom(1)}
-                      className="px-2 py-1 text-xs hover:bg-muted rounded transition-colors"
-                      title="Reset Zoom"
+                      className="hidden sm:block px-2 py-1 text-xs hover:bg-muted rounded transition-colors"
+                      title="Reset Zoom (100%)"
                     >
                       Reset
                     </button>
@@ -454,14 +472,16 @@ export default function PortfolioEditor({
                   onClick={handleSave}
                   disabled={isSaving}
                   size="sm"
-                  className="gap-2"
+                  className="gap-1 sm:gap-2 px-2 sm:px-3"
                 >
                   {isSaving ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <Save className="w-4 h-4" />
                   )}
-                  {isSaving ? "Saving..." : "Save"}
+                  <span className="hidden xs:inline">
+                    {isSaving ? "Saving..." : "Save"}
+                  </span>
                 </Button>
               ) : (
                 /* Desktop: Bulk + Save */
@@ -477,9 +497,9 @@ export default function PortfolioEditor({
                       )
                     }
                     trigger={
-                      <Button variant="outline" size="sm" className="gap-2">
+                      <Button variant="outline" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3">
                         <Sparkles className="w-4 h-4" />
-                        Bulk
+                        <span className="hidden md:inline">Bulk</span>
                       </Button>
                     }
                   />
@@ -488,14 +508,16 @@ export default function PortfolioEditor({
                     onClick={handleSave}
                     disabled={isSaving}
                     size="sm"
-                    className="gap-2"
+                    className="gap-1 sm:gap-2 px-2 sm:px-3"
                   >
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <Save className="w-4 h-4" />
                     )}
-                    {isSaving ? "Saving..." : "Save"}
+                    <span className="hidden sm:inline">
+                      {isSaving ? "Saving..." : "Save"}
+                    </span>
                   </Button>
                 </>
               )}
@@ -504,16 +526,15 @@ export default function PortfolioEditor({
         </header>
 
         {/* Main Content */}
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0 relative">
           {/* Left Sidebar - Components (Desktop) */}
           {!isMobile && (
             <aside
-              className={`${
-                isComponentPaletteOpen ? "w-80" : "w-0"
-              } bg-card border-r transition-all duration-200 overflow-hidden`}
+              className={`${isComponentPaletteOpen ? "w-60 lg:w-72 xl:w-80" : "w-0"
+                } bg-card border-r transition-all duration-200 overflow-hidden flex-shrink-0 z-10`}
             >
               {isComponentPaletteOpen && (
-                <div className="h-full overflow-y-auto p-4">
+                <div className="h-full overflow-y-auto">
                   <ComponentPalette onComponentSelect={handleAddComponent} />
                 </div>
               )}
@@ -531,19 +552,19 @@ export default function PortfolioEditor({
                 }
               }}
             >
-              <DrawerContent className="h-[85vh]">
-                <DrawerHeader>
-                  <DrawerTitle>
+              <DrawerContent className="h-[80vh] sm:h-[85vh]">
+                <DrawerHeader className="pb-2">
+                  <DrawerTitle className="text-lg">
                     {activePanel === "components" ? "Components" : "Options"}
                   </DrawerTitle>
                 </DrawerHeader>
-                <div className="flex-1 overflow-y-auto p-4">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4">
                   {activePanel === "components" ? (
                     <ComponentPalette onComponentSelect={handleAddComponent} />
                   ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       {/* Portfolio Settings */}
-                      <div className="space-y-4">
+                      <div className="space-y-3 sm:space-y-4">
                         <h3 className="text-sm font-medium">
                           Portfolio Settings
                         </h3>
@@ -557,7 +578,7 @@ export default function PortfolioEditor({
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Portfolio Name"
-                            className="w-full"
+                            className="w-full text-sm sm:text-base"
                           />
                         </div>
 
@@ -579,31 +600,76 @@ export default function PortfolioEditor({
                         </div>
                       </div>
 
-                      {/* Device Size Info */}
+                      {/* Device Size Selection */}
                       <div className="space-y-2">
                         <h3 className="text-sm font-medium">Device Preview</h3>
-                        <div className="p-3 border rounded-lg bg-muted/30">
-                          <div className="flex items-center gap-2 mb-2">
-                            {deviceSize === "mobile" && (
-                              <Smartphone className="w-4 h-4" />
-                            )}
-                            {deviceSize === "tablet" && (
-                              <Tablet className="w-4 h-4" />
-                            )}
-                            {deviceSize === "desktop" && (
-                              <MonitorIcon className="w-4 h-4" />
-                            )}
-                            <span className="text-sm font-medium capitalize">
-                              {deviceSize}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {deviceSize === "mobile" && "375×667 pixels"}
-                            {deviceSize === "tablet" && "768×1024 pixels"}
-                            {deviceSize === "desktop" &&
-                              "Full width responsive"}
-                          </p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            {
+                              size: "mobile" as const,
+                              icon: Smartphone,
+                              label: "Mobile",
+                              dimensions: "375×667"
+                            },
+                            {
+                              size: "tablet" as const,
+                              icon: Tablet,
+                              label: "Tablet",
+                              dimensions: "768×1024"
+                            },
+                            {
+                              size: "desktop" as const,
+                              icon: MonitorIcon,
+                              label: "Desktop",
+                              dimensions: "Responsive"
+                            },
+                          ].map(({ size, icon: Icon, label, dimensions }) => (
+                            <button
+                              key={size}
+                              onClick={() => setDeviceSize(size)}
+                              className={`flex flex-col items-center gap-2 p-3 border rounded-lg transition-colors ${deviceSize === size
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "hover:bg-muted"
+                                }`}
+                            >
+                              <Icon className="w-5 h-5" />
+                              <div className="text-center">
+                                <div className="text-xs font-medium">{label}</div>
+                                <div className="text-[10px] opacity-70">{dimensions}</div>
+                              </div>
+                            </button>
+                          ))}
                         </div>
+                      </div>
+
+                      {/* Zoom Controls */}
+                      <div className="space-y-2">
+                        <h3 className="text-sm font-medium">Zoom</h3>
+                        <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
+                          <button
+                            onClick={() => setCanvasZoom(Math.max(0.25, canvasZoom - 0.1))}
+                            className="flex-1 px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors disabled:opacity-50"
+                            disabled={canvasZoom <= 0.25}
+                          >
+                            Zoom Out
+                          </button>
+                          <span className="px-3 py-2 text-sm text-center min-w-[4rem] bg-background rounded">
+                            {Math.round(canvasZoom * 100)}%
+                          </span>
+                          <button
+                            onClick={() => setCanvasZoom(Math.min(1.5, canvasZoom + 0.1))}
+                            className="flex-1 px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors disabled:opacity-50"
+                            disabled={canvasZoom >= 1.5}
+                          >
+                            Zoom In
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => setCanvasZoom(1)}
+                          className="w-full px-3 py-2 text-sm bg-background hover:bg-muted rounded transition-colors"
+                        >
+                          Reset to 100%
+                        </button>
                       </div>
 
                       {/* Bulk Edit */}
@@ -636,9 +702,8 @@ export default function PortfolioEditor({
 
           {/* Canvas */}
           <main
-            className={`flex-1 bg-muted/30 ${
-              isMobile && activePanel !== "canvas" ? "hidden" : ""
-            } ${isMobile ? "pb-20" : ""}`}
+            className={`flex-1 bg-muted/30 ${isMobile && activePanel !== "canvas" ? "hidden" : ""
+              } ${isMobile ? "pb-16 sm:pb-20" : ""} min-w-0`}
           >
             <div className="overflow-y-auto flex items-center justify-center">
               {/* Device Preview Container */}
@@ -652,32 +717,33 @@ export default function PortfolioEditor({
                 style={{
                   transform: `scale(${canvasZoom})`,
                   transformOrigin: "center center",
+                  // Responsive widths based on device size and available space
+                  width: "100%",
+                  height:"100%",
+                  // Dynamic margin based on zoom level to prevent overflow
+                  margin: `${Math.max(10, 40 / canvasZoom)}px`,
                 }}
               >
                 {/* Device Frame */}
                 <div className="relative w-full h-full overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
                   {/* Device Header (for mobile/tablet) */}
                   {(deviceSize === "mobile" || deviceSize === "tablet") && (
-                    <div className="absolute top-0 left-0 right-0 h-6 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                      <div className="w-16 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+                    <div className="absolute top-0 left-0 right-0 h-6 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center z-10">
+                      <div className="w-12 sm:w-16 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
                     </div>
                   )}
 
                   {/* Device Notch (for mobile) */}
                   {deviceSize === "mobile" && (
-                    <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-2 bg-gray-800 dark:bg-gray-200 rounded-b-lg"></div>
+                    <div className="absolute top-1.5 sm:top-2 left-1/2 transform -translate-x-1/2 w-16 sm:w-20 h-1.5 sm:h-2 bg-gray-800 dark:bg-gray-200 rounded-b-lg z-10"></div>
                   )}
 
                   {/* Canvas Content */}
                   <div
                     className={`
-                    w-full h-full overflow-y-auto bg-white dark:bg-gray-900
-                    ${
-                      deviceSize === "mobile" || deviceSize === "tablet"
-                        ? "pt-6"
-                        : ""
-                    }
-                  `}
+                      w-full h-full overflow-y-auto bg-white dark:bg-gray-900
+                      ${deviceSize === "mobile" || deviceSize === "tablet" ? "pt-6" : ""}
+                    `}
                   >
                     <DropCanvas
                       components={components}
@@ -696,15 +762,14 @@ export default function PortfolioEditor({
             </div>
           </main>
 
-          {/* Right Sidebar - Properties */}
+          {/* Right Sidebar - Edit */}
           <aside
-            className={`${
-              isMobile
-                ? `w-full ${activePanel === "properties" ? "" : "hidden"} pb-20`
-                : selectedComponent
-                ? "w-80 border-l"
+            className={`${isMobile
+              ? `w-full ${activePanel === "Edit" ? "" : "hidden"} pb-16 sm:pb-20`
+              : selectedComponent
+                ? "w-64 lg:w-72 xl:w-80 border-l flex-shrink-0"
                 : "w-0 overflow-hidden"
-            } bg-card transition-all duration-200`}
+              } bg-card transition-all duration-200 z-10`}
           >
             {selectedComponent && (
               <>
@@ -776,8 +841,8 @@ export default function PortfolioEditor({
 
         {/* Mobile Navigation */}
         {isMobile && (
-          <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur border-t z-50">
-            <div className="flex justify-around p-2">
+          <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur border-t z-50 safe-area-inset-bottom">
+            <div className="flex justify-around p-1.5 sm:p-2 max-w-lg mx-auto">
               {mobileNavItems.map(({ id, label, icon: Icon, disabled }) => (
                 <button
                   key={id}
@@ -787,16 +852,17 @@ export default function PortfolioEditor({
                     }
                   }}
                   disabled={disabled}
-                  className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${
-                    activePanel === id
-                      ? "bg-primary text-primary-foreground"
-                      : disabled
+                  className={`flex flex-col items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 rounded-lg transition-colors min-w-0 flex-1 ${activePanel === id
+                    ? "bg-primary text-primary-foreground"
+                    : disabled
                       ? "text-muted-foreground/50"
                       : "text-muted-foreground hover:bg-muted"
-                  }`}
+                    }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="text-xs">{label}</span>
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                  <span className="text-[10px] sm:text-xs leading-tight text-center truncate w-full">
+                    {label}
+                  </span>
                 </button>
               ))}
             </div>

@@ -561,6 +561,7 @@ export default function PropertyPanel({
                 <Select
                   value={component.variant}
                   onValueChange={(value) => handleChange("variant", value)}
+                  onValueChange={(value) => handleChange("variant", value)}
                 >
                   <SelectTrigger className="h-9">
                     <SelectValue />
@@ -568,12 +569,16 @@ export default function PropertyPanel({
                   <SelectContent>
                     {availableVariants.length > 0 ? (
                       availableVariants.map((variant) => (
-                        <SelectItem key={variant.id} value={variant.id}>
+                        <SelectItem
+                          key={variant.id}
+                          value={variant.id}
+                          className="text-xs"
+                        >
                           {variant.name}
                         </SelectItem>
                       ))
                     ) : (
-                      <SelectItem value={component.variant}>
+                      <SelectItem value={component.variant} className="text-xs">
                         {component.variant}
                       </SelectItem>
                     )}
