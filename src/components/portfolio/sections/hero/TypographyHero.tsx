@@ -219,7 +219,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
     },
   };
 
-  const currentTheme = themeConfigs["minimal"];
+  const currentTheme = themeConfigs[theme] ?? themeConfigs.minimal;
 
   const memoizedTypingTexts = useMemo(() => {
     return (

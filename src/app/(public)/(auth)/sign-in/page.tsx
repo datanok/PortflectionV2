@@ -189,14 +189,19 @@ export default function SignIn() {
             <Button
               type="button"
               variant="outline"
-              className="w-full bg-[#4285F4] text-white hover:bg-[#4285F4]/90 font-medium"
+              className="w-full  font-medium"
               onClick={() => handleSocialSignIn("google")}
               disabled={isLoading.google}
             >
               {isLoading.google ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                <Mail className="mr-2 h-4 w-4" />
+                <img
+                  className="w-6 h-6"
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  loading="lazy"
+                  alt="Google logo"
+                />
               )}
               {isLoading.google ? "Connecting..." : "Continue with Google"}
             </Button>

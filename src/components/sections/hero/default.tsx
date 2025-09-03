@@ -104,23 +104,13 @@ export default function PortflectionHero({
   };
 
   return (
-    <section className="relative overflow-hidden py-12 sm:py-20 md:py-28">
+    <section className="relative overflow-hidden py-12 sm:py-20 md:py-28 grid-pattern">
       {/* Modern gradient background */}
       <div
         className="absolute inset-0 opacity-30"
         style={{
           background:
             "radial-gradient(circle at 20% 80%, var(--color-primary) 0%, transparent 50%), radial-gradient(circle at 80% 20%, var(--color-accent) 0%, transparent 50%)",
-        }}
-      />
-
-      {/* Subtle grid pattern */}
-      <div
-        className="absolute inset-0 opacity-5"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
         }}
       />
 
@@ -242,7 +232,7 @@ export default function PortflectionHero({
           )}
 
           {/* Mockup */}
-          {mockup !== false && (
+          {/* {mockup !== false && (
             <div className="w-full pt-12 sm:pt-16 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 px-4 sm:px-0">
               <MockupFrame
                 className="hover:scale-[1.02] transition-transform duration-700"
@@ -277,7 +267,7 @@ export default function PortflectionHero({
                 </Mockup>
               </MockupFrame>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </section>

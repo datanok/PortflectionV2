@@ -18,7 +18,7 @@ export default function DashboardLayout({
   const isEditPage = pathname?.includes("/portfolios/edit/");
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen">
       <SidebarProvider>
         <div className="flex w-full">
           <AppSidebar />

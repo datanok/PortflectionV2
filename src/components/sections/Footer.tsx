@@ -128,9 +128,9 @@ export default function FooterSection({
             <div style={{ color: "var(--muted-foreground)" }}>{copyright}</div>
             <div style={{ color: "var(--muted-foreground)" }}>
               Made with <span style={{ color: "var(--brand)" }}>❤️</span> by{" "}
-              <span style={{ fontWeight: 600, color: "var(--brand)" }}>
-                Portflection
-              </span>
+              <a href="https://github.com/datanok" target="_blank" rel="noopener noreferrer" className="text-brand font-bold transition-colors hover:scale-105">
+                Tanmay
+              </a>
             </div>
             <div className="flex items-center gap-4">
               {policies.map((policy, index) => (

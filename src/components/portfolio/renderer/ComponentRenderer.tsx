@@ -302,34 +302,34 @@ export default function ComponentRenderer({
         }
 
         /* Desktop Preview Styles */
-        .desktop-preview :global(*) {
-          font-size: 1em !important;
-        }
-        .desktop-preview :global(h1) {
-          font-size: 2.5rem !important;
-          line-height: 1.2 !important;
-        }
-        .desktop-preview :global(h2) {
-          font-size: 2rem !important;
-          line-height: 1.25 !important;
-        }
-        .desktop-preview :global(h3) {
-          font-size: 1.5rem !important;
-          line-height: 1.3 !important;
-        }
-        .desktop-preview :global(p) {
-          font-size: 1rem !important;
-          line-height: 1.6 !important;
-        }
-        .desktop-preview :global(button) {
-          font-size: 0.875rem !important;
-          padding: 0.5rem 1rem !important;
-        }
-        .desktop-preview :global(input),
-        .desktop-preview :global(textarea) {
-          font-size: 0.875rem !important;
-          padding: 0.5rem !important;
-        }
+        // .desktop-preview :global(*) {
+        //   font-size: 1em !important;
+        // }
+        // .desktop-preview :global(h1) {
+        //   font-size: 2.5rem !important;
+        //   line-height: 1.2 !important;
+        // }
+        // .desktop-preview :global(h2) {
+        //   font-size: 2rem !important;
+        //   line-height: 1.25 !important;
+        // }
+        // .desktop-preview :global(h3) {
+        //   font-size: 1.5rem !important;
+        //   line-height: 1.3 !important;
+        // }
+        // .desktop-preview :global(p) {
+        //   font-size: 1rem !important;
+        //   line-height: 1.6 !important;
+        // }
+        // .desktop-preview :global(button) {
+        //   font-size: 0.875rem !important;
+        //   padding: 0.5rem 1rem !important;
+        // }
+        // .desktop-preview :global(input),
+        // .desktop-preview :global(textarea) {
+        //   font-size: 0.875rem !important;
+        //   padding: 0.5rem !important;
+        // }
         .desktop-preview :global(.container) {
           padding-left: 2rem !important;
           padding-right: 2rem !important;

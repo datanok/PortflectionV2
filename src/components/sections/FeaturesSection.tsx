@@ -2,79 +2,79 @@ import { cn } from "@/lib/utils";
 import {
   FileCode2,
   Palette,
-  ShieldCheck,
   BarChart,
   LayoutDashboard,
   Lock,
   Eye,
   Smartphone,
   ArrowRight,
+  Component,
 } from "lucide-react";
 
 export function FeaturesSection() {
-  const features = [
-    {
-      title: "Effortless Portfolio Creation",
-      description:
-        "Fill out a simple form, choose a template, and generate your professional portfolio in one click.",
-      icon: <FileCode2 size={24} />,
-      color: "var(--color-chart-1)",
-    },
-    {
-      title: "Beautiful & Customizable Templates",
-      description:
-        "Select from professionally designed templates to showcase your work in the best way.",
-      icon: <Palette size={24} />,
-      color: "var(--color-chart-2)",
-    },
-    {
-      title: "Analytics & Performance Tracking",
-      description:
-        "View real-time analytics to track portfolio views, engagement, and growth.",
-      icon: <BarChart size={24} />,
-      color: "var(--color-chart-3)",
-    },
-    {
-      title: "Personalized Dashboard",
-      description:
-        "Manage and update your portfolios easily from a dedicated user dashboard.",
-      icon: <LayoutDashboard size={24} />,
-      color: "var(--color-chart-4)",
-    },
-    {
-      title: "Secure & Private",
-      description:
-        "Your data is protected with secure authentication and privacy-focused settings.",
-      icon: <ShieldCheck size={24} />,
-      color: "var(--color-chart-5)",
-    },
-    {
-      title: "Seamless SSO Authentication",
-      description:
-        "Sign in quickly with GitHub and other SSO providers without the hassle of passwords.",
-      icon: <Lock size={24} />,
-      color: "var(--color-primary)",
-    },
-    {
-      title: "Live Preview Before Publishing",
-      description:
-        "See exactly how your portfolio will look before making it public.",
-      icon: <Eye size={24} />,
-      color: "var(--color-accent)",
-    },
-    {
-      title: "Mobile & SEO Optimized",
-      description:
-        "Your portfolio is fully responsive and optimized for search engines to maximize visibility.",
-      icon: <Smartphone size={24} />,
-      color: "var(--color-secondary)",
-    },
-  ];
+ const features = [
+  {
+    title: "Component-Based Builder",
+    description:
+      "Choose from a library of pre-designed components like hero sections, project cards, or contact forms to assemble your portfolio.",
+    icon: <Component size={24} />,
+    color: "var(--color-primary)",
+  },
+  {
+    title: "Real-Time Customization",
+    description:
+      "Edit text, images, and styles with instant live preview—see your changes as you make them.",
+    icon: <Eye size={24} />,
+    color: "var(--color-primary)",
+  },
+  {
+    title: "Flexible Design Options",
+    description:
+      "Mix and match layouts, typography, and colors to create a portfolio that feels uniquely yours.",
+    icon: <Palette size={24} />,
+    color: "var(--color-primary)",
+  },
+  {
+    title: "Personalized Dashboard",
+    description:
+      "Manage your saved portfolios, switch themes, and update content from one central dashboard.",
+    icon: <LayoutDashboard size={24} />,
+    color: "var(--color-primary)",
+  },
+  {
+    title: "Live Publishing",
+    description:
+      "Publish your portfolio instantly and update it anytime without downtime.",
+    icon: <FileCode2 size={24} />,
+    color: "var(--color-primary)",
+  },
+  {
+    title: "Secure & Simple Authentication",
+    description:
+      "Sign in securely with GitHub, Google, and other SSO providers to access your builder.",
+    icon: <Lock size={24} />,
+    color: "var(--color-primary)",
+  },
+  {
+    title: "Analytics & Insights",
+    description:
+      "Track portfolio visits, viewer engagement, and performance over time.",
+    icon: <BarChart size={24} />,
+    color: "var(--color-primary)",
+  },
+  {
+    title: "Mobile & SEO Friendly",
+    description:
+      "Every portfolio is responsive by default and optimized for search engine visibility.",
+    icon: <Smartphone size={24} />,
+    color: "var(--color-primary)",
+  },
+];
+
 
   return (
     <section className="py-12 sm:py-20 md:py-28">
       <div className="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16">
           <h2
             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 px-4 sm:px-0"
@@ -95,14 +95,12 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6 ">
           {features.map((feature, index) => (
             <Feature key={feature.title} {...feature} index={index} />
           ))}
         </div>
 
-        {/* CTA Section */}
         <div className="mt-12 sm:mt-16 text-center">
           <div
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 transition-all duration-300 hover:scale-105 cursor-pointer group"
@@ -142,13 +140,10 @@ const Feature = ({
         color: "var(--color-card-foreground)",
       }}
     >
-      {/* Hover background effect */}
       <div
         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-5 transition-opacity duration-300"
         style={{ backgroundColor: color }}
       />
-
-      {/* Icon */}
       <div
         className="relative z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-4 transition-all duration-300 group-hover:scale-110"
         style={{
@@ -159,7 +154,6 @@ const Feature = ({
         {icon}
       </div>
 
-      {/* Content */}
       <div className="relative z-10 space-y-2 sm:space-y-3">
         <h3
           className="text-base sm:text-lg font-semibold"
@@ -175,7 +169,6 @@ const Feature = ({
         </p>
       </div>
 
-      {/* Decorative accent */}
       <div
         className="absolute top-0 right-0 w-12 h-12 sm:w-16 sm:h-16 rounded-bl-full opacity-0 group-hover:opacity-10 transition-opacity duration-300"
         style={{ backgroundColor: color }}

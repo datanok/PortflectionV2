@@ -258,12 +258,13 @@ body {
 }
 
 body {
-  background-image: linear-gradient(
+  /* background-image: linear-gradient(
       rgba(128, 128, 128, 0.05) 1px,
       transparent 1px
     ),
-    linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+    linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px); */
   background-size: 32px 32px;
+  
 }
 
 @layer base {
@@ -293,6 +294,7 @@ body {
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+     --grid-line-color: hsl(0 0% 0% / 5%);
   }
 
   .dark {
@@ -320,6 +322,7 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --grid-line-color: hsl(0 0% 100% / 8%);
   }
 }
 
@@ -362,4 +365,25 @@ body {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
+}
+
+.grid-pattern {
+  background: var(--background);
+  --gap: 5em;
+  --line: 1px;
+  --color: var(--grid-line-color);
+
+  background-image: linear-gradient(
+      -90deg,
+      transparent calc(var(--gap) - var(--line)),
+      var(--color) calc(var(--gap) - var(--line) + 1px),
+      var(--color) var(--gap)
+    ),
+    linear-gradient(
+      0deg,
+      transparent calc(var(--gap) - var(--line)),
+      var(--color) calc(var(--gap) - var(--line) + 1px),
+      var(--color) var(--gap)
+    );
+  background-size: var(--gap) var(--gap);
 }

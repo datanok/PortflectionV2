@@ -68,7 +68,7 @@ const FAQ = () => {
   ];
 
   return (
-    <section className="py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24">
+    <section className="py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 grid-pattern">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-8 sm:mb-12 lg:mb-16">
@@ -80,14 +80,10 @@ const FAQ = () => {
             Frequently Asked Questions
           </h2>
 
-          <p className="text-sm sm:text-base md:text-lg max-w-2xl mx-auto text-muted-foreground leading-relaxed">
-            Find answers to common questions about Portflection and get started
-            with creating your professional portfolio.
-          </p>
         </div>
 
         {/* FAQ Accordion */}
-        <Card className="border border-border bg-card/50 backdrop-blur-sm shadow-xl">
+        <Card className="border border-border bg-card/50 backdrop-blur-sm">
           <Accordion
             type="single"
             collapsible
@@ -99,7 +95,7 @@ const FAQ = () => {
                 value={`item-${index}`}
                 className="border-none"
               >
-                <AccordionTrigger className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 hover:no-underline group transition-all duration-300 hover:bg-accent/50 [&[data-state=open]]:bg-accent/30">
+                <AccordionTrigger className="px-4 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 hover:no-underline group transition-all duration-300 hover:bg-accent/50 [&[data-state=open]]:bg-accent/30  cursor-pointer">
                   <div className="flex items-start gap-3 sm:gap-4 text-left w-full">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-sm sm:text-base md:text-lg text-foreground group-hover:text-primary transition-colors duration-300 text-left leading-snug">
@@ -132,7 +128,22 @@ const FAQ = () => {
                 Still have questions?
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground/80">
-                We're here to help you get started with your portfolio
+                Connect with me on{" "}
+                <a
+                  href="https://github.com/datanok"
+                  className="text-primary hover:underline"
+                  target="_blank"
+                >
+                  Github
+                </a>{" "}
+                or{" "}
+                <a
+                  href="https://linkedin.com/in/yourprofile"
+                  className="text-primary hover:underline"
+                >
+                  LinkedIn
+                </a>
+                .
               </p>
             </div>
 
@@ -147,7 +158,7 @@ const FAQ = () => {
                   className="inline-flex items-center justify-center gap-2"
                 >
                   <Mail className="w-4 h-4" />
-                  Contact Support
+                  Contact Me
                 </a>
               </Button>
 
