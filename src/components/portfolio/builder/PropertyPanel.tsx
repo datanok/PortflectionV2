@@ -290,6 +290,7 @@ export default function PropertyPanel({
       );
     }
     // Default to text input
+    console.log(key, value);
     return (
       <div key={key} className="mb-4">
         <Label className="text-xs text-muted-foreground">{key}</Label>
@@ -432,7 +433,7 @@ export default function PropertyPanel({
   const ComponentIcon = getComponentIcon(component.type || "");
 
   return (
-    <div className="w-full  bg-gradient-to-b from-background to-muted/20 border-l border-border flex flex-col relative z-10">
+    <div className="w-full h-[calc(100vh-66px)] bg-gradient-to-b from-background to-muted/20 border-l border-border flex flex-col relative z-10">
       {/* Header */}
       <div className="px-4 py-3 border-b border-border/50">
         <div className="flex items-center justify-between group">

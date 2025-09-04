@@ -42,7 +42,14 @@ interface ContentEditorProps {
 
 interface FieldConfig {
   key: string;
-  type: "text" | "textarea" | "boolean" | "array" | "object" | "select";
+  type:
+    | "text"
+    | "textarea"
+    | "boolean"
+    | "array"
+    | "object"
+    | "select"
+    | "number";
   metadata?: FieldMetadata;
 }
 
@@ -996,6 +1003,261 @@ export default function ContentEditor({
     );
   };
 
+  const renderArrayItemBySchema = (
+    item: any,
+    key: string,
+    index: number,
+    itemSchema: any
+  ) => {
+    if (!itemSchema) {
+      // Fallback to existing key-based logic
+      return renderArrayItem(item, key, index);
+    }
+
+    return (
+      <div key={index} className="border rounded-lg p-4 bg-muted/30 space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">
+            {key.charAt(0).toUpperCase() + key.slice(1)} Item {index + 1}
+          </span>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => handleArrayItemRemove(key, index)}
+            className="h-6 px-2 text-destructive hover:text-destructive-foreground"
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
+
+        <div className="space-y-3">
+          {Object.entries(itemSchema).map(
+            ([fieldKey, fieldMeta]: [string, any]) => {
+              const fieldValue = item[fieldKey] || "";
+
+              switch (fieldMeta.type) {
+                case "text":
+                  return (
+                    <div key={fieldKey}>
+                      <Label className="text-xs text-muted-foreground">
+                        {fieldMeta.label || fieldKey}
+                      </Label>
+                      <Input
+                        value={fieldValue}
+                        onChange={(e) =>
+                          handleArrayObjectUpdate(
+                            key,
+                            index,
+                            fieldKey,
+                            e.target.value
+                          )
+                        }
+                        className="text-sm h-8 mt-1"
+                        placeholder={
+                          fieldMeta.placeholder || `Enter ${fieldKey}...`
+                        }
+                      />
+                    </div>
+                  );
+
+                case "textarea":
+                  return (
+                    <div key={fieldKey}>
+                      <Label className="text-xs text-muted-foreground">
+                        {fieldMeta.label || fieldKey}
+                      </Label>
+                      <Textarea
+                        value={fieldValue}
+                        onChange={(e) =>
+                          handleArrayObjectUpdate(
+                            key,
+                            index,
+                            fieldKey,
+                            e.target.value
+                          )
+                        }
+                        className="text-sm mt-1 min-h-[60px]"
+                        placeholder={
+                          fieldMeta.placeholder || `Enter ${fieldKey}...`
+                        }
+                      />
+                    </div>
+                  );
+
+                case "select":
+                  return (
+                    <div key={fieldKey}>
+                      <Label className="text-xs text-muted-foreground">
+                        {fieldMeta.label || fieldKey}
+                      </Label>
+                      <Select
+                        value={fieldValue}
+                        onValueChange={(value) =>
+                          handleArrayObjectUpdate(key, index, fieldKey, value)
+                        }
+                      >
+                        <SelectTrigger className="text-sm h-8 mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {fieldMeta.options?.map((option: any) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  );
+
+                case "number":
+                  return (
+                    <div key={fieldKey}>
+                      <Label className="text-xs text-muted-foreground">
+                        {fieldMeta.label || fieldKey}
+                      </Label>
+                      <Input
+                        type="number"
+                        min={fieldMeta.min}
+                        max={fieldMeta.max}
+                        value={fieldValue}
+                        onChange={(e) =>
+                          handleArrayObjectUpdate(
+                            key,
+                            index,
+                            fieldKey,
+                            parseInt(e.target.value) || 0
+                          )
+                        }
+                        className="text-sm h-8 mt-1"
+                        placeholder={
+                          fieldMeta.placeholder || `Enter ${fieldKey}...`
+                        }
+                      />
+                    </div>
+                  );
+
+                case "boolean":
+                  return (
+                    <div key={fieldKey} className="flex items-center space-x-2">
+                      <Switch
+                        checked={fieldValue}
+                        onCheckedChange={(checked) =>
+                          handleArrayObjectUpdate(key, index, fieldKey, checked)
+                        }
+                      />
+                      <Label className="text-xs text-muted-foreground">
+                        {fieldMeta.label || fieldKey}
+                      </Label>
+                    </div>
+                  );
+
+                case "array":
+                  // Handle nested arrays (like highlights in experience)
+                  return (
+                    <div key={fieldKey}>
+                      <Label className="text-xs text-muted-foreground">
+                        {fieldMeta.label || fieldKey}
+                      </Label>
+                      <div className="mt-2 space-y-2">
+                        {Array.isArray(fieldValue)
+                          ? fieldValue.map((subItem: any, subIndex: number) => (
+                              <div
+                                key={subIndex}
+                                className="flex items-center space-x-2"
+                              >
+                                <Input
+                                  value={subItem}
+                                  onChange={(e) => {
+                                    const newArray = [...fieldValue];
+                                    newArray[subIndex] = e.target.value;
+                                    handleArrayObjectUpdate(
+                                      key,
+                                      index,
+                                      fieldKey,
+                                      newArray
+                                    );
+                                  }}
+                                  className="text-sm h-8 flex-1"
+                                  placeholder={
+                                    fieldMeta.placeholder ||
+                                    `Enter ${fieldKey} item...`
+                                  }
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => {
+                                    const newArray = fieldValue.filter(
+                                      (_: any, i: number) => i !== subIndex
+                                    );
+                                    handleArrayObjectUpdate(
+                                      key,
+                                      index,
+                                      fieldKey,
+                                      newArray
+                                    );
+                                  }}
+                                  className="h-6 px-2 text-destructive hover:text-destructive-foreground"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))
+                          : null}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const newArray = Array.isArray(fieldValue)
+                              ? [...fieldValue, ""]
+                              : [""];
+                            handleArrayObjectUpdate(
+                              key,
+                              index,
+                              fieldKey,
+                              newArray
+                            );
+                          }}
+                          className="w-full"
+                        >
+                          Add {fieldMeta.label || fieldKey} Item
+                        </Button>
+                      </div>
+                    </div>
+                  );
+
+                default:
+                  return (
+                    <div key={fieldKey}>
+                      <Label className="text-xs text-muted-foreground">
+                        {fieldMeta.label || fieldKey}
+                      </Label>
+                      <Input
+                        value={fieldValue}
+                        onChange={(e) =>
+                          handleArrayObjectUpdate(
+                            key,
+                            index,
+                            fieldKey,
+                            e.target.value
+                          )
+                        }
+                        className="text-sm h-8 mt-1"
+                        placeholder={
+                          fieldMeta.placeholder || `Enter ${fieldKey}...`
+                        }
+                      />
+                    </div>
+                  );
+              }
+            }
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderField = (field: FieldConfig) => {
     const { key, type } = field;
     const value = localData[key];
@@ -1039,9 +1301,19 @@ export default function ContentEditor({
               </div>
             ) : (
               <div className="space-y-3">
-                {arrayValue.map((item: any, index: number) =>
-                  renderArrayItem(item, key, index)
-                )}
+                {arrayValue.map((item: any, index: number) => {
+                  // Use schema-based rendering if available, otherwise fall back to key-based
+                  const fieldMeta = field.metadata;
+                  if (fieldMeta?.itemSchema) {
+                    return renderArrayItemBySchema(
+                      item,
+                      key,
+                      index,
+                      fieldMeta.itemSchema
+                    );
+                  }
+                  return renderArrayItem(item, key, index);
+                })}
               </div>
             )}
           </CardContent>
@@ -1223,12 +1495,12 @@ export default function ContentEditor({
   return (
     <div className="space-y-6 w-full max-w-full">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
           <h3 className="text-lg font-semibold">Content Editor</h3>
           <Badge variant="outline" className="text-xs">
             {componentType} - {componentVariant}
           </Badge>
-        </div>
+        </div> */}
         <div className="flex items-center gap-2">
           {saveStatus === "saving" && (
             <div className="flex items-center gap-1 text-amber-600">

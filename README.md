@@ -1,75 +1,394 @@
 # PortflectionV2
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Next.js](https://img.shields.io/badge/Next.js-13+-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-A modern, full-stack portfolio builder that enables professionals to create and customize stunning portfolio websites with ease. Built with Next.js, React, and TypeScript, the platform offers a seamless user experience with its responsive design, dark/light mode support, and intuitive drag-and-drop portfolio builder.
+## 🎯 Introduction & Purpose
+
+**PortflectionV2** is a modern, full-stack portfolio builder application designed to solve a common problem: **building professional portfolios without design skills or coding experience**.
+
+### Who is this for?
+
+This app is perfect for people who:
+
+- **Can't design** - No artistic or design skills required
+- **Don't want to spend time designing** - Focus on content, not aesthetics
+- **Want to build a portfolio with zero coding experience** - Visual editor handles everything
+
+### How it solves these problems
+
+PortflectionV2 provides a **simple and professional solution** through:
+
+- **Pre-built themed components** that look great out of the box
+- **Drag-and-drop visual editor** - no code writing needed
+- **Multiple design themes** with customizable fonts & colors
+- **Real-time preview** to see changes instantly
+- **Professional results** that rival custom-coded portfolios
+
+## 🚀 Tech Stack
+
+### Frontend
+
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Beautiful, accessible component library
+
+### Backend & Database
+
+- **Prisma ORM** - Type-safe database client
+- **MongoDB** - NoSQL database
+- **BetterAuth.js** - Authentication system
+
+### UI & Experience
+
+- **Recharts** - Data visualization for analytics
+- **Framer Motion** - Smooth animations
+- **React Hook Form** - Form handling
+- **Zod** - Schema validation
+
+### Development & Deployment
+
+- **Vercel** - Hosting and deployment
+- **SendGrid** - Email services
+- **React DnD** - Drag-and-drop functionality
 
 ## ✨ Features
 
 ### 🎨 Portfolio Creation & Management
 
-- 🏗️ **Drag-and-Drop Portfolio Builder** - Visual editor with component-based architecture
-- 🎭 **Live Preview** - Real-time preview of changes before publishing
-- 🎛️ **Component Customization** - Extensive styling and property controls
-- 🌓 **Dark/Light Mode** with system preference detection
-- 📱 **Fully Responsive Design** for all devices
-- ⚡ **Fast Page Loads** with Server-Side Rendering (SSR) and Static Site Generation (SSG)
+- **Prebuilt Themed Components** - Navbar, hero, about, skills, projects, contact, footer
+- **Multiple Design Themes** - Minimal, Neobrutalism, and more with customizable fonts & colors
+- **Drag-and-Drop Editor** - Visual editor for non-coders
+- **Real-Time Preview** - See changes instantly as you build
+- **Export/Publish Options** - Deploy your portfolio with one click
+- **Component Customization** - Extensive styling and property controls
+- **Dark/Light Mode** with system preference detection
+- **Fully Responsive Design** for all devices
 
 ### 🔒 Authentication & Security
 
-- 🔐 **Secure Authentication** with NextAuth (Email/Password + OAuth providers)
-- 🛡️ **Role-Based Access Control** - User and Admin roles
-- 🔒 **Protected Routes** - Secure portfolio and admin access
-- 📧 **Email Verification** with SendGrid integration
+- **Secure Authentication** with BetterAuth (Email/Password + OAuth providers)
+- **Role-Based Access Control** - User and Admin roles
+- **Protected Routes** - Secure portfolio and admin access
+- **Email Verification** with SendGrid integration
 
 ### 📊 Analytics & Insights
 
-- 📈 **Comprehensive Analytics Dashboard** - Track portfolio performance
-- 🌍 **Geographic Analytics** - View traffic by country
-- 🔗 **Referrer Tracking** - Monitor traffic sources
-- 🤖 **Bot Detection** - Distinguish between human and bot traffic
-- 📅 **Time-based Analytics** - 24h, 7d, 30d, 90d, and all-time views
-- 📊 **Portfolio-specific Metrics** - Individual portfolio performance tracking
+- **Comprehensive Analytics Dashboard** - Track portfolio performance
+- **Geographic Analytics** - View traffic by country
+- **Referrer Tracking** - Monitor traffic sources
+- **Bot Detection** - Distinguish between human and bot traffic
+- **Time-based Analytics** - 24h, 7d, 30d, 90d, and all-time views
+- **Portfolio-specific Metrics** - Individual portfolio performance tracking
 
 ### 🏪 Community Component System
 
-- 📝 **Component Submission System** - Submit custom components for review
-- 👥 **Community Contributions** - Share and discover portfolio components
-- ✅ **Admin Review Process** - Quality control for submitted components
-- 🏷️ **Component Categorization** - Organized by type and functionality
-- 📸 **Component Previews** - Visual previews with thumbnails
+- **Component Submission System** - Submit custom components for review
+- **Community Contributions** - Share and discover portfolio components
+- **Admin Review Process** - Quality control for submitted components
+- **Component Categorization** - Organized by type and functionality
+- **Component Previews** - Visual previews with thumbnails
 
 ### 👨‍💼 Admin Dashboard
 
-- 👥 **User Management** - Manage user roles, permissions, and status
-- 📋 **Component Review System** - Approve/reject community submissions
-- 📊 **System Analytics** - Platform-wide metrics and insights
-- ⚙️ **System Settings** - Configure platform-wide settings
-- 🛡️ **Security Controls** - User banning and moderation tools
+- **User Management** - Manage user roles, permissions, and status
+- **Component Review System** - Approve/reject community submissions
+- **System Analytics** - Platform-wide metrics and insights
+- **System Settings** - Configure platform-wide settings
+- **Security Controls** - User banning and moderation tools
 
-### 📝 Content Management
+## 🏗️ System Design
 
-- 📝 **Rich Text Editing** with MDX support
-- 🖼️ **Media Management** - Upload and organize images and files
-- 🔍 **SEO Optimization** with sitemap and robots.txt
-- 🎨 **Customizable Themes** and styling options
-- 📱 **Mobile-first, responsive design**
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        A[React/Next.js Frontend]
+        B[Portfolio Builder]
+        C[Dashboard]
+        D[Admin Panel]
+    end
 
-## 🚀 Tech Stack
+    subgraph "API Layer"
+        E[Next.js API Routes]
+        F[Portfolio API]
+        G[Analytics API]
+        H[Admin API]
+        I[Auth API]
+    end
 
-- **Frontend**: Next.js 13+, React 18+, TypeScript
-- **Styling**: Tailwind CSS, Shadcn UI, Framer Motion
-- **Forms**: React Hook Form, Zod validation
-- **Authentication**: NextAuth.js
-- **Database**: MongoDB with Prisma ORM
-- **Email**: SendGrid
-- **Deployment**: Vercel
-- **Analytics**: Vercel Analytics
-- **Drag & Drop**: React DnD
-- **Charts**: Recharts for analytics visualization
+    subgraph "Data Layer"
+        J[Prisma ORM]
+        K[MongoDB Database]
+        L[File Storage]
+    end
+
+    subgraph "External Services"
+        M[BetterAuth.js]
+        N[SendGrid]
+        O[Vercel Analytics]
+    end
+
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+    E --> J
+    J --> K
+    E --> M
+    E --> N
+    E --> O
+    J --> L
+```
+
+## 🔧 Low-Level Design (LLD)
+
+### Core Components Architecture
+
+```mermaid
+graph TB
+    subgraph "Portfolio Builder Core"
+        PB[Portfolio Builder]
+        CB[Component Builder]
+        RP[Renderer Pipeline]
+        PM[Portfolio Manager]
+    end
+
+    subgraph "Component System"
+        BC[Built-in Components]
+        CC[Community Components]
+        CR[Component Registry]
+        CL[Component Loader]
+    end
+
+    subgraph "Data Management"
+        PD[Portfolio Data]
+        CD[Component Data]
+        UD[User Data]
+        AD[Analytics Data]
+    end
+
+    subgraph "State Management"
+        PS[Portfolio State]
+        CS[Component State]
+        US[User State]
+        TS[Theme State]
+    end
+
+    PB --> CB
+    CB --> RP
+    RP --> PM
+    CB --> BC
+    CB --> CC
+    CC --> CR
+    CR --> CL
+    PM --> PD
+    CB --> CD
+    PB --> UD
+    PM --> AD
+    PB --> PS
+    CB --> CS
+    PB --> US
+    PB --> TS
+```
+
+### Portfolio Builder Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant PB as Portfolio Builder
+    participant CR as Component Registry
+    participant RP as Renderer Pipeline
+    participant DB as Database
+
+    U->>PB: Create New Portfolio
+    PB->>CR: Load Available Components
+    CR->>PB: Return Component List
+    U->>PB: Select Components
+    PB->>PB: Update Portfolio State
+    PB->>RP: Render Preview
+    RP->>PB: Return Rendered HTML
+    PB->>U: Show Live Preview
+    U->>PB: Customize Properties
+    PB->>PB: Update Component State
+    PB->>RP: Re-render
+    U->>PB: Save Portfolio
+    PB->>DB: Store Portfolio Data
+    DB->>PB: Confirm Save
+    PB->>U: Portfolio Saved
+```
+
+### Component System Architecture
+
+```mermaid
+graph LR
+    subgraph "Component Types"
+        A[Section Components]
+        B[Layout Components]
+        C[Interactive Components]
+        D[Utility Components]
+    end
+
+    subgraph "Component Structure"
+        E[Component Metadata]
+        F[Component Props]
+        G[Component Styles]
+        H[Component Logic]
+    end
+
+    subgraph "Rendering System"
+        I[Component Renderer]
+        J[Style Injector]
+        K[Event Handler]
+        L[State Manager]
+    end
+
+    A --> E
+    B --> E
+    C --> E
+    D --> E
+    E --> F
+    E --> G
+    E --> H
+    F --> I
+    G --> J
+    H --> K
+    H --> L
+```
+
+### Data Flow Architecture
+
+```mermaid
+graph TB
+    subgraph "User Input Layer"
+        UI[User Interface]
+        FB[Form Builder]
+        DR[Drag & Drop]
+        TP[Theme Picker]
+    end
+
+    subgraph "Processing Layer"
+        VP[Validation Pipeline]
+        TP2[Transform Pipeline]
+        SP[State Processor]
+        CP[Change Processor]
+    end
+
+    subgraph "Storage Layer"
+        PS2[Portfolio Store]
+        CS2[Component Store]
+        US2[User Store]
+        TS2[Theme Store]
+    end
+
+    subgraph "Output Layer"
+        PR[Portfolio Renderer]
+        EX[Export Engine]
+        AP[Analytics Processor]
+        SY[Sync Manager]
+    end
+
+    UI --> VP
+    FB --> VP
+    DR --> VP
+    TP --> VP
+    VP --> TP2
+    TP2 --> SP
+    SP --> CP
+    CP --> PS2
+    CP --> CS2
+    CP --> US2
+    CP --> TS2
+    PS2 --> PR
+    CS2 --> PR
+    US2 --> PR
+    TS2 --> PR
+    PR --> EX
+    PR --> AP
+    PR --> SY
+```
+
+### Authentication & Authorization Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant FE as Frontend
+    participant API as API Routes
+    participant NA as BetterAuth
+    participant DB as Database
+    participant MW as Middleware
+
+    U->>FE: Login Request
+    FE->>API: Auth Request
+    API->>NA: Validate Credentials
+    NA->>DB: Check User
+    DB->>NA: User Data
+    NA->>API: Auth Token
+    API->>FE: JWT Token
+    FE->>U: Logged In
+
+    U->>FE: Access Protected Route
+    FE->>API: Request with Token
+    API->>MW: Validate Token
+    MW->>DB: Check Permissions
+    DB->>MW: User Role
+    MW->>API: Authorized
+    API->>FE: Protected Data
+    FE->>U: Display Content
+```
+
+### Analytics & Monitoring System
+
+```mermaid
+graph TB
+    subgraph "Data Collection"
+        DC[Data Collector]
+        VT[View Tracker]
+        GT[Geo Tracker]
+        RT[Referrer Tracker]
+        BT[Bot Detector]
+    end
+
+    subgraph "Data Processing"
+        DP[Data Processor]
+        AF[Aggregation Functions]
+        FF[Filter Functions]
+        TF[Transform Functions]
+    end
+
+    subgraph "Data Storage"
+        DS[Analytics Store]
+        CS3[Cache Store]
+        AS[Aggregated Store]
+    end
+
+    subgraph "Data Presentation"
+        CH[Chart Components]
+        TB[Table Components]
+        KP[KPI Components]
+        EX2[Export Functions]
+    end
+
+    DC --> DP
+    VT --> DP
+    GT --> DP
+    RT --> DP
+    BT --> DP
+    DP --> AF
+    DP --> FF
+    DP --> TF
+    AF --> AS
+    FF --> DS
+    TF --> CS3
+    AS --> CH
+    DS --> TB
+    CS3 --> KP
+    AS --> EX2
+```
 
 ## 🛠️ Prerequisites
 
@@ -102,8 +421,8 @@ A modern, full-stack portfolio builder that enables professionals to create and 
 
    ```env
    DATABASE_URL="mongodb+srv://username:password@cluster.mongodb.net/portflection?retryWrites=true&w=majority"
-   NEXTAUTH_SECRET=your_nextauth_secret
-   NEXTAUTH_URL=http://localhost:3000
+   BetterAuth_SECRET=your_BetterAuth_secret
+   BetterAuth_URL=http://localhost:3000
 
    # Email Provider (SendGrid)
    EMAIL_SERVER=smtp://username:password@smtp.sendgrid.net:587

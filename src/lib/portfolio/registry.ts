@@ -4,11 +4,21 @@ export interface ComponentProps {
 }
 
 export interface FieldMetadata {
-  type: "text" | "textarea" | "boolean" | "array" | "object" | "select";
+  type:
+    | "text"
+    | "textarea"
+    | "boolean"
+    | "array"
+    | "object"
+    | "select"
+    | "number";
   options?: Array<{ value: string; label: string }>; // For select/dropdown fields
   label?: string; // Human-readable label
   description?: string; // Field description
   placeholder?: string; // Placeholder text
+  min?: number;
+  max?: number;
+  itemSchema?: ComponentPropsSchema; // For array fields - defines structure of array items
 }
 
 export interface ComponentPropsSchema {
@@ -29,7 +39,10 @@ export interface StyleConfig {
   shadow?: string;
   primaryColor?: string;
   secondaryColor?: string;
-  accentColor?:string;
+  accentColor?: string;
+  borderWidth?: string;
+  shadowColor?: string;
+  shadowOffset?: string;
 }
 
 export interface ComponentVariant {
@@ -46,6 +59,7 @@ export interface ComponentVariant {
   theme?: string; // Theme for consistent styling across sections
   isPopular?: boolean;
   isPremium?: boolean;
+  customization?: any;
 }
 
 export interface ComponentSection {
@@ -408,7 +422,8 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           showScrollIndicator: true,
           scrollTarget: "#about",
           profileImage: "https://placehold.co/100x100/fecaca/000000?text=PFP",
-          heroImage: "https://placehold.co/1000x800/d9f991/000000?text=Hero+Image",
+          heroImage:
+            "https://placehold.co/1000x800/d9f991/000000?text=Hero+Image",
           showBadge: true,
           badgeText: "AVAILABLE FOR HIRE",
           badgeIcon: "Star",
@@ -514,8 +529,6 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           fontWeight: "bold",
         },
       },
-
-
     ],
   },
   about: {
@@ -643,8 +656,312 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           shadow: "none",
         },
       },
+      {
+        id: "neobrutalist-about",
+        name: "Neobrutalist About",
+        description:
+          "Story-focused about section with experience timeline, achievements, and core values – tailored with Tanmay Patil's resume details",
+        component: AboutComponents.NeobrutalistAbout,
+        thumbnail: "/thumbnails/neobrutalist-about.jpg",
+        category: "content",
+        tags: [
+          "about",
+          "neobrutalism",
+          "story",
+          "experience",
+          "achievements",
+          "values",
+          "timeline",
+        ],
+        theme: "neobrutalism",
+        isPopular: true,
+        defaultProps: {
+          title: "MY STORY",
+          subtitle: "THE JOURNEY SO FAR",
+          story:
+            "I'm Tanmay Patil, a Software Development Engineer (Full‑Stack) with 3+ years building high‑performance, scalable web apps used by millions. I specialize in TypeScript, React, Next.js, Node.js, and modern tooling. I enjoy solving hard problems with clean, reliable code and shipping features end‑to‑end that measurably improve user experience and platform performance.",
+          mission:
+            "Deliver robust, maintainable products with craftsmanship, pragmatism, and performance in mind — while creating delightful experiences for users and teammates alike.",
+          quote:
+            "Great software feels simple on the surface and solid underneath.",
+          quoteAuthor: "Tanmay Patil",
+          achievements: [
+            {
+              title: "Core Features at Scale",
+              description:
+                "Built and maintained 50%+ of core user‑facing features for nationwide retail partners",
+              year: "2022‑2024",
+              icon: "rocket",
+            },
+            {
+              title: "Performance Boost",
+              description:
+                "Delivered ~30% performance improvement through profiling, code‑splitting, and caching",
+              year: "2023",
+              icon: "trophy",
+            },
+            {
+              title: "Security Hardening",
+              description:
+                "Improved security posture by ~95% across critical flows",
+              year: "2023",
+              icon: "shield",
+            },
+            {
+              title: "Open Source & Community",
+              description: "Active contributor and continuous learner",
+              year: "2023‑Present",
+              icon: "star",
+            },
+          ],
+          experience: [
+            {
+              role: "Software Development Engineer (Full‑Stack)",
+              company: "Jio Platforms Limited",
+              period: "2022 – Present",
+              description:
+                "End‑to‑end development of high‑traffic features with React, Next.js, Node.js, and TypeScript across Agile/CI/CD environments.",
+              highlights: [
+                "Built and maintained 50%+ of core features",
+                "Improved performance by ~30%",
+                "Security posture improved by ~95%",
+                "Shipped reliable, scalable components",
+              ],
+            },
+            {
+              role: "B.E. in Computer Engineering",
+              company: "Pillai HOC College of Engineering and Technology",
+              period: "2015 – 2019",
+              description:
+                "Graduated with a focus on software engineering and web technologies.",
+              highlights: [
+                "Strong fundamentals in CS and web dev",
+                "Projects in full‑stack and tooling",
+              ],
+            },
+          ],
+
+          showStory: true,
+          showExperience: true,
+          showAchievements: true,
+          showValues: true,
+          showQuote: true,
+          backgroundColor: "#ffffff",
+          textColor: "#111827",
+          primaryColor: "#000000",
+          secondaryColor: "#6b7280",
+          accentColor: "#ffffff",
+          borderColor: "#000000",
+          borderRadius: "0",
+          shadow: "none",
+          paddingY: "120",
+          paddingX: "32",
+          textAlign: "left",
+          fontSize: "4xl",
+          fontWeight: "black",
+          borderWidth: "0",
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Section Title",
+            description: "The main title for the about section",
+            placeholder: "Enter section title...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Section Subtitle",
+            description: "The subtitle displayed below the main title",
+            placeholder: "Enter subtitle...",
+          },
+          story: {
+            type: "textarea",
+            label: "Story",
+            description: "Your personal story and background",
+            placeholder: "Tell your story...",
+          },
+          mission: {
+            type: "textarea",
+            label: "Mission",
+            description: "Your mission statement",
+            placeholder: "Enter your mission...",
+          },
+          quote: {
+            type: "textarea",
+            label: "Quote",
+            description: "A quote from yourself",
+            placeholder: "Enter your quote...",
+          },
+          quoteAuthor: {
+            type: "text",
+            label: "Quote Author",
+            description: "The author of the quote",
+            placeholder: "Enter quote author...",
+          },
+          achievements: {
+            type: "array",
+            label: "Achievements",
+            description: "Your key achievements and milestones",
+            itemSchema: {
+              title: {
+                type: "text",
+                label: "Achievement Title",
+                description: "Title of the achievement",
+                placeholder: "e.g., First App Published",
+              },
+              description: {
+                type: "textarea",
+                label: "Description",
+                description: "Detailed description of the achievement",
+                placeholder: "Describe what you accomplished...",
+              },
+              year: {
+                type: "text",
+                label: "Year",
+                description: "When this achievement occurred",
+                placeholder: "e.g., 2023",
+              },
+              icon: {
+                type: "select",
+                label: "Icon",
+                description: "Icon to represent this achievement",
+                options: [
+                  { value: "rocket", label: "Rocket" },
+                  { value: "trophy", label: "Trophy" },
+                  { value: "shield", label: "Shield" },
+                  { value: "star", label: "Star" },
+                  { value: "award", label: "Award" },
+                  { value: "users", label: "Users" },
+                  { value: "target", label: "Target" },
+                  { value: "heart", label: "Heart" },
+                ],
+              },
+            },
+          },
+          experience: {
+            type: "array",
+            label: "Experience",
+            description: "Your work and educational experience",
+            itemSchema: {
+              role: {
+                type: "text",
+                label: "Role/Title",
+                description: "Your job title or role",
+                placeholder: "e.g., Senior Developer",
+              },
+              company: {
+                type: "text",
+                label: "Company/Institution",
+                description: "Company or educational institution name",
+                placeholder: "e.g., Tech Company Inc.",
+              },
+              period: {
+                type: "text",
+                label: "Period",
+                description: "Time period of this experience",
+                placeholder: "e.g., 2022 - Present",
+              },
+              description: {
+                type: "textarea",
+                label: "Description",
+                description: "Overview of your role and responsibilities",
+                placeholder: "Describe your role and key responsibilities...",
+              },
+              highlights: {
+                type: "array",
+                label: "Key Highlights",
+                description: "List of key achievements and highlights",
+                itemSchema: {
+                  highlight: {
+                    type: "text",
+                    label: "Highlight",
+                    description: "A key achievement or highlight",
+                    placeholder: "e.g., Improved performance by 30%",
+                  },
+                },
+              },
+            },
+          },
+          values: {
+            type: "array",
+            label: "Core Values",
+            description: "Your personal and professional values",
+            itemSchema: {
+              title: {
+                type: "text",
+                label: "Value Title",
+                description: "Name of the value",
+                placeholder: "e.g., Quality First",
+              },
+              description: {
+                type: "textarea",
+                label: "Description",
+                description: "Explanation of this value",
+                placeholder: "Describe what this value means to you...",
+              },
+              icon: {
+                type: "select",
+                label: "Icon",
+                description: "Icon to represent this value",
+                options: [
+                  { value: "target", label: "Target" },
+                  { value: "heart", label: "Heart" },
+                  { value: "rocket", label: "Rocket" },
+                  { value: "users", label: "Users" },
+                  { value: "star", label: "Star" },
+                  { value: "shield", label: "Shield" },
+                  { value: "award", label: "Award" },
+                  { value: "coffee", label: "Coffee" },
+                ],
+              },
+            },
+          },
+          showStory: {
+            type: "boolean",
+            label: "Show Story",
+            description: "Display the story section",
+          },
+          showExperience: {
+            type: "boolean",
+            label: "Show Experience",
+            description: "Display the experience section",
+          },
+          showAchievements: {
+            type: "boolean",
+            label: "Show Achievements",
+            description: "Display the achievements section",
+          },
+          showValues: {
+            type: "boolean",
+            label: "Show Values",
+            description: "Display the values section",
+          },
+          showQuote: {
+            type: "boolean",
+            label: "Show Quote",
+            description: "Display the quote section",
+          },
+        },
+        defaultStyles: {
+          backgroundColor: "#ffffff",
+          textColor: "#111827",
+          primaryColor: "#000000",
+          secondaryColor: "#6b7280",
+          accentColor: "#ffffff",
+          borderColor: "#000000",
+          borderRadius: "0",
+          shadow: "none",
+          paddingY: "120",
+          paddingX: "32",
+          textAlign: "left",
+          fontSize: "4xl",
+          fontWeight: "black",
+          borderWidth: "0",
+        },
+      },
     ],
   },
+
   skills: {
     id: "skills",
     name: "Skills Section",
@@ -918,303 +1235,279 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
         },
       },
       {
-  id: "skills-brutalist",
-  name: "NeoBrutalist Skills",
-  description:
-    "A bold neo-brutalist skills section with chunky blocks, heavy shadows, and raw geometric shapes",
-  component: SkillsComponents.NeoBrutalistSkills,
-  thumbnail: "/thumbnails/skills-brutalist.jpg",
-  category: "layout",
-  tags: [
-    "skills",
-    "brutalist",
-    "bold",
-    "geometric",
-    "chunky",
-    "portfolio",
-    "raw",
-    "blocks",
-    "heavy",
-    "striking",
-  ],
-  isPopular: true,
-  defaultProps: {
-    title: "MY SKILLS",
-    subtitle: "TECHNICAL ARSENAL",
-    description:
-      "Raw, unfiltered breakdown of my technical capabilities and expertise levels.",
-    skills: [
-      {
-        name: "REACT",
-        level: 95,
-        category: "FRONTEND",
-        yearsExperience: 4,
-        projects: 25,
-        status: "mastered",
-        color: "#ff6b35",
-      },
-      {
-        name: "TYPESCRIPT",
-        level: 90,
-        category: "LANGUAGE",
-        yearsExperience: 3,
-        projects: 20,
-        status: "mastered",
-        color: "#f7931e",
-      },
-      {
-        name: "NODE.JS",
-        level: 85,
-        category: "BACKEND",
-        yearsExperience: 3,
-        projects: 15,
-        status: "proficient",
-        color: "#ffd23f",
-      },
-      {
-        name: "PYTHON",
-        level: 80,
-        category: "LANGUAGE",
-        yearsExperience: 2,
-        projects: 12,
-        status: "proficient",
-        color: "#06ffa5",
-      },
-      {
-        name: "DOCKER",
-        level: 75,
-        category: "DEVOPS",
-        yearsExperience: 2,
-        projects: 8,
-        status: "learning",
-        color: "#4ecdc4",
-      },
-      {
-        name: "AWS",
-        level: 70,
-        category: "CLOUD",
-        yearsExperience: 1,
-        projects: 6,
-        status: "learning",
-        color: "#45b7d1",
-      },
-      {
-        name: "GRAPHQL",
-        level: 85,
-        category: "API",
-        yearsExperience: 2,
-        projects: 10,
-        status: "proficient",
-        color: "#96ceb4",
-      },
-      {
-        name: "MONGODB",
-        level: 80,
-        category: "DATABASE",
-        yearsExperience: 3,
-        projects: 18,
-        status: "proficient",
-        color: "#ffeaa7",
-      },
-    ],
-    showLevelBars: true,
-    showExperience: true,
-    showProjects: true,
-    showStatus: true,
-    showCategories: true,
-    animateOnLoad: true,
-    layoutStyle: "blocks",
-    sortBy: "level",
-    showNoise: true,
-    brutalistShadows: true,
-  },
-  propsSchema: {
-    title: {
-      type: "text",
-      label: "Title",
-      description: "Main section title",
-      placeholder: "Enter title...",
-    },
-    subtitle: {
-      type: "text",
-      label: "Subtitle",
-      description: "Section subtitle displayed in colored block",
-      placeholder: "Enter subtitle...",
-    },
-    description: {
-      type: "textarea",
-      label: "Description",
-      description: "Section description in highlighted box",
-      placeholder: "Enter description...",
-    },
-    showLevelBars: {
-      type: "boolean",
-      label: "Show Level Bars",
-      description: "Display chunky progress bars for skill levels",
-    },
-    showExperience: {
-      type: "boolean",
-      label: "Show Experience",
-      description: "Display years of experience in stat blocks",
-    },
-    showProjects: {
-      type: "boolean",
-      label: "Show Projects",
-      description: "Display number of projects in stat blocks",
-    },
-    showStatus: {
-      type: "boolean",
-      label: "Show Status",
-      description: "Display status badges (mastered/proficient/learning)",
-    },
-    showCategories: {
-      type: "boolean",
-      label: "Show Categories",
-      description: "Display category tags for each skill",
-    },
-    animateOnLoad: {
-      type: "boolean",
-      label: "Animate on Load",
-      description: "Enable staggered loading animation",
-    },
-    showNoise: {
-      type: "boolean",
-      label: "Show Texture",
-      description: "Add subtle noise texture to background",
-    },
-    brutalistShadows: {
-      type: "boolean",
-      label: "Brutalist Shadows",
-      description: "Use heavy geometric shadows instead of soft shadows",
-    },
-    sortBy: {
-      type: "select",
-      label: "Sort Skills By",
-      description: "How to sort the skills display",
-      options: [
-        { value: "level", label: "Proficiency Level" },
-        { value: "experience", label: "Years of Experience" },
-        { value: "projects", label: "Number of Projects" },
-        { value: "name", label: "Alphabetical" },
-      ],
-    },
-    layoutStyle: {
-      type: "select",
-      label: "Layout Style",
-      description: "Visual arrangement of skill blocks",
-      options: [
-        { value: "blocks", label: "Grid Blocks" },
-        { value: "stack", label: "Stacked Cards" },
-        { value: "masonry", label: "Masonry Layout" },
-      ],
-    },
-    borderWidth: {
-      type: "select",
-      label: "Border Width",
-      description: "Thickness of borders around elements",
-      options: [
-        { value: "2", label: "Thin (2px)" },
-        { value: "4", label: "Medium (4px)" },
-        { value: "6", label: "Thick (6px)" },
-        { value: "8", label: "Extra Thick (8px)" },
-      ],
-    },
-  },
-  defaultStyles: {
-    backgroundColor: "#fffef7",
-    textColor: "#111111",
-    primaryColor: "#ff6b35",
-    secondaryColor: "#666666",
-    accentColor: "#ffd23f",
-    borderColor: "#111111",
-    borderRadius: "0",
-    shadow: "8px 8px 0px #111111",
-    paddingY: "5rem",
-    paddingX: "1.25rem",
-    textAlign: "center",
-    fontSize: "xl",
-    fontWeight: "900",
-    borderWidth: "4",
-  },
-  customization: {
-    skillsData: {
-      type: "array",
-      label: "Skills Data",
-      description: "Configure individual skills with their properties",
-      itemSchema: {
-        name: {
-          type: "text",
-          label: "Skill Name",
-          required: true,
-          placeholder: "e.g., REACT, PYTHON",
-        },
-        level: {
-          type: "number",
-          label: "Proficiency Level (0-100)",
-          min: 0,
-          max: 100,
-          required: true,
-        },
-        category: {
-          type: "text",
-          label: "Category",
-          placeholder: "e.g., FRONTEND, BACKEND, DEVOPS",
-          required: true,
-        },
-        yearsExperience: {
-          type: "number",
-          label: "Years of Experience",
-          min: 0,
-          max: 20,
-        },
-        projects: {
-          type: "number",
-          label: "Number of Projects",
-          min: 0,
-        },
-        status: {
-          type: "select",
-          label: "Status",
-          options: [
-            { value: "mastered", label: "Mastered" },
-            { value: "proficient", label: "Proficient" },
-            { value: "learning", label: "Learning" },
+        id: "skills-brutalist",
+        name: "NeoBrutalist Skills",
+        description:
+          "A bold neo-brutalist skills section with chunky blocks, heavy shadows, and raw geometric shapes",
+        component: SkillsComponents.NeoBrutalistSkills,
+        thumbnail: "/thumbnails/skills-brutalist.jpg",
+        category: "layout",
+        tags: [
+          "skills",
+          "brutalist",
+          "bold",
+          "geometric",
+          "chunky",
+          "portfolio",
+          "raw",
+          "blocks",
+          "heavy",
+          "striking",
+        ],
+        isPopular: true,
+        defaultProps: {
+          title: "MY SKILLS",
+          subtitle: "TECHNICAL ARSENAL",
+          description:
+            "Raw, unfiltered breakdown of my technical capabilities and expertise levels.",
+          skills: [
+            {
+              name: "REACT",
+              level: 95,
+              category: "FRONTEND",
+              yearsExperience: 4,
+              projects: 25,
+              status: "mastered",
+              color: "#ff6b35",
+            },
+            {
+              name: "TYPESCRIPT",
+              level: 90,
+              category: "LANGUAGE",
+              yearsExperience: 3,
+              projects: 20,
+              status: "mastered",
+              color: "#f7931e",
+            },
+            {
+              name: "NODE.JS",
+              level: 85,
+              category: "BACKEND",
+              yearsExperience: 3,
+              projects: 15,
+              status: "proficient",
+              color: "#ffd23f",
+            },
+            {
+              name: "PYTHON",
+              level: 80,
+              category: "LANGUAGE",
+              yearsExperience: 2,
+              projects: 12,
+              status: "proficient",
+              color: "#06ffa5",
+            },
+            {
+              name: "DOCKER",
+              level: 75,
+              category: "DEVOPS",
+              yearsExperience: 2,
+              projects: 8,
+              status: "learning",
+              color: "#4ecdc4",
+            },
+            {
+              name: "AWS",
+              level: 70,
+              category: "CLOUD",
+              yearsExperience: 1,
+              projects: 6,
+              status: "learning",
+              color: "#45b7d1",
+            },
+            {
+              name: "GRAPHQL",
+              level: 85,
+              category: "API",
+              yearsExperience: 2,
+              projects: 10,
+              status: "proficient",
+              color: "#96ceb4",
+            },
+            {
+              name: "MONGODB",
+              level: 80,
+              category: "DATABASE",
+              yearsExperience: 3,
+              projects: 18,
+              status: "proficient",
+              color: "#ffeaa7",
+            },
           ],
+          showLevelBars: true,
+          showExperience: true,
+          showProjects: true,
+          showStatus: true,
+          showCategories: true,
+          animateOnLoad: true,
+          layoutStyle: "blocks",
+          sortBy: "level",
+          showNoise: true,
+          brutalistShadows: true,
         },
-        color: {
-          type: "color",
-          label: "Block Color",
-          description: "Background color for this skill block",
-          placeholder: "#ff6b35",
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Title",
+            description: "Main section title",
+            placeholder: "Enter title...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Subtitle",
+            description: "Section subtitle displayed in colored block",
+            placeholder: "Enter subtitle...",
+          },
+          description: {
+            type: "textarea",
+            label: "Description",
+            description: "Section description in highlighted box",
+            placeholder: "Enter description...",
+          },
+          showLevelBars: {
+            type: "boolean",
+            label: "Show Level Bars",
+            description: "Display chunky progress bars for skill levels",
+          },
+          showExperience: {
+            type: "boolean",
+            label: "Show Experience",
+            description: "Display years of experience in stat blocks",
+          },
+          showProjects: {
+            type: "boolean",
+            label: "Show Projects",
+            description: "Display number of projects in stat blocks",
+          },
+          showStatus: {
+            type: "boolean",
+            label: "Show Status",
+            description: "Display status badges (mastered/proficient/learning)",
+          },
+          showCategories: {
+            type: "boolean",
+            label: "Show Categories",
+            description: "Display category tags for each skill",
+          },
+          animateOnLoad: {
+            type: "boolean",
+            label: "Animate on Load",
+            description: "Enable staggered loading animation",
+          },
+          showNoise: {
+            type: "boolean",
+            label: "Show Texture",
+            description: "Add subtle noise texture to background",
+          },
+          brutalistShadows: {
+            type: "boolean",
+            label: "Brutalist Shadows",
+            description: "Use heavy geometric shadows instead of soft shadows",
+          },
+          sortBy: {
+            type: "select",
+            label: "Sort Skills By",
+            description: "How to sort the skills display",
+            options: [
+              { value: "level", label: "Proficiency Level" },
+              { value: "experience", label: "Years of Experience" },
+              { value: "projects", label: "Number of Projects" },
+              { value: "name", label: "Alphabetical" },
+            ],
+          },
+          layoutStyle: {
+            type: "select",
+            label: "Layout Style",
+            description: "Visual arrangement of skill blocks",
+            options: [
+              { value: "blocks", label: "Grid Blocks" },
+              { value: "stack", label: "Stacked Cards" },
+              { value: "masonry", label: "Masonry Layout" },
+            ],
+          },
+          borderWidth: {
+            type: "select",
+            label: "Border Width",
+            description: "Thickness of borders around elements",
+            options: [
+              { value: "2", label: "Thin (2px)" },
+              { value: "4", label: "Medium (4px)" },
+              { value: "6", label: "Thick (6px)" },
+              { value: "8", label: "Extra Thick (8px)" },
+            ],
+          },
+        },
+        defaultStyles: {
+          backgroundColor: "#fffef7",
+          textColor: "#111111",
+          primaryColor: "#ff6b35",
+          secondaryColor: "#666666",
+          accentColor: "#ffd23f",
+          borderColor: "#111111",
+          borderRadius: "0",
+          shadow: "8px 8px 0px #111111",
+          paddingY: "5rem",
+          paddingX: "1.25rem",
+          textAlign: "center",
+          fontSize: "xl",
+          fontWeight: "900",
+          borderWidth: "4",
+        },
+        customization: {
+          skillsData: {
+            type: "array",
+            label: "Skills Data",
+            description: "Configure individual skills with their properties",
+            itemSchema: {
+              name: {
+                type: "text",
+                label: "Skill Name",
+                required: true,
+                placeholder: "e.g., REACT, PYTHON",
+              },
+              level: {
+                type: "number",
+                label: "Proficiency Level (0-100)",
+                min: 0,
+                max: 100,
+                required: true,
+              },
+              category: {
+                type: "text",
+                label: "Category",
+                placeholder: "e.g., FRONTEND, BACKEND, DEVOPS",
+                required: true,
+              },
+              yearsExperience: {
+                type: "number",
+                label: "Years of Experience",
+                min: 0,
+                max: 20,
+              },
+              projects: {
+                type: "number",
+                label: "Number of Projects",
+                min: 0,
+              },
+              status: {
+                type: "select",
+                label: "Status",
+                options: [
+                  { value: "mastered", label: "Mastered" },
+                  { value: "proficient", label: "Proficient" },
+                  { value: "learning", label: "Learning" },
+                ],
+              },
+              color: {
+                type: "color",
+                label: "Block Color",
+                description: "Background color for this skill block",
+                placeholder: "#ff6b35",
+              },
+            },
+          },
         },
       },
-    },
-  },
-  features: [
-    "Bold neo-brutalist aesthetic with chunky blocks",
-    "Heavy geometric shadows and thick borders",
-    "Individual color customization per skill",
-    "Chunky progress bars with strong contrast",
-    "Status badges with color coding",
-    "Rotational hover effects",
-    "Staggered loading animation",
-    "Raw typography with Arial Black",
-    "Noise texture overlay option",
-    "Responsive grid with adaptive columns",
-    "Category tags and stat blocks",
-    "Fully customizable border widths",
-  ],
-  use_cases: [
-    "Developer portfolios with bold personality",
-    "Creative professional showcases",
-    "Modern brutalist websites",
-    "Statement skill sections",
-    "High-contrast accessibility designs",
-    "Art and design portfolios",
-    "Unconventional resumes",
-    "Bold personal brands",
-  ],
-}
     ],
   },
   projects: {
@@ -1383,21 +1676,24 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             {
               id: "1",
               title: "E-COMMERCE BEAST",
-              description: "Full-stack e-commerce platform with real-time inventory, payment processing, and admin dashboard. Built for scale and performance.",
+              description:
+                "Full-stack e-commerce platform with real-time inventory, payment processing, and admin dashboard. Built for scale and performance.",
               category: "WEB APP",
               status: "live",
               year: "2024",
               technologies: ["REACT", "NODE.JS", "MONGODB", "STRIPE"],
-              image: "https://placehold.co/400x300/ff6b35/ffffff?text=ECOMMERCE",
+              image:
+                "https://placehold.co/400x300/ff6b35/ffffff?text=ECOMMERCE",
               liveUrl: "https://example.com",
               githubUrl: "https://github.com/user/project",
               color: "#ff6b35",
               priority: "high",
             },
             {
-              id: "2", 
+              id: "2",
               title: "AI CHAT INTERFACE",
-              description: "Modern chat application with AI integration, real-time messaging, and smart responses. Clean UI with powerful backend.",
+              description:
+                "Modern chat application with AI integration, real-time messaging, and smart responses. Clean UI with powerful backend.",
               category: "AI/ML",
               status: "development",
               year: "2024",
@@ -1410,12 +1706,14 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             {
               id: "3",
               title: "PORTFOLIO BUILDER",
-              description: "Drag-and-drop portfolio builder with 50+ components, themes, and export options. Made for creators and developers.",
+              description:
+                "Drag-and-drop portfolio builder with 50+ components, themes, and export options. Made for creators and developers.",
               category: "TOOL",
               status: "featured",
               year: "2023",
               technologies: ["REACT", "TAILWIND", "FRAMER", "NEXT.JS"],
-              image: "https://placehold.co/400x300/ffd23f/ffffff?text=PORTFOLIO",
+              image:
+                "https://placehold.co/400x300/ffd23f/ffffff?text=PORTFOLIO",
               liveUrl: "https://portfolio-builder.com",
               caseStudyUrl: "https://case-study.com",
               color: "#ffd23f",
@@ -1424,7 +1722,8 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             {
               id: "4",
               title: "CRYPTO TRACKER",
-              description: "Real-time cryptocurrency tracking dashboard with portfolio management, alerts, and market analysis tools.",
+              description:
+                "Real-time cryptocurrency tracking dashboard with portfolio management, alerts, and market analysis tools.",
               category: "FINTECH",
               status: "archived",
               year: "2023",
@@ -1437,7 +1736,8 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             {
               id: "5",
               title: "TASK MANAGEMENT",
-              description: "Minimalist task manager with team collaboration, time tracking, and project analytics. Simple yet powerful.",
+              description:
+                "Minimalist task manager with team collaboration, time tracking, and project analytics. Simple yet powerful.",
               category: "PRODUCTIVITY",
               status: "live",
               year: "2023",
@@ -1450,7 +1750,8 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             {
               id: "6",
               title: "WEATHER VISUALIZER",
-              description: "Interactive weather data visualization with maps, charts, and forecasting. Beautiful UI meets powerful data.",
+              description:
+                "Interactive weather data visualization with maps, charts, and forecasting. Beautiful UI meets powerful data.",
               category: "DATA VIZ",
               status: "development",
               year: "2024",
@@ -1682,33 +1983,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             },
           },
         },
-        features: [
-          "Unique tilted card layout with randomized angles",
-          "Animated status indicators with pulsing dots",
-          "Heavy geometric shadows and thick borders",
-          "Individual project color customization",
-          "Scroll-triggered entrance animations",
-          "Interactive filter tabs by project status",
-          "Hover effects with increased tilt and shadow",
-          "Technology tag displays with brutal styling",
-          "Multiple action buttons (Live, Code, Case Study)",
-          "Priority-based sorting system",
-          "Responsive grid with adaptive columns",
-          "Noise texture overlay for authenticity",
-          "Image hover scaling effects",
-          "Customizable maximum tilt angles",
-        ],
-        use_cases: [
-          "Developer portfolios with personality",
-          "Creative agency project showcases",
-          "Freelancer work displays",
-          "Design portfolio presentations",
-          "Bold personal brand websites",
-          "Unconventional project galleries",
-          "Modern brutalist portfolios",
-          "Interactive work showcases",
-        ],
-      }
+      },
     ],
   },
   experience: {
@@ -1812,6 +2087,82 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           shadow: "none",
         },
       },
+      {
+        id: "neobrutalist-contact",
+        name: "Neobrutalist Contact",
+        description:
+          "Bold and vibrant contact section with characteristic neobrutalist shadows, sharp edges, and playful interactions",
+        component: ContactComponents.NeobrutalistContact,
+        thumbnail: "/thumbnails/neobrutalist-contact.jpg",
+        category: "form",
+        tags: [
+          "contact",
+          "neobrutalism",
+          "bold",
+          "colorful",
+          "form",
+          "interactive",
+        ],
+        theme: "neobrutalism",
+        isPopular: true,
+        defaultProps: {
+          title: "GET IN TOUCH",
+          subtitle: "LET'S CREATE SOMETHING AMAZING",
+          description:
+            "Ready to bring your wildest ideas to life? Drop me a line and let's make some digital magic happen. No boring projects, please!",
+          contactMethods: [
+            {
+              icon: "mail",
+              label: "Email",
+              value: "tanmaypatiltp25@gmail.com",
+              link: "mailto:tanmaypatiltp25@gmail.com",
+            },
+            {
+              icon: "phone",
+              label: "Phone",
+              value: "+91-8779557510",
+              link: "tel:+918779557510",
+            },
+            {
+              icon: "mappin",
+              label: "Location",
+              value: "Mumbai, Maharashtra",
+              link: "https://maps.google.com/?q=Mumbai,Maharashtra",
+            },
+            {
+              icon: "linkedin",
+              label: "LinkedIn",
+              value: "linkedin.com/in/tanmaypatil25",
+              link: "https://linkedin.com/in/tanmaypatil25",
+            },
+            {
+              icon: "github",
+              label: "GitHub",
+              value: "github.com/datanok",
+              link: "https://github.com/datanok",
+            },
+          ],
+          showContactForm: true,
+          formTitle: "DROP A LINE",
+          formSubtitle: "Let's chat!",
+        },
+        defaultStyles: {
+          backgroundColor: "#fbbf24",
+          textColor: "#000000",
+          primaryColor: "#000000",
+          secondaryColor: "#1f2937",
+          accentColor: "#ef4444",
+          shadowColor: "#000000",
+          paddingY: "120",
+          paddingX: "32",
+          textAlign: "left",
+          fontSize: "4xl",
+          fontWeight: "black",
+          borderRadius: "0",
+          shadowOffset: "8",
+          borderWidth: "4",
+        },
+      },
     ],
   },
   navbar: {
@@ -1876,7 +2227,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           "bold",
           "mobile",
           "status",
-          "developer"
+          "developer",
         ],
         isPopular: true,
         defaultProps: {
@@ -1896,7 +2247,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           shadow: "4px 4px 0px #000000",
           doubleText: true,
           showMobileMenu: true,
-          logoIcon: true
+          logoIcon: true,
         },
         defaultStyles: {
           backgroundColor: "#ffffff",
@@ -1909,10 +2260,9 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           borderRadius: "0",
           shadow: "4px 4px 0px #000000",
           fontFamily: "monospace",
-          fontWeight: "bold"
-        }
-      }
-
+          fontWeight: "bold",
+        },
+      },
     ],
   },
   footer: {
