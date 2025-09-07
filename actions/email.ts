@@ -3,42 +3,35 @@
 export async function sendEmail({
   to,
   subject,
-  template,
-  VERIFICATION_URL,
-  name,
+  templateName,
+  variables = {},
+  rawHtml = null,
 }: {
   to: string;
   subject: string;
-  template: string;
-  VERIFICATION_URL: string;
-  name: string;
+  templateName: string;
+  variables?: Record<string, string>;
+  rawHtml?: string;
 }) {
   try {
-    // Sanitize and prepare final template content
-    const finalTemplate = template
-      .replace(/{{VERIFICATION_URL}}/g, VERIFICATION_URL)
-      .replace(/{{name}}/g, name); // Example name fallback from email
-
-
     const emailData = {
       to: to.trim(),
       subject: subject.trim(),
-      template: finalTemplate.trim(),
-      VERIFICATION_URL: VERIFICATION_URL.trim(),
-      name: name.trim(),
+      templateName: templateName.trim(),
+      variables,
+      rawHtml,
     };
-
-    const requestBody = JSON.stringify(emailData);
-
+    console.log(emailData, "emailData");
 
     const res = await fetch(`${process.env.EMAIL_WORKER_URL}/send`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: requestBody,
+      body: JSON.stringify(emailData),
       cache: "no-store",
     });
+    console.log(res, "res");
 
     const responseText = await res.text();
 
@@ -51,7 +44,7 @@ export async function sendEmail({
     }
 
     if (!res.ok) {
-      throw new Error(responseData.error || `HTTP error! status: ${res.status}`);
+      return { success: false, message: "Email job failed to queue" };
     }
 
     return { success: true, message: "Email job queued successfully" };

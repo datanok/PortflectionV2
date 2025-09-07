@@ -64,9 +64,11 @@ export const auth = betterAuth({
       await sendEmail({
         to: user.email,
         subject: "Reset your password",
-        template: "reset-password",
-        VERIFICATION_URL: url,
-        name: user.name || user.email.split("@")[0],
+        templateName: "reset-password",
+        variables: {
+          VERIFICATION_URL: url,
+          name: user.name || user.email.split("@")[0],
+        },
       });
     },
   },
@@ -78,9 +80,11 @@ export const auth = betterAuth({
       await sendEmail({
         to: user.email,
         subject: "Verify your email address",
-        template: "verification", // treated as template name, not full HTML
-        VERIFICATION_URL: url,
-        name,
+        templateName: "verification",
+        variables: {
+          VERIFICATION_URL: url,
+          name: name,
+        },
       });
     },
   },

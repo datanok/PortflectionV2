@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { submissionId, action, feedback } = body;
-
+    console.log(body, "body");
     if (!submissionId || !action) {
       return NextResponse.json(
         { error: "Missing required fields" },

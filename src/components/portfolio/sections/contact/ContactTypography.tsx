@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react";
+import { sendEmail } from "../../../../../actions/email";
 
 interface ContactMethod {
   icon: string;
@@ -109,7 +110,6 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
     boxShadow: shadow !== "none" ? shadow : "none",
   };
 
-  console.log(fontSize);
   const titleStyles = {
     color: primaryColor,
     fontSize: getFontSize(fontSize),
@@ -154,20 +154,36 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
     });
   };
 
-  const handleSubmit = () => {
-    setFormStatus("sending");
+  const handleSubmit = async () => {
+    // setFormStatus("sending");
 
-    // Simulate form submission
-    setTimeout(() => {
-      setFormStatus("sent");
-      setFormData({ name: "", email: "", subject: "", message: "" });
-
-      setTimeout(() => {
-        setFormStatus("idle");
-      }, 3000);
-    }, 2000);
+    try {
+      const response = await sendEmail({
+        to: contactMethods[0]?.value,
+        subject: "New Contact Form Submission",
+        templateName: "contact",
+        variables: {
+          CONTACT_NAME: formData.name,
+          CONTACT_EMAIL: formData.email,
+          CONTACT_SUBJECT: formData.subject,
+          CONTACT_MESSAGE: formData.message,
+          SUBMISSION_DATE: new Date().toLocaleDateString(),
+          SUBMISSION_TIME: new Date().toLocaleTimeString(),
+          SENDER_IP: "0.0.0.0",
+          USER_AGENT: navigator.userAgent,
+          WEBSITE_NAME: "Portflection",
+        },
+      });
+      console.log(response, "response");
+      if (response.success) {
+        setFormStatus("sent");
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      }
+    } catch (error) {
+      setFormStatus("error");
+    }
   };
-  console.log(title);
+
   return (
     <section
       className={`py-${paddingY} px-${paddingX} relative`}

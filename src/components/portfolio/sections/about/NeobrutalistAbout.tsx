@@ -400,7 +400,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                 }}
               >
-                "{quote}"
+                &quot;{quote}&quot;
               </blockquote>
 
               <div

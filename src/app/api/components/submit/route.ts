@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!name || !description || !category || !componentCode) {
+      console.log(body, "body");
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }

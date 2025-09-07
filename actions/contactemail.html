@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Contact Form Submission</title>
+    <style>
+      /* Reset styles for email clients */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333333;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        margin-bottom: 5px;
+      }
+
+      .header p {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .content {
+        padding: 30px 20px;
+      }
+
+      .alert-box {
+        background-color: #e8f5e8;
+        border-left: 4px solid #4caf50;
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 4px;
+      }
+
+      .alert-box h2 {
+        color: #2e7d32;
+        font-size: 18px;
+        margin-bottom: 5px;
+      }
+
+      .alert-box p {
+        color: #388e3c;
+        font-size: 14px;
+      }
+
+      .contact-details {
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+
+      .detail-row {
+        display: table;
+        width: 100%;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #e9ecef;
+        padding-bottom: 15px;
+      }
+
+      .detail-row:last-child {
+        margin-bottom: 0;
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .detail-label {
+        display: table-cell;
+        width: 120px;
+        font-weight: bold;
+        color: #495057;
+        vertical-align: top;
+        padding-right: 15px;
+      }
+
+      .detail-value {
+        display: table-cell;
+        color: #212529;
+        word-wrap: break-word;
+      }
+
+      .message-content {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 20px;
+        margin-top: 15px;
+        white-space: pre-wrap;
+        font-family: Georgia, serif;
+        line-height: 1.7;
+      }
+
+      .timestamp {
+        text-align: center;
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .footer {
+        background-color: #343a40;
+        color: #adb5bd;
+        text-align: center;
+        padding: 20px;
+        font-size: 12px;
+      }
+
+      .footer p {
+        margin-bottom: 5px;
+      }
+
+      /* Responsive design */
+      @media only screen and (max-width: 600px) {
+        .email-container {
+          margin: 0;
+          border-radius: 0;
+        }
+
+        .content {
+          padding: 20px 15px;
+        }
+
+        .detail-row {
+          display: block;
+        }
+
+        .detail-label {
+          display: block;
+          width: 100%;
+          margin-bottom: 5px;
+          padding-right: 0;
+        }
+
+        .detail-value {
+          display: block;
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>📧 New Contact Form Submission</h1>
+        <p>You have received a new message from your website</p>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <!-- Alert Box -->
+        <div class="alert-box">
+          <h2>🔔 Action Required</h2>
+          <p>
+            A visitor has submitted a contact form on your website. Please
+            review the details below and respond promptly.
+          </p>
+        </div>
+
+        <!-- Contact Details -->
+        <div class="contact-details">
+          <div class="detail-row">
+            <div class="detail-label">Name:</div>
+            <div class="detail-value">{{CONTACT_NAME}}</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Email:</div>
+            <div class="detail-value">
+              <a
+                href="mailto:{{CONTACT_EMAIL}}"
+                style="color: #007bff; text-decoration: none"
+                >{{CONTACT_EMAIL}}</a
+              >
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">Subject:</div>
+            <div class="detail-value">{{CONTACT_SUBJECT}}</div>
+          </div>
+        </div>
+
+        <!-- Message Content -->
+        <div style="margin-top: 25px">
+          <h3 style="color: #495057; margin-bottom: 10px; font-size: 16px">
+            💬 Message:
+          </h3>
+          <div class="message-content">{{CONTACT_MESSAGE}}</div>
+        </div>
+
+        <!-- Timestamp -->
+        <div class="timestamp">
+          <p>Submitted on {{SUBMISSION_DATE}} at {{SUBMISSION_TIME}}</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p><strong>{{WEBSITE_NAME}}</strong></p>
+        <p>This is an automated notification from your contact form system.</p>
+        <p>Please do not reply to this email directly.</p>
+      </div>
+    </div>
+  </body>
+</html>
