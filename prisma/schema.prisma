@@ -79,11 +79,11 @@ model Portfolio {
   id               String   @id @default(cuid()) @map("_id")
   userId           String
   name             String
-  slug             String   @unique
+  slug             String?   @unique @default(cuid())
   description      String?
   
   // Component-based structure
-  layout          Json      // Stores the component tree structure
+  layout          Json?      // Stores the component tree structure
   theme           Json?     // Global theme settings
   
   // Legacy fields (kept for backward compatibility)

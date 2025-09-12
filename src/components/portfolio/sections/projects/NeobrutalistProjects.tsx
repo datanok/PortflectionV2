@@ -557,26 +557,7 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
           ))}
         </div>
 
-        {/* Bottom Brutal Accent */}
-        <div className="flex items-center justify-center mt-20 gap-8">
-          <div
-            className="w-12 h-12 border-4 transform rotate-45"
-            style={{
-              backgroundColor: primaryColor,
-              borderColor: borderColor,
-              boxShadow: brutalistShadows ? `6px 6px 0px ${borderColor}` : undefined,
-            }}
-          ></div>
-        
-          <div
-            className="w-12 h-12 border-4 transform rotate-45"
-            style={{
-              backgroundColor: primaryColor,
-              borderColor: borderColor,
-              boxShadow: brutalistShadows ? `6px 6px 0px ${borderColor}` : undefined,
-            }}
-          ></div>
-        </div>
+   
       </div>
     </section>
   );

@@ -104,24 +104,6 @@ interface ComponentProps {
 
   // Global Theme
   globalTheme?: any;
-
-  // Gradient Effects
-  gradientType?: string;
-  gradientDirection?: string;
-  gradientColor1?: string;
-  gradientColor2?: string;
-  gradientColor3?: string;
-  gradientOpacity?: string;
-
-  // Shadow Effects
-  boxShadow?: string;
-  textShadow?: string;
-  backdropBlur?: string;
-
-  // Border Effects
-  borderStyle?: string;
-  borderWidth?: string;
-  borderColor?: string;
 }
 
 function getContrastColor(hex: string) {
@@ -170,22 +152,6 @@ const TypographyHero: React.FC<ComponentProps> = ({
   theme = "code",
   visualDisplay = "code",
   globalTheme,
-
-  // Gradient Effects
-  gradientType,
-  gradientDirection,
-  gradientColor1,
-  gradientColor2,
-  gradientColor3,
-  gradientOpacity,
-  // Shadow Effects
-  boxShadow,
-  textShadow,
-  backdropBlur,
-  // Border Effects
-  borderStyle,
-  borderWidth,
-  borderColor,
 }) => {
   const [currentTypingIndex, setCurrentTypingIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
@@ -219,7 +185,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
     },
   };
 
-  const currentTheme = themeConfigs[theme] ?? themeConfigs.minimal;
+  const currentTheme = themeConfigs["minimal"];
 
   const memoizedTypingTexts = useMemo(() => {
     return (
@@ -300,8 +266,8 @@ const TypographyHero: React.FC<ComponentProps> = ({
     return () => clearTimeout(timer);
   }, [currentText, isDeleting, currentTypingIndex, memoizedTypingTexts]);
 
-  const sectionStyle: React.CSSProperties = useMemo(() => {
-    const baseStyle: React.CSSProperties = {
+  const sectionStyle: React.CSSProperties = useMemo(
+    () => ({
       backgroundColor: currentTheme.backgroundColor,
       color: currentTheme.textColor,
       paddingTop: `${paddingY}px`,
@@ -312,15 +278,14 @@ const TypographyHero: React.FC<ComponentProps> = ({
       boxShadow: shadow !== "none" ? shadow : undefined,
       fontFamily: PortfolioFontLoader.getThemeFontStyle(globalTheme, "body")
         .fontFamily,
-      position: "relative" as const,
+      position: "relative",
       minHeight: "100vh",
       display: "flex",
       alignItems: "center",
       overflow: "hidden",
-    };
-
-    return baseStyle;
-  }, [currentTheme, paddingY, paddingX, borderRadius, shadow, theme]);
+    }),
+    [currentTheme, paddingY, paddingX, borderRadius, shadow, theme]
+  );
 
   const gridOverlayStyle: React.CSSProperties = useMemo(
     () => ({

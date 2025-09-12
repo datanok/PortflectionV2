@@ -50,8 +50,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { PortfolioListCard } from "@/components/PortfolioListCard";
 import { listPortfolios } from "@/actions/portfolio-actions";
 import { authClient } from "../../../auth-client";
@@ -196,69 +194,67 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="flex flex-col gap-6 mt-4">
+      <div className="flex flex-col gap-4">
         {/* Stats Cards */}
-        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
+        <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 w-full">
           <Card className="shadow-sm w-full border border-border/40">
-            <CardHeader className="flex flex-row items-center justify-between ">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground">
                 Total Portfolios
               </CardTitle>
               <FolderIcon className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="">
+            <CardContent className="pt-0">
               <div className="text-lg font-semibold">
                 {portfolioListLoading ? "..." : totalCount}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-[11px] text-muted-foreground">
                 {portfolioListLoading
                   ? ""
-                  : `${totalCount} total portfolio${
-                      totalCount !== 1 ? "s" : ""
-                    }`}
+                  : `${totalCount} total portfolio${totalCount !== 1 ? "s" : ""
+                  }`}
               </p>
             </CardContent>
           </Card>
 
           <Card className="shadow-sm w-full border border-border/40">
-            <CardHeader className="flex flex-row items-center justify-between  ">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground">
                 Total Views
               </CardTitle>
               <FileTextIcon className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="">
+            <CardContent className="pt-0">
               <div className="text-lg font-semibold">
                 {analyticsLoading ? "..." : analyticsData?.totalViews || 0}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-[11px] text-muted-foreground">
                 {analyticsLoading ? "" : "Last 30 days"}
               </p>
             </CardContent>
           </Card>
 
           <Card className="shadow-sm w-full border border-border/40">
-            <CardHeader className="flex flex-row items-center justify-between ">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground">
                 Top Referrer
               </CardTitle>
               <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
             </CardHeader>
-            <CardContent className="">
+            <CardContent className="pt-0">
               <div className="text-lg font-semibold truncate">
                 {analyticsLoading ? "..." : getTopReferrer()}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-[11px] text-muted-foreground">
                 {analyticsLoading
                   ? ""
                   : analyticsData?.viewsByReferrer?.length
-                  ? `${analyticsData.viewsByReferrer[0].count} visits`
-                  : "No referrer data"}
+                    ? `${analyticsData.viewsByReferrer[0].count} visits`
+                    : "No referrer data"}
               </p>
             </CardContent>
           </Card>
         </div>
-
         {/* Admin Access Section */}
         {isAdmin && (
           <Card className="shadow-sm">

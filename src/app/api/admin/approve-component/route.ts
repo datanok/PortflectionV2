@@ -1,22 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+
 import { PrismaClient } from "@prisma/client";
 import {
   updateComponentFile,
-  clearRegistryCache,
 } from "@/lib/componentCodeGenerator";
+import { auth } from "../../../../../auth";
 
 const prisma = new PrismaClient();
+const authenticateUser = async (req: NextRequest) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: req.headers,
+    });
+
+    return session;
+  } catch (error) {
+    console.error("❌ Authentication error:", error);
+    return null;
+  }
+};
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication and admin role
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const session = await authenticateUser(request);
+    
+        if (!session?.user) {
+          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
     // Check if user is admin
     const user = await prisma.user.findUnique({
@@ -88,8 +98,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Clear registry cache to ensure new component is included
-    clearRegistryCache();
 
     return NextResponse.json({
       success: true,
