@@ -69,6 +69,9 @@ interface PropertyPanelProps {
   onMoveUp?: (id: string) => void;
   onMoveDown?: (id: string) => void;
   activeTab?: "content" | "style" | "advanced";
+  // New props for color schemes
+  portfolio?: any;
+  onPortfolioChange?: (portfolio: any) => void;
 }
 
 export default function PropertyPanel({
@@ -79,6 +82,8 @@ export default function PropertyPanel({
   onMoveUp,
   onMoveDown,
   activeTab = "content",
+  portfolio,
+  onPortfolioChange,
 }: PropertyPanelProps) {
   const [componentTabStates, setComponentTabStates] = useState<
     Record<string, string>
@@ -122,6 +127,10 @@ export default function PropertyPanel({
     textColor: "text",
     primaryColor: "primary",
     secondaryColor: "secondary",
+    accentColor: "accent",
+    borderColor: "border",
+    shadowColor: "shadow",
+    statusColor: "status",
   };
 
   // Build colors object for ColorPanel dynamically
@@ -188,120 +197,252 @@ export default function PropertyPanel({
     // Skip color fields, handled by ColorPanel
     if (colorKeys.includes(key)) return null;
     const value = component.styles?.[key] ?? defaultStyles[key] ?? "";
+    
     // Color picker
     if (key.toLowerCase().includes("color")) {
       return (
-        <div key={key} className="mb-4">
-          <Label className="text-xs text-muted-foreground">{key}</Label>
-          <div className="flex gap-2 mt-1 items-center">
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">{key}</Label>
+          <div className="flex gap-1.5 mt-1 items-center">
             <Input
               type="color"
               value={value}
               onChange={(e) => handleStyleChange(key, e.target.value)}
-              className="w-12 h-8 p-1"
+              className="w-8 h-7 p-0 border-0 rounded cursor-pointer"
             />
             <Input
               value={value}
               onChange={(e) => handleStyleChange(key, e.target.value)}
-              className="flex-1 h-8"
+              className="flex-1 h-7 text-xs"
             />
           </div>
         </div>
       );
     }
+    
     // Number input for spacing
     if (
       key.toLowerCase().includes("padding") ||
       key.toLowerCase().includes("margin")
     ) {
       return (
-        <div key={key} className="mb-4">
-          <Label className="text-xs text-muted-foreground">{key}</Label>
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">{key}</Label>
           <Input
             type="number"
             value={value}
             onChange={(e) => handleStyleChange(key, e.target.value)}
-            className="h-8"
+            className="h-7 text-xs mt-1"
+            placeholder="0"
           />
         </div>
       );
     }
+    
     // Typography selects
     if (key === "fontSize") {
       return (
-        <div key={key} className="mb-4">
-          <Label className="text-xs text-muted-foreground">Font Size</Label>
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Font Size</Label>
           <Select
             value={value}
             onValueChange={(v) => handleStyleChange(key, v)}
           >
-            <SelectTrigger className="h-8 mt-1">
-              <SelectValue />
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select size" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="xs">Extra Small</SelectItem>
               <SelectItem value="sm">Small</SelectItem>
               <SelectItem value="base">Base</SelectItem>
               <SelectItem value="lg">Large</SelectItem>
               <SelectItem value="xl">Extra Large</SelectItem>
+              <SelectItem value="2xl">2X Large</SelectItem>
             </SelectContent>
           </Select>
         </div>
       );
     }
+    
     if (key === "fontWeight") {
       return (
-        <div key={key} className="mb-4">
-          <Label className="text-xs text-muted-foreground">Font Weight</Label>
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Font Weight</Label>
           <Select
             value={value}
             onValueChange={(v) => handleStyleChange(key, v)}
           >
-            <SelectTrigger className="h-8 mt-1">
-              <SelectValue />
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select weight" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="light">Light</SelectItem>
               <SelectItem value="normal">Normal</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="semibold">Semibold</SelectItem>
               <SelectItem value="bold">Bold</SelectItem>
+              <SelectItem value="extrabold">Extra Bold</SelectItem>
             </SelectContent>
           </Select>
         </div>
       );
     }
+    
     if (key === "textAlign") {
       return (
-        <div key={key} className="mb-4">
-          <Label className="text-xs text-muted-foreground">Text Align</Label>
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Text Align</Label>
           <Select
             value={value}
             onValueChange={(v) => handleStyleChange(key, v)}
           >
-            <SelectTrigger className="h-8 mt-1">
-              <SelectValue />
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select alignment" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="left">Left</SelectItem>
               <SelectItem value="center">Center</SelectItem>
               <SelectItem value="right">Right</SelectItem>
+              <SelectItem value="justify">Justify</SelectItem>
             </SelectContent>
           </Select>
         </div>
       );
     }
-    // Default to text input
+    
+    // Border radius selector
+    if (key === "borderRadius") {
+      return (
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Border Radius</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select radius" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="sm">Small</SelectItem>
+              <SelectItem value="md">Medium</SelectItem>
+              <SelectItem value="lg">Large</SelectItem>
+              <SelectItem value="xl">Extra Large</SelectItem>
+              <SelectItem value="full">Full</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    
+    // Display/positioning selects
+    if (key === "display") {
+      return (
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Display</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select display" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="block">Block</SelectItem>
+              <SelectItem value="inline">Inline</SelectItem>
+              <SelectItem value="inline-block">Inline Block</SelectItem>
+              <SelectItem value="flex">Flex</SelectItem>
+              <SelectItem value="grid">Grid</SelectItem>
+              <SelectItem value="none">None</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    
+    if (key === "flexDirection") {
+      return (
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Flex Direction</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select direction" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="row">Row</SelectItem>
+              <SelectItem value="row-reverse">Row Reverse</SelectItem>
+              <SelectItem value="column">Column</SelectItem>
+              <SelectItem value="column-reverse">Column Reverse</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    
+    if (key === "justifyContent") {
+      return (
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Justify Content</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select justify" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="start">Start</SelectItem>
+              <SelectItem value="center">Center</SelectItem>
+              <SelectItem value="end">End</SelectItem>
+              <SelectItem value="between">Space Between</SelectItem>
+              <SelectItem value="around">Space Around</SelectItem>
+              <SelectItem value="evenly">Space Evenly</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    
+    if (key === "alignItems") {
+      return (
+        <div key={key} className="mb-3">
+          <Label className="text-xs font-medium">Align Items</Label>
+          <Select
+            value={value}
+            onValueChange={(v) => handleStyleChange(key, v)}
+          >
+            <SelectTrigger className="h-7 mt-1 text-xs">
+              <SelectValue placeholder="Select align" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="start">Start</SelectItem>
+              <SelectItem value="center">Center</SelectItem>
+              <SelectItem value="end">End</SelectItem>
+              <SelectItem value="stretch">Stretch</SelectItem>
+              <SelectItem value="baseline">Baseline</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    }
+    
+    // Default to text input with better styling
     console.log(key, value);
     return (
-      <div key={key} className="mb-4">
-        <Label className="text-xs text-muted-foreground">{key}</Label>
+      <div key={key} className="mb-3">
+        <Label className="text-xs font-medium">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Label>
         <Input
           value={value}
           onChange={(e) => handleStyleChange(key, e.target.value)}
-          className="h-8"
+          className="h-7 text-xs mt-1"
+          placeholder={`Enter ${key}`}
         />
       </div>
     );
-  };
+  }
 
   if (!component) {
     return (
@@ -612,7 +753,12 @@ export default function PropertyPanel({
                 <TabsContent value="colors" className="space-y-6 mt-4">
                   {/* Colors */}
                   {colorKeys.length > 0 && (
-                    <ColorPanel colors={colors} setColors={setColors} />
+                    <ColorPanel 
+                      colors={colors} 
+                      setColors={setColors}
+                      portfolio={portfolio}
+                      onPortfolioChange={onPortfolioChange}
+                    />
                   )}
                 </TabsContent>
 

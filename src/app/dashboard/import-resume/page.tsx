@@ -9,6 +9,7 @@ import {
   Preset,
 } from "@/lib/resumeMapper";
 import { componentRegistry } from "@/lib/portfolio/registry";
+import { colorSchemes, getDefaultColorScheme } from "@/lib/colorSchemes";
 
 import {
   Card,
@@ -32,6 +33,7 @@ export default function ImportResumePage() {
     skills: componentRegistry.skills.variants[0]?.id || undefined,
     projects: componentRegistry.projects.variants[0]?.id || undefined,
     contact: componentRegistry.contact.variants[0]?.id || undefined,
+    colorScheme: getDefaultColorScheme().id,
   });
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -145,6 +147,36 @@ export default function ImportResumePage() {
                 </Card>
               ))}
             </div>
+
+            {/* Color Scheme Selection */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle>Color Scheme</CardTitle>
+                <CardDescription>Choose a color theme for your portfolio</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {colorSchemes.map((scheme) => (
+                    <div
+                      key={scheme.id}
+                      className={`cursor-pointer rounded-lg border-2 p-3 transition-all ${
+                        chosen.colorScheme === scheme.id
+                          ? "ring-2 ring-[--primary] border-[--primary]"
+                          : "hover:ring-1 hover:ring-[--border]"
+                      }`}
+                      onClick={() => setChosen((c) => ({ ...c, colorScheme: scheme.id }))}
+                    >
+                      <div
+                        className="w-full h-12 rounded mb-2"
+                        style={{ background: scheme.preview }}
+                      />
+                      <div className="text-sm font-medium">{scheme.name}</div>
+                      <div className="text-xs text-muted-foreground">{scheme.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Section Template Selectors */}
             <Card className="mt-6">

@@ -58,6 +58,10 @@ export default function ComponentRenderer({
     shadow: styles.shadow,
     primaryColor: styles.primaryColor,
     secondaryColor: styles.secondaryColor,
+    accentColor: styles.accentColor,
+    borderColor: styles.borderColor,
+    shadowColor: styles.shadowColor,
+    statusColor: styles.statusColor,
   };
 
   // Convert styles to CSS properties and Tailwind classes

@@ -511,17 +511,7 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
               boxShadow: brutalistShadows ? `4px 4px 0px ${borderColor}` : undefined,
             }}
           ></div>
-          <div
-            className="px-6 py-2 border-4 font-black text-sm tracking-[0.3em] uppercase"
-            style={{
-              backgroundColor: accentColor,
-              borderColor: borderColor,
-              color: textColor,
-              boxShadow: brutalistShadows ? `4px 4px 0px ${borderColor}` : undefined,
-            }}
-          >
-            SKILLS COMPLETE
-          </div>
+      
           <div
             className="w-8 h-8 border-4 transform rotate-45"
             style={{

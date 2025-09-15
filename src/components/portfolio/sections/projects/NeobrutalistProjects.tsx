@@ -292,14 +292,14 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
           <div
             className="inline-block p-6 mb-8 border-4 transform rotate-1"
             style={{
-              backgroundColor: primaryColor,
+              backgroundColor,
               borderColor: borderColor,
               boxShadow: brutalistShadows ? `16px 16px 0px ${borderColor}` : shadow,
             }}
           >
             <span
               className="text-sm font-black tracking-[0.4em] uppercase block"
-              style={{ color: backgroundColor }}
+              style={{ color: textColor }}
             >
               {subtitle}
             </span>
@@ -508,7 +508,7 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
                           rel="noopener noreferrer"
                           className="px-4 py-2 border-2 font-black text-sm tracking-wider uppercase transition-all duration-300 hover:scale-105"
                           style={{
-                            backgroundColor: "#06ffa5",
+                            backgroundColor,
                             borderColor: textColor,
                             color: textColor,
                             boxShadow: brutalistShadows ? `4px 4px 0px ${textColor}` : undefined,
@@ -524,7 +524,7 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
                           rel="noopener noreferrer"
                           className="px-4 py-2 border-2 font-black text-sm tracking-wider uppercase transition-all duration-300 hover:scale-105"
                           style={{
-                            backgroundColor: backgroundColor,
+                            backgroundColor,
                             borderColor: textColor,
                             color: textColor,
                             boxShadow: brutalistShadows ? `4px 4px 0px ${textColor}` : undefined,

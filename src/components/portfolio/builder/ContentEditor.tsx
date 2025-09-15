@@ -1015,22 +1015,22 @@ export default function ContentEditor({
     }
 
     return (
-      <div key={index} className="border rounded-lg p-4 bg-muted/30 space-y-3">
+      <div key={index} className="border border-border/50 rounded-md p-3 bg-muted/20 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">
-            {key.charAt(0).toUpperCase() + key.slice(1)} Item {index + 1}
+          <span className="text-xs font-medium">
+            {key.charAt(0).toUpperCase() + key.slice(1)} #{index + 1}
           </span>
           <Button
             size="sm"
             variant="ghost"
             onClick={() => handleArrayItemRemove(key, index)}
-            className="h-6 px-2 text-destructive hover:text-destructive-foreground"
+            className="h-6 w-6 p-0 text-destructive hover:text-destructive-foreground"
           >
             <Trash2 className="w-3 h-3" />
           </Button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {Object.entries(itemSchema).map(
             ([fieldKey, fieldMeta]: [string, any]) => {
               const fieldValue = item[fieldKey] || "";
@@ -1039,7 +1039,7 @@ export default function ContentEditor({
                 case "text":
                   return (
                     <div key={fieldKey}>
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {fieldMeta.label || fieldKey}
                       </Label>
                       <Input
@@ -1052,7 +1052,7 @@ export default function ContentEditor({
                             e.target.value
                           )
                         }
-                        className="text-sm h-8 mt-1"
+                        className="text-xs h-7 mt-1"
                         placeholder={
                           fieldMeta.placeholder || `Enter ${fieldKey}...`
                         }
@@ -1063,7 +1063,7 @@ export default function ContentEditor({
                 case "textarea":
                   return (
                     <div key={fieldKey}>
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {fieldMeta.label || fieldKey}
                       </Label>
                       <Textarea
@@ -1076,7 +1076,7 @@ export default function ContentEditor({
                             e.target.value
                           )
                         }
-                        className="text-sm mt-1 min-h-[60px]"
+                        className="text-xs mt-1 min-h-[50px]"
                         placeholder={
                           fieldMeta.placeholder || `Enter ${fieldKey}...`
                         }
@@ -1087,7 +1087,7 @@ export default function ContentEditor({
                 case "select":
                   return (
                     <div key={fieldKey}>
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {fieldMeta.label || fieldKey}
                       </Label>
                       <Select
@@ -1096,7 +1096,7 @@ export default function ContentEditor({
                           handleArrayObjectUpdate(key, index, fieldKey, value)
                         }
                       >
-                        <SelectTrigger className="text-sm h-8 mt-1">
+                        <SelectTrigger className="text-xs h-7 mt-1">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1113,7 +1113,7 @@ export default function ContentEditor({
                 case "number":
                   return (
                     <div key={fieldKey}>
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {fieldMeta.label || fieldKey}
                       </Label>
                       <Input
@@ -1129,7 +1129,7 @@ export default function ContentEditor({
                             parseInt(e.target.value) || 0
                           )
                         }
-                        className="text-sm h-8 mt-1"
+                        className="text-xs h-7 mt-1"
                         placeholder={
                           fieldMeta.placeholder || `Enter ${fieldKey}...`
                         }
@@ -1139,14 +1139,14 @@ export default function ContentEditor({
 
                 case "boolean":
                   return (
-                    <div key={fieldKey} className="flex items-center space-x-2">
+                    <div key={fieldKey} className="flex items-center space-x-2 pt-1">
                       <Switch
                         checked={fieldValue}
                         onCheckedChange={(checked) =>
                           handleArrayObjectUpdate(key, index, fieldKey, checked)
                         }
                       />
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {fieldMeta.label || fieldKey}
                       </Label>
                     </div>
@@ -1156,15 +1156,15 @@ export default function ContentEditor({
                   // Handle nested arrays (like highlights in experience)
                   return (
                     <div key={fieldKey}>
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {fieldMeta.label || fieldKey}
                       </Label>
-                      <div className="mt-2 space-y-2">
+                      <div className="mt-1 space-y-1.5">
                         {Array.isArray(fieldValue)
                           ? fieldValue.map((subItem: any, subIndex: number) => (
                               <div
                                 key={subIndex}
-                                className="flex items-center space-x-2"
+                                className="flex items-center space-x-1.5"
                               >
                                 <Input
                                   value={subItem}
@@ -1178,7 +1178,7 @@ export default function ContentEditor({
                                       newArray
                                     );
                                   }}
-                                  className="text-sm h-8 flex-1"
+                                  className="text-xs h-6 flex-1"
                                   placeholder={
                                     fieldMeta.placeholder ||
                                     `Enter ${fieldKey} item...`
@@ -1198,9 +1198,9 @@ export default function ContentEditor({
                                       newArray
                                     );
                                   }}
-                                  className="h-6 px-2 text-destructive hover:text-destructive-foreground"
+                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive-foreground"
                                 >
-                                  <Trash2 className="w-3 h-3" />
+                                  <Trash2 className="w-2.5 h-2.5" />
                                 </Button>
                               </div>
                             ))
@@ -1219,9 +1219,10 @@ export default function ContentEditor({
                               newArray
                             );
                           }}
-                          className="w-full"
+                          className="w-full h-6 text-xs"
                         >
-                          Add {fieldMeta.label || fieldKey} Item
+                          <Plus className="w-2.5 h-2.5 mr-1" />
+                          Add {fieldMeta.label || fieldKey}
                         </Button>
                       </div>
                     </div>
@@ -1230,7 +1231,7 @@ export default function ContentEditor({
                 default:
                   return (
                     <div key={fieldKey}>
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {fieldMeta.label || fieldKey}
                       </Label>
                       <Input
@@ -1243,7 +1244,7 @@ export default function ContentEditor({
                             e.target.value
                           )
                         }
-                        className="text-sm h-8 mt-1"
+                        className="text-xs h-7 mt-1"
                         placeholder={
                           fieldMeta.placeholder || `Enter ${fieldKey}...`
                         }
@@ -1265,42 +1266,42 @@ export default function ContentEditor({
     if (type === "array") {
       const arrayValue = Array.isArray(value) ? value : [];
       return (
-        <Card key={key} className="mb-4">
-          <CardHeader className="pb-3">
+        <div key={key} className="mb-3 border border-border/50 rounded-md">
+          <div className="px-3 py-2 border-b border-border/50 bg-muted/20">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">{key}</CardTitle>
+              <span className="text-sm font-medium">{key}</span>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  {arrayValue.length} items
+                <Badge variant="secondary" className="text-xs px-2 py-0.5 h-5">
+                  {arrayValue.length}
                 </Badge>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => handleArrayItemAdd(key)}
-                  className="h-6 px-2"
+                  className="h-6 px-2 text-xs"
                 >
                   <Plus className="w-3 h-3 mr-1" />
                   Add
                 </Button>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="pt-0">
+          </div>
+          <div className="p-3">
             {arrayValue.length === 0 ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <Plus className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No items yet</p>
+              <div className="text-center py-4 text-muted-foreground">
+                <Plus className="w-6 h-6 mx-auto mb-1.5 opacity-50" />
+                <p className="text-xs mb-2">No items yet</p>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => handleArrayItemAdd(key)}
-                  className="mt-2"
+                  className="h-6 text-xs px-3"
                 >
                   Add First Item
                 </Button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {arrayValue.map((item: any, index: number) => {
                   // Use schema-based rendering if available, otherwise fall back to key-based
                   const fieldMeta = field.metadata;
@@ -1316,18 +1317,18 @@ export default function ContentEditor({
                 })}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       );
     }
 
     if (type === "object") {
       const isExpanded = expandedSections.has(key);
       return (
-        <Card key={key} className="mb-4">
-          <CardHeader className="pb-3">
+        <div key={key} className="mb-3 border border-border/50 rounded-md">
+          <div className="px-3 py-2 border-b border-border/50 bg-muted/20">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium">{key}</CardTitle>
+              <span className="text-sm font-medium">{key}</span>
               <Button
                 size="sm"
                 variant="ghost"
@@ -1340,7 +1341,7 @@ export default function ContentEditor({
                   }
                   setExpandedSections(newExpanded);
                 }}
-                className="h-6 px-2"
+                className="h-6 w-6 p-0"
               >
                 {isExpanded ? (
                   <ChevronDown className="w-3 h-3" />
@@ -1349,15 +1350,15 @@ export default function ContentEditor({
                 )}
               </Button>
             </div>
-          </CardHeader>
+          </div>
           {isExpanded && (
-            <CardContent className="pt-0">
-              <div className="space-y-3">
+            <div className="p-3">
+              <div className="space-y-2">
                 {value &&
                   typeof value === "object" &&
                   Object.entries(value).map(([objKey, objValue]) => (
                     <div key={objKey}>
-                      <Label className="text-xs text-muted-foreground">
+                      <Label className="text-xs font-medium">
                         {objKey}
                       </Label>
                       <Input
@@ -1369,31 +1370,31 @@ export default function ContentEditor({
                           };
                           handleFieldUpdate(key, updatedValue);
                         }}
-                        className="mt-1 text-sm h-8"
+                        className="mt-1 text-xs h-7"
                         placeholder={`Enter ${objKey}`}
                       />
                     </div>
                   ))}
               </div>
-            </CardContent>
+            </div>
           )}
-        </Card>
+        </div>
       );
     }
 
     // Special handling for layoutMode dropdown
     if (key === "layoutMode") {
       return (
-        <Card key={key} className="mb-4">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Layout Mode</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
+        <div key={key} className="mb-3 border border-border/50 rounded-md">
+          <div className="px-3 py-2 border-b border-border/50 bg-muted/20">
+            <span className="text-sm font-medium">Layout Mode</span>
+          </div>
+          <div className="p-3">
             <Select
               value={value || "list"}
               onValueChange={(newValue) => handleFieldUpdate(key, newValue)}
             >
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-7 text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -1402,16 +1403,18 @@ export default function ContentEditor({
                 <SelectItem value="minimal">Minimal</SelectItem>
               </SelectContent>
             </Select>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       );
     }
 
     return (
-      <Card key={key} className="mb-4">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2 justify-between">
-            {field.metadata?.label || key}
+      <div key={key} className="mb-3 border border-border/50 rounded-md">
+        <div className="px-3 py-2 border-b border-border/50 bg-muted/20">
+          <div className="flex items-center gap-2 justify-between">
+            <span className="text-sm font-medium">
+              {field.metadata?.label || key}
+            </span>
             {(field.metadata?.label?.toLowerCase().includes("image") ||
               field.metadata?.label?.toLowerCase().includes("photo") ||
               field.metadata?.label?.toLowerCase().includes("picture") ||
@@ -1420,28 +1423,28 @@ export default function ContentEditor({
               key.toLowerCase().includes("photo") ||
               key.toLowerCase().includes("picture") ||
               key.toLowerCase().includes("avatar")) && (
-              <span
-                className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+              <button
+                className="text-muted-foreground hover:text-foreground transition-colors"
                 onClick={() => setIsDialogOpen(true)}
               >
                 <Info className="w-3 h-3" />
-              </span>
+              </button>
             )}
-          </CardTitle>
+          </div>
           {field.metadata?.description && (
             <p className="text-xs text-muted-foreground mt-1">
               {field.metadata.description}
             </p>
           )}
-        </CardHeader>
-        <CardContent className="pt-0">
+        </div>
+        <div className="p-3">
           {type === "boolean" ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Switch
                 checked={value || false}
                 onCheckedChange={(checked) => handleFieldUpdate(key, checked)}
               />
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {value ? "Enabled" : "Disabled"}
               </span>
             </div>
@@ -1457,7 +1460,7 @@ export default function ContentEditor({
                 }
               }}
             >
-              <SelectTrigger className="h-9">
+              <SelectTrigger className="h-7 text-xs">
                 <SelectValue
                   placeholder={
                     field.metadata?.placeholder || `Select ${key}...`
@@ -1476,31 +1479,25 @@ export default function ContentEditor({
             <Textarea
               value={value || ""}
               onChange={(e) => handleFieldUpdate(key, e.target.value)}
-              className="text-sm min-h-[80px]"
+              className="text-xs min-h-[60px]"
               placeholder={field.metadata?.placeholder || `Enter ${key}...`}
             />
           ) : (
             <Input
               value={value || ""}
               onChange={(e) => handleFieldUpdate(key, e.target.value)}
-              className="text-sm h-8"
+              className="text-xs h-7"
               placeholder={field.metadata?.placeholder || `Enter ${key}...`}
             />
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   };
 
   return (
-    <div className="space-y-6 w-full max-w-full">
-      <div className="flex items-center justify-between">
-        {/* <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold">Content Editor</h3>
-          <Badge variant="outline" className="text-xs">
-            {componentType} - {componentVariant}
-          </Badge>
-        </div> */}
+    <div className="space-y-2 w-full max-w-full">
+
         <div className="flex items-center gap-2">
           {saveStatus === "saving" && (
             <div className="flex items-center gap-1 text-amber-600">
@@ -1521,7 +1518,7 @@ export default function ContentEditor({
             </div>
           )}
         </div>
-      </div>
+ 
       <Separator />
       {fieldConfigs.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">

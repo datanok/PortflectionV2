@@ -60,6 +60,7 @@ interface NeobrutalistAboutProps {
   textColor?: string;
   primaryColor?: string;
   secondaryColor?: string;
+  borderColor?: string;
   accentColor?: string;
   shadowColor?: string;
   paddingY?: string;
@@ -194,6 +195,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
   secondaryColor = "#1f2937",
   accentColor = "#f59e0b",
   shadowColor = "#000000",
+  borderColor = "#000000",
   paddingY = "120",
   paddingX = "32",
   textAlign = "left",
@@ -437,9 +439,9 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                     style={{
                       backgroundColor:
                         activeExperience === index
-                          ? accentColor
+                          ? secondaryColor
                           : backgroundColor,
-                      borderColor: primaryColor,
+                      borderColor: borderColor,
                       borderWidth: `${borderWidth}px`,
                       boxShadow:
                         activeExperience === index
@@ -490,7 +492,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                       className="p-8 border transform hover:-translate-y-1 hover:translate-x-1 transition-all duration-300"
                       style={{
                         backgroundColor: backgroundColor,
-                        borderColor: primaryColor,
+                        borderColor: borderColor,
                         borderWidth: `${borderWidth}px`,
                         boxShadow: neoBrutalShadow,
                         textAlign: textAlign,
@@ -518,7 +520,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                           <p
                             className="font-bold text-lg"
                             style={{
-                              color: accentColor,
+                              color: secondaryColor,
                               textAlign: textAlign,
                               fontFamily:
                                 "'Space Grotesk', 'Inter', sans-serif",
@@ -530,8 +532,8 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         <span
                           className="px-4 py-2 border font-bold"
                           style={{
-                            backgroundColor: accentColor,
-                            borderColor: primaryColor,
+                            backgroundColor: secondaryColor,
+                            borderColor: borderColor,
                             borderWidth: `2px`,
                             color: textColor,
                             fontFamily: "'Space Grotesk', 'Inter', sans-serif",
@@ -599,8 +601,8 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
             <div
               className="inline-block px-6 py-3 border mb-8 transform rotate-1"
               style={{
-                backgroundColor: "#ffffff",
-                borderColor: primaryColor,
+                backgroundColor,
+                borderColor: borderColor,
                 borderWidth: `${borderWidth}px`,
                 boxShadow: neoBrutalShadow,
                 fontFamily: "'Space Grotesk', 'Inter', sans-serif",
@@ -627,8 +629,8 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         : "-rotate-1 hover:rotate-0"
                     } hover:-translate-y-2`}
                     style={{
-                      backgroundColor: isOdd ? "#f3f4f6" : "#ffffff",
-                      borderColor: primaryColor,
+                      backgroundColor: isOdd ? secondaryColor : backgroundColor,
+                      borderColor: borderColor,
                       borderWidth: `${borderWidth}px`,
                       boxShadow: neoBrutalShadow,
                     }}
@@ -644,7 +646,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         className="w-16 h-16 border flex items-center justify-center flex-shrink-0"
                         style={{
                           backgroundColor: accentColor,
-                          borderColor: primaryColor,
+                          borderColor: borderColor,
                           borderWidth: `2px`,
                         }}
                       >
@@ -669,7 +671,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                             className="px-3 py-1 border text-sm font-bold"
                             style={{
                               backgroundColor: primaryColor,
-                              borderColor: primaryColor,
+                              borderColor: borderColor,
                               color: backgroundColor,
                               fontFamily:
                                 "'Space Grotesk', 'Inter', sans-serif",

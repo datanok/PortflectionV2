@@ -1,4 +1,5 @@
 import { SavePortfolioData } from "@/actions/portfolio-actions";
+import { ColorScheme, applyColorScheme, getColorScheme } from "./colorSchemes";
 
 export type ResumeJson = {
   basics?: {
@@ -58,6 +59,7 @@ export function mapResumeToPortfolio(resume: ResumeJson, preset: Preset = "bruta
     variant: preset === "typography" ? "typography-hero" : "hero-section",
     props: {
       title: up(resume.basics?.name) || "YOUR NAME",
+      name: up(resume.basics?.name) || "YOUR NAME",
       subtitle: up(resume.basics?.label) || "SOFTWARE DEVELOPER",
       description: resume.basics?.summary || "",
       socialLinks: (resume.basics?.profiles || []).map((p) => ({
@@ -243,22 +245,32 @@ type ChosenVariants = {
   skills?: string;
   projects?: string;
   contact?: string;
+  colorScheme?: string;
 };
 
 function createFromRegistry<T extends keyof typeof componentRegistry>(
   section: T,
   variantId: string,
   overrides: Record<string, any>,
-  order: number
+  order: number,
+  colorScheme?: ColorScheme
 ): PortfolioComponent {
   const variant = getComponentVariant(section, variantId);
   if (!variant) throw new Error(`Variant not found: ${String(section)}/${variantId}`);
+  
+  let styles = { ...(variant.defaultStyles || {}) };
+  
+  // Apply color scheme if provided
+  if (colorScheme) {
+    styles = applyColorScheme(styles, colorScheme);
+  }
+  
   return {
     id: undefined,
     type: section,
     variant: variant.id,
     props: { ...(variant.defaultProps || {}), ...overrides },
-    styles: { ...(variant.defaultStyles || {}) },
+    styles,
     order,
     isActive: true,
   };
@@ -269,20 +281,45 @@ export function mapWithRegistry(resume: ResumeJson, chosen: ChosenVariants): Sav
   const slug = toSlug(name || `portfolio-${Date.now()}`);
 
   const layout: PortfolioComponent[] = [];
+  
+  // Get color scheme
+  const colorScheme = chosen.colorScheme ? getColorScheme(chosen.colorScheme) : undefined;
 
   // Hero (required)
-  layout.push(
-    createFromRegistry("hero", chosen.hero, {
-      title: up(resume.basics?.name) || "YOUR NAME",
-      subtitle: up(resume.basics?.label) || "SOFTWARE DEVELOPER",
-      description: resume.basics?.summary || "",
-      socialLinks: (resume.basics?.profiles || []).map((p) => ({
-        platform: (p.platform || "").charAt(0).toUpperCase() + (p.platform || "").slice(1).toLowerCase(),
-        url: p.url?.startsWith("http") ? p.url : `https://${p.url}`,
-        username: p.username || p.url?.split("/").pop() || "",
-      })),
-    }, 0)
-  );
+  const socialLinks = (resume.basics?.profiles || []).map((p) => ({
+    platform: (p.platform || "").charAt(0).toUpperCase() + (p.platform || "").slice(1).toLowerCase(),
+    url: p.url?.startsWith("http") ? p.url : `https://${p.url}`,
+    username: p.username || p.url?.split("/").pop() || "",
+  }));
+
+  // Extract individual social URLs for hero-section variant
+  const githubProfile = socialLinks.find(p => p.platform.toLowerCase() === 'github');
+  const linkedinProfile = socialLinks.find(p => p.platform.toLowerCase() === 'linkedin');
+  const emailProfile = socialLinks.find(p => p.platform.toLowerCase() === 'email' || p.platform.toLowerCase() === 'web');
+
+  const heroProps = {
+    title: up(resume.basics?.name) || "YOUR NAME",
+    subtitle: up(resume.basics?.label) || "SOFTWARE DEVELOPER",
+    description: resume.basics?.summary || "",
+  };
+
+  // Add social links based on variant
+  if (chosen.hero === 'hero-section') {
+    // HeroSections component expects individual URL props
+    Object.assign(heroProps, {
+      showSocialLinks: true,
+      githubUrl: githubProfile?.url || "https://github.com",
+      linkedinUrl: linkedinProfile?.url || "https://linkedin.com",
+      emailUrl: resume.basics?.email ? `mailto:${resume.basics.email}` : "mailto:example@email.com",
+    });
+  } else {
+    // Other hero variants expect socialLinks array
+    Object.assign(heroProps, {
+      socialLinks,
+    });
+  }
+
+  layout.push(createFromRegistry("hero", chosen.hero, heroProps, 0, colorScheme));
 
   // About (optional)
   const experience = (resume.work || []).map((w) => ({
@@ -301,7 +338,7 @@ export function mapWithRegistry(resume: ResumeJson, chosen: ChosenVariants): Sav
         experience,
         showStory: true,
         showExperience: true,
-      }, 1)
+      }, 1, colorScheme)
     );
   }
 
@@ -323,7 +360,7 @@ export function mapWithRegistry(resume: ResumeJson, chosen: ChosenVariants): Sav
         showProficiency: true,
         showExperience: true,
         showStatus: true,
-      }, 2)
+      }, 2, colorScheme)
     );
   }
 
@@ -355,7 +392,7 @@ export function mapWithRegistry(resume: ResumeJson, chosen: ChosenVariants): Sav
         showYear: true,
         showLinks: true,
         showImages: false,
-      }, 3)
+      }, 3, colorScheme)
     );
   }
 
@@ -376,7 +413,7 @@ export function mapWithRegistry(resume: ResumeJson, chosen: ChosenVariants): Sav
         description: "",
         contactMethods,
         showContactForm: false,
-      }, 4)
+      }, 4, colorScheme)
     );
   }
 

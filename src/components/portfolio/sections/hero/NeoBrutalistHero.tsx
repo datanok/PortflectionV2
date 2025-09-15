@@ -43,7 +43,6 @@ interface ComponentProps {
   showVisualElement?: boolean;
   showBadge?: boolean;
   badgeText?: string;
-  badgeIcon?: React.ReactNode;
   imageShape?: ShapeType;
   imageSize?: "small" | "medium" | "large";
 
@@ -235,7 +234,6 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
   // Badge
   showBadge = true,
   badgeText = "AVAILABLE FOR HIRE",
-  badgeIcon = <Star size={16} strokeWidth={3} />,
 
   // Styles
   backgroundColor = "#fef08a",
@@ -338,7 +336,6 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
         <div className="flex-1 lg:max-w-xl text-left mb-12 lg:mb-0 pr-0 lg:pr-12">
           {showBadge && (
             <div style={badgeStyle}>
-              {badgeIcon}
               {badgeText}
             </div>
           )}

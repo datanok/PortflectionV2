@@ -13,6 +13,7 @@ import {
   Smartphone,
   Tablet,
   Monitor as MonitorIcon,
+  RotateCcw,
 } from "lucide-react";
 import {
   Drawer,
@@ -44,8 +45,8 @@ import DropCanvas from "./DropCanvas";
 import {
   savePortfolio,
   updatePortfolio,
-  PortfolioComponent,
 } from "@/actions/portfolio-actions";
+import { PortfolioComponent } from "@/lib/portfolio/types";
 import { motion } from "framer-motion";
 
 // Simplified types
@@ -80,13 +81,30 @@ const useResponsive = () => {
   return { isMobile };
 };
 
-const usePortfolioState = (initialData?: Portfolio) => {
+const usePortfolioState = (initialData?: Portfolio, portfolioId?: string) => {
   const [components, setComponents] = useState<PortfolioComponent[]>(
     initialData?.components || []
   );
   const [name, setName] = useState(initialData?.name || "Untitled Portfolio");
   const [slug, setSlug] = useState(initialData?.slug || "");
   const [isPublic, setIsPublic] = useState(initialData?.isPublic || false);
+
+  // Create portfolio object
+  const portfolio = {
+    id: portfolioId,
+    name,
+    slug,
+    components,
+    isPublic,
+  };
+
+  // Create setPortfolio function
+  const setPortfolio = (newPortfolio: any) => {
+    if (newPortfolio.name !== undefined) setName(newPortfolio.name);
+    if (newPortfolio.slug !== undefined) setSlug(newPortfolio.slug);
+    if (newPortfolio.components !== undefined) setComponents(newPortfolio.components);
+    if (newPortfolio.isPublic !== undefined) setIsPublic(newPortfolio.isPublic);
+  };
 
   return {
     components,
@@ -97,6 +115,8 @@ const usePortfolioState = (initialData?: Portfolio) => {
     setSlug,
     isPublic,
     setIsPublic,
+    portfolio,
+    setPortfolio,
   };
 };
 
@@ -117,7 +137,9 @@ export default function PortfolioEditor({
     setSlug,
     isPublic,
     setIsPublic,
-  } = usePortfolioState(initialData);
+    portfolio,
+    setPortfolio,
+  } = usePortfolioState(initialData, portfolioId);
 
   // UI state
   const [selectedComponent, setSelectedComponent] =
@@ -127,11 +149,44 @@ export default function PortfolioEditor({
   const [activePropertyTab, setActivePropertyTab] =
     useState<PropertyTab>("content");
   const [isComponentPaletteOpen, setIsComponentPaletteOpen] = useState(true);
+  
+  // History for undo/redo
+  const [history, setHistory] = useState<PortfolioComponent[][]>([components]);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [deviceSize, setDeviceSize] = useState<"mobile" | "tablet" | "desktop">(
     "desktop"
   );
   const [canvasZoom, setCanvasZoom] = useState(1);
+
+  // Add to history when components change
+  const addToHistory = useCallback((newComponents: PortfolioComponent[]) => {
+    setHistory(prev => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push(newComponents);
+      return newHistory.slice(-50); // Keep only last 50 states
+    });
+    setHistoryIndex(prev => Math.min(prev + 1, 49));
+  }, [historyIndex]);
+
+  // Undo function
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setComponents(history[newIndex]);
+    }
+  }, [historyIndex, history]);
+
+  // Redo function
+  const redo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setComponents(history[newIndex]);
+    }
+  }, [historyIndex, history]);
+
 
   useEffect(() => {
     if (isMobile) {
@@ -186,26 +241,32 @@ export default function PortfolioEditor({
 
   const handleUpdateComponent = useCallback(
     (id: string, updates: Partial<PortfolioComponent>) => {
-      setComponents((prev) =>
-        prev.map((comp) => (comp.id === id ? { ...comp, ...updates } : comp))
-      );
+      setComponents((prev) => {
+        const newComponents = prev.map((comp) => (comp.id === id ? { ...comp, ...updates } : comp));
+        addToHistory(newComponents);
+        return newComponents;
+      });
 
       setSelectedComponent((prev) =>
         prev?.id === id ? { ...prev, ...updates } : prev
       );
     },
-    []
+    [addToHistory]
   );
 
   const handleDeleteComponent = useCallback(
     (id: string) => {
-      setComponents((prev) => prev.filter((comp) => comp.id !== id));
+      setComponents((prev) => {
+        const newComponents = prev.filter((comp) => comp.id !== id);
+        addToHistory(newComponents);
+        return newComponents;
+      });
       if (selectedComponent?.id === id) {
         setSelectedComponent(null);
       }
       toast.success("Component removed");
     },
-    [selectedComponent?.id]
+    [selectedComponent?.id, addToHistory]
   );
 
   const handleMoveComponent = useCallback(
@@ -311,6 +372,40 @@ export default function PortfolioEditor({
       setIsSaving(false);
     }
   }, [components, name, slug, isPublic, portfolioId, router]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'z':
+            e.preventDefault();
+            if (e.shiftKey) {
+              redo();
+            } else {
+              undo();
+            }
+            break;
+          case 's':
+            e.preventDefault();
+            handleSave();
+            break;
+          case 'y':
+            e.preventDefault();
+            redo();
+            break;
+        }
+      }
+      
+      // Delete selected component
+      if (e.key === 'Delete' && selectedComponent) {
+        handleDeleteComponent(selectedComponent.id);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, selectedComponent, handleSave, handleDeleteComponent]);
 
   // Property tabs configuration
   const propertyTabs = [
@@ -464,8 +559,32 @@ export default function PortfolioEditor({
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
               ) : (
-                /* Desktop: Bulk + Save */
+                /* Desktop: Undo/Redo + Bulk + Save */
                 <>
+                  {/* Undo/Redo buttons */}
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={undo}
+                      disabled={historyIndex === 0}
+                      className="p-2"
+                      title="Undo (Ctrl+Z)"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={redo}
+                      disabled={historyIndex === history.length - 1}
+                      className="p-2"
+                      title="Redo (Ctrl+Y)"
+                    >
+                      <RotateCcw className="w-4 h-4 rotate-180" />
+                    </Button>
+                  </div>
+
                   <BulkStyleModal
                     components={components}
                     onUpdateComponents={(updates) =>
@@ -640,7 +759,7 @@ export default function PortfolioEditor({
               isMobile && activePanel !== "canvas" ? "hidden" : ""
             } ${isMobile ? "pb-20" : ""}`}
           >
-            <div className="overflow-y-auto flex items-center justify-center">
+            <div className="overflow-y-auto flex items-center justify-center h-full">
               {/* Device Preview Container */}
               <div
                 className={`
@@ -767,6 +886,8 @@ export default function PortfolioEditor({
                     onMoveUp={(id) => handleMoveComponent(id, "up")}
                     onMoveDown={(id) => handleMoveComponent(id, "down")}
                     activeTab={activePropertyTab}
+                    portfolio={portfolio}
+                    onPortfolioChange={setPortfolio}
                   />
                 </div>
               </>
