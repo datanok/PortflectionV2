@@ -3,13 +3,10 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { savePortfolio } from "@/actions/portfolio-actions";
-import {
-  mapWithRegistry,
-  ResumeJson,
-  Preset,
-} from "@/lib/resumeMapper";
+import { mapWithRegistry, ResumeJson, Preset } from "@/lib/resumeMapper";
 import { componentRegistry } from "@/lib/portfolio/registry";
 import { colorSchemes, getDefaultColorScheme } from "@/lib/colorSchemes";
+import { toast } from "sonner";
 
 import {
   Card,
@@ -19,7 +16,13 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -46,14 +49,16 @@ export default function ImportResumePage() {
         name: "Neo-Brutalist",
         description: "Bold cards, chunky shadows, striking colors",
         accent: "var(--primary)",
-        preview: "https://placehold.co/640x360/fffef7/111111?text=Brutalist+Preview",
+        preview:
+          "https://placehold.co/640x360/fffef7/111111?text=Brutalist+Preview",
       },
       {
         id: "typography",
         name: "Typography",
         description: "Clean, developer-centric, monospace aesthetic",
         accent: "var(--accent)",
-        preview: "https://placehold.co/640x360/f8fafc/0f172a?text=Typography+Preview",
+        preview:
+          "https://placehold.co/640x360/f8fafc/0f172a?text=Typography+Preview",
       },
     ],
     []
@@ -77,14 +82,35 @@ export default function ImportResumePage() {
       });
 
       if (!res.ok) {
-        throw new Error(`Parser error (${res.status})`);
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage =
+          errorData.details ||
+          errorData.error ||
+          `Parser error (${res.status})`;
+        throw new Error(errorMessage);
       }
 
-      const resumeJson = (await res.json()) as ResumeJson;
+      const response = await res.json();
+
+      // Handle the new API response format
+      const resumeJson = response.data || (response as ResumeJson);
+
+      if (!resumeJson || !resumeJson.basics) {
+        throw new Error("Invalid resume data received from parser");
+      }
+
       const draft = mapWithRegistry(resumeJson, chosen);
       const result = await savePortfolio(draft);
+
+      // Show success message
+      toast.success("Portfolio created successfully!", {
+        description: `Your resume has been converted to a portfolio. You can now edit and customize it.`,
+      });
+
+      // Redirect to the portfolio editor
       router.push(`/dashboard/portfolios/edit/${result.data.id}`);
     } catch (err: any) {
+      console.error("Resume import error:", err);
       setError(err?.message || "Failed to import resume");
     } finally {
       setIsSubmitting(false);
@@ -103,7 +129,8 @@ export default function ImportResumePage() {
             Create a Portfolio from Your Resume
           </h1>
           <p className="mt-3 text-muted-foreground max-w-3xl">
-            Choose a premium preset, upload your resume (PDF/DOC/DOCX), and we’ll generate a fully-editable portfolio for you in seconds.
+            Choose a premium preset, upload your resume (PDF/DOC/DOCX), and
+            we’ll generate a fully-editable portfolio for you in seconds.
           </p>
         </header>
 
@@ -132,7 +159,10 @@ export default function ImportResumePage() {
                       <CardTitle>{p.name}</CardTitle>
                       <span
                         className="px-2 py-0.5 text-xs font-bold rounded"
-                        style={{ backgroundColor: p.accent, color: "var(--primary-foreground)" }}
+                        style={{
+                          backgroundColor: p.accent,
+                          color: "var(--primary-foreground)",
+                        }}
                       >
                         Premium
                       </span>
@@ -152,7 +182,9 @@ export default function ImportResumePage() {
             <Card className="mt-6">
               <CardHeader>
                 <CardTitle>Color Scheme</CardTitle>
-                <CardDescription>Choose a color theme for your portfolio</CardDescription>
+                <CardDescription>
+                  Choose a color theme for your portfolio
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-3">
@@ -164,14 +196,18 @@ export default function ImportResumePage() {
                           ? "ring-2 ring-[--primary] border-[--primary]"
                           : "hover:ring-1 hover:ring-[--border]"
                       }`}
-                      onClick={() => setChosen((c) => ({ ...c, colorScheme: scheme.id }))}
+                      onClick={() =>
+                        setChosen((c) => ({ ...c, colorScheme: scheme.id }))
+                      }
                     >
                       <div
                         className="w-full h-12 rounded mb-2"
                         style={{ background: scheme.preview }}
                       />
                       <div className="text-sm font-medium">{scheme.name}</div>
-                      <div className="text-xs text-muted-foreground">{scheme.description}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {scheme.description}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -184,14 +220,21 @@ export default function ImportResumePage() {
                 <CardTitle>Templates per Section</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3">
-                {(["hero", "about", "skills", "projects", "contact"] as const).map((section) =>
+                {(
+                  ["hero", "about", "skills", "projects", "contact"] as const
+                ).map((section) =>
                   componentRegistry[section].variants.length > 0 ? (
                     <div key={section}>
-                      <Label className="mb-1">{section.charAt(0).toUpperCase() + section.slice(1)}</Label>
+                      <Label className="mb-1">
+                        {section.charAt(0).toUpperCase() + section.slice(1)}
+                      </Label>
                       <Select
                         value={chosen[section] || ""}
                         onValueChange={(val) =>
-                          setChosen((c) => ({ ...c, [section]: val || undefined }))
+                          setChosen((c) => ({
+                            ...c,
+                            [section]: val || undefined,
+                          }))
                         }
                       >
                         <SelectTrigger>
@@ -214,7 +257,9 @@ export default function ImportResumePage() {
 
           {/* Resume Upload */}
           <section>
-            <h2 className="text-xl font-extrabold mb-3">2. Upload Your Resume</h2>
+            <h2 className="text-xl font-extrabold mb-3">
+              2. Upload Your Resume
+            </h2>
             <Card>
               <CardContent className="space-y-4 pt-6">
                 <div>
@@ -237,11 +282,15 @@ export default function ImportResumePage() {
                   disabled={isSubmitting || !file}
                   className="w-full bg-[--primary] text-[--primary-foreground] hover:opacity-90"
                 >
-                  {isSubmitting ? "Generating Portfolio…" : "Generate Portfolio"}
+                  {isSubmitting
+                    ? "Generating Portfolio…"
+                    : "Generate Portfolio"}
                 </Button>
 
                 <p className="text-xs text-muted-foreground">
-                  By continuing you agree that your resume will be parsed locally and transformed into a draft portfolio layout. Nothing is stored until you save.
+                  By continuing you agree that your resume will be parsed
+                  locally and transformed into a draft portfolio layout. Nothing
+                  is stored until you save.
                 </p>
               </CardContent>
             </Card>
