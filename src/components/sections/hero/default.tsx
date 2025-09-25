@@ -209,7 +209,7 @@ export default function PortflectionHero({
                 color: "var(--color-card-foreground)",
               }}
             >
-              <p className="text-sm italic mb-3">"{testimonial.text}"</p>
+              <p className="text-sm italic mb-3">&ldquo;{testimonial.text}&rdquo;</p>
               <div className="flex items-center gap-3">
                 {testimonial.avatar && (
                   <img

@@ -81,7 +81,7 @@ export default function ThemesPage() {
         </div>
 
         <div className="mt-16 text-center">
-          <h2 className="text-2xl font-bold mb-4">Can't Decide?</h2>
+          <h2 className="text-2xl font-bold mb-4">Can&apos;t Decide?</h2>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             All themes are fully customizable, so you can always change your design later.
             Start with any theme and make it your own!

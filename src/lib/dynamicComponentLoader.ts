@@ -25,13 +25,11 @@ export async function loadComponent(componentId: string): Promise<LoadedComponen
     throw new Error(`Component not found: ${componentId}`);
   }
   
-  let Component: React.ComponentType<any>;
-  
   // Check if component has been converted to a file
   const isConverted = await isComponentConvertedToFile(componentId);
   
   // Load from file (new system)
-  Component = dynamic(
+  const Component = dynamic(
     () => import(`@/components/community/${metadata.name.replace(/[^a-zA-Z0-9]/g, '')}`),
     {
       ssr: false,

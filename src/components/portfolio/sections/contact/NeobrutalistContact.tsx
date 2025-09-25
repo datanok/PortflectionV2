@@ -539,8 +539,8 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                     >
                       <CheckCircle size={20} />
                       <span>
-                        Awesome! I'll get back to you faster than you can say
-                        "neobrutalism"!
+                        Awesome! I&apos;ll get back to you faster than you can say
+                        &ldquo;neobrutalism&rdquo;!
                       </span>
                     </div>
                   )}
@@ -567,7 +567,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
               fontFamily: "'Space Grotesk', 'Inter', sans-serif",
             }}
           >
-            Let's Build Something Epic
+            Let&apos;s Build Something Epic
           </div>
           <div
             className="w-20 h-1 transform -rotate-12"

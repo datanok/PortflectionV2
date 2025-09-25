@@ -184,7 +184,7 @@ export default function ImportResumePage() {
           </h1>
           <p className="mt-3 text-muted-foreground max-w-3xl">
             Choose a premium preset, upload your resume (PDF/DOC/DOCX), and
-            we'll generate a fully-editable portfolio for you in seconds.
+            we&apos;ll generate a fully-editable portfolio for you in seconds.
           </p>
         </header>
 
