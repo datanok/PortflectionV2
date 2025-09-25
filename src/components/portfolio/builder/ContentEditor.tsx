@@ -1529,7 +1529,7 @@ export default function ContentEditor({
           <p className="text-xs mt-1">Check the component configuration.</p>
         </div>
       ) : (
-        <div className="space-y-4 max-h-[calc(100vh-400px)] overflow-y-auto w-full max-w-full">
+        <div className="space-y-4 pb-4 overflow-y-auto w-full max-w-full">
           {fieldConfigs.map(renderField)}
         </div>
       )}
