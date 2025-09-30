@@ -57,6 +57,7 @@ interface Portfolio {
   description?: string;
   components: PortfolioComponent[];
   isPublic: boolean;
+  theme?: any;
 }
 
 interface EditorProps {
@@ -88,6 +89,26 @@ const usePortfolioState = (initialData?: Portfolio, portfolioId?: string) => {
   const [name, setName] = useState(initialData?.name || "Untitled Portfolio");
   const [slug, setSlug] = useState(initialData?.slug || "");
   const [isPublic, setIsPublic] = useState(initialData?.isPublic || false);
+  
+  // Theme state with default values
+  const [globalTheme, setGlobalTheme] = useState({
+    primary: "#3b82f6",
+    secondary: "#64748b",
+    accent: "#8b5cf6",
+    background: "#ffffff",
+    card: "#f8fafc",
+    muted: "#f1f5f9",
+    fontHeading: "Inter",
+    fontBody: "Inter",
+    spacingBase: 1,
+    spacingSection: 2,
+    spacingComponent: 1.25,
+    mode: "light" as const,
+    borderRadius: 0.5,
+    shadowIntensity: 50,
+    animationSpeed: 300,
+    ...initialData?.theme, // Merge with initial theme data if available
+  });
 
   // Create portfolio object
   const portfolio = {
@@ -96,6 +117,7 @@ const usePortfolioState = (initialData?: Portfolio, portfolioId?: string) => {
     slug,
     components,
     isPublic,
+    theme: globalTheme,
   };
 
   // Create setPortfolio function
@@ -104,6 +126,7 @@ const usePortfolioState = (initialData?: Portfolio, portfolioId?: string) => {
     if (newPortfolio.slug !== undefined) setSlug(newPortfolio.slug);
     if (newPortfolio.components !== undefined) setComponents(newPortfolio.components);
     if (newPortfolio.isPublic !== undefined) setIsPublic(newPortfolio.isPublic);
+    if (newPortfolio.theme !== undefined) setGlobalTheme(newPortfolio.theme);
   };
 
   return {
@@ -115,6 +138,8 @@ const usePortfolioState = (initialData?: Portfolio, portfolioId?: string) => {
     setSlug,
     isPublic,
     setIsPublic,
+    globalTheme,
+    setGlobalTheme,
     portfolio,
     setPortfolio,
   };
@@ -137,6 +162,8 @@ export default function PortfolioEditor({
     setSlug,
     isPublic,
     setIsPublic,
+    globalTheme,
+    setGlobalTheme,
     portfolio,
     setPortfolio,
   } = usePortfolioState(initialData, portfolioId);
@@ -157,7 +184,7 @@ export default function PortfolioEditor({
   const [deviceSize, setDeviceSize] = useState<"mobile" | "tablet" | "desktop">(
     "desktop"
   );
-  const [canvasZoom, setCanvasZoom] = useState(1);
+  const [canvasZoom, setCanvasZoom] = useState(0.9);
 
   // Add to history when components change
   const addToHistory = useCallback((newComponents: PortfolioComponent[]) => {
@@ -353,6 +380,7 @@ export default function PortfolioEditor({
           ...comp,
           order: index,
         })),
+        theme: globalTheme,
         isPublic,
         portfolioType: "developer" as const,
       };
@@ -371,7 +399,7 @@ export default function PortfolioEditor({
     } finally {
       setIsSaving(false);
     }
-  }, [components, name, slug, isPublic, portfolioId, router]);
+  }, [components, name, slug, isPublic, portfolioId, router, globalTheme]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -763,10 +791,10 @@ export default function PortfolioEditor({
               {/* Device Preview Container */}
               <div
                 className={`
-                  bg-white dark:bg-gray-900 shadow-lg rounded-lg transition-all duration-300
-                  ${deviceSize === "mobile" ? "w-[375px] h-[667px]" : ""}
-                  ${deviceSize === "tablet" ? "w-[768px] h-[1024px]" : ""}
-                  ${deviceSize === "desktop" ? "w-full  h-[800px]" : ""}
+                  bg-white h-full dark:bg-gray-900 shadow-lg rounded-lg transition-all duration-300
+                  ${deviceSize === "mobile" ? "w-[375px] " : ""}
+                  ${deviceSize === "tablet" ? "w-[768px] " : ""}
+                  ${deviceSize === "desktop" ? "w-full " : ""}
                 `}
                 style={{
                   transform: `scale(${canvasZoom})`,
@@ -803,6 +831,7 @@ export default function PortfolioEditor({
                       onSelect={handleSelectComponent}
                       selectedId={selectedComponent?.id || null}
                       deviceSize={deviceSize}
+                      globalTheme={globalTheme}
                       onDrop={(component) => {
                         const newComponent = { ...component, id: uuidv4() };
                         setComponents((prev) => [...prev, newComponent]);
@@ -888,6 +917,8 @@ export default function PortfolioEditor({
                     activeTab={activePropertyTab}
                     portfolio={portfolio}
                     onPortfolioChange={setPortfolio}
+                    globalTheme={globalTheme}
+                    onGlobalThemeChange={setGlobalTheme}
                   />
                 </div>
               </>

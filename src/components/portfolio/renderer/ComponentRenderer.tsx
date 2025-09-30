@@ -6,12 +6,14 @@ interface ComponentRendererProps {
   component: PortfolioComponent;
   preview?: boolean;
   deviceSize?: "mobile" | "tablet" | "desktop";
+  globalTheme?: any;
 }
 
 export default function ComponentRenderer({
   component,
   preview = true,
   deviceSize = "desktop",
+  globalTheme,
 }: ComponentRendererProps) {
   const componentConfig = getComponent(
     component.type as any,
@@ -62,6 +64,8 @@ export default function ComponentRenderer({
     borderColor: styles.borderColor,
     shadowColor: styles.shadowColor,
     statusColor: styles.statusColor,
+    // Pass global theme for font management
+    globalTheme: globalTheme,
   };
 
   // Convert styles to CSS properties and Tailwind classes

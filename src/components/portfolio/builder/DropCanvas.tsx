@@ -10,6 +10,7 @@ interface DropCanvasProps {
   selectedId?: string | null;
   deviceSize?: "mobile" | "tablet" | "desktop";
   onDrop?: (component: PortfolioComponent) => void;
+  globalTheme?: any;
 }
 
 export default function DropCanvas({
@@ -18,6 +19,7 @@ export default function DropCanvas({
   selectedId,
   deviceSize = "desktop",
   onDrop,
+  globalTheme,
 }: DropCanvasProps) {
   const [, drop] = useDrop(() => ({
     accept: "component",
@@ -93,6 +95,7 @@ export default function DropCanvas({
                   component={component}
                   preview={true}
                   deviceSize={deviceSize}
+                  globalTheme={globalTheme}
                 />
 
                 {/* Subtle separator between components (except last one) */}

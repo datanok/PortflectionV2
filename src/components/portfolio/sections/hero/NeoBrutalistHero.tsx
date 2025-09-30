@@ -4,7 +4,10 @@ import {
   ExternalLink,
   Download,
   Star,
+  Quote,
 } from "lucide-react";
+
+// --- INTERFACES ---
 
 interface HeroButton {
   text: string;
@@ -20,13 +23,9 @@ type ShapeType =
   | "diamond"
   | "blob"
   | "star"
-  | "triangle"
   | "octagon"
-  | "figure8"
   | "heart"
-  | "lightning"
   | "pentagon"
-  | "cross";
 
 interface ComponentProps {
   // Content Props
@@ -69,7 +68,8 @@ interface ComponentProps {
   globalTheme?: any;
 }
 
-// -------------------- BUTTON -------------------- //
+// --- HELPER COMPONENTS ---
+
 interface BrutalistButtonProps {
   text: string;
   href?: string;
@@ -81,75 +81,109 @@ interface BrutalistButtonProps {
   secondaryColor?: string;
   accentColor?: string;
   textColor?: string;
-  borderRadius?: string;
   shadow?: string;
 }
 
+/**
+ * Custom Brutalist Button with "Pressed" effect on hover/click.
+ * It translates down and right by the shadow offset and removes the shadow.
+ */
 const BrutalistButton: React.FC<BrutalistButtonProps> = ({
   text,
   href = "#",
   icon,
   onClick,
   variant,
-  borderColor,
-  primaryColor,
-  secondaryColor,
-  accentColor,
-  textColor,
-  borderRadius,
-  shadow,
+  borderColor = "#000",
+  primaryColor = "#000",
+  secondaryColor = "#333",
+  accentColor = "#ffcc00",
+  textColor = "#fff",
+  shadow = "4px 4px 0px #000",
 }) => {
-  const baseStyle =
-    "font-black uppercase tracking-wider border-4 transition-all duration-200 hover:scale-105 hover:shadow-lg px-6 py-3";
+  const [isPressed, setIsPressed] = useState(false);
 
-  let dynamicStyle: React.CSSProperties = {};
+  // Parse shadow offset from the shadow string
+  const shadowOffsetMatch = shadow.match(/^(\d+)px/);
+  const shadowOffset = shadowOffsetMatch ? parseInt(shadowOffsetMatch[1]) : 4;
 
-  switch (variant) {
-    case "primary":
-      dynamicStyle = {
-        backgroundColor: primaryColor,
-        color: "white",
-        boxShadow: shadow || `4px 4px 0px ${borderColor}`,
-        borderColor,
-        borderRadius,
-      };
-      break;
-    case "secondary":
-      dynamicStyle = {
-        backgroundColor: secondaryColor,
-        color: "white",
-        boxShadow: shadow || `4px 4px 0px ${borderColor}`,
-        borderColor,
-        borderRadius,
-      };
-      break;
-    case "outline":
-      dynamicStyle = {
-        backgroundColor: "transparent",
-        color: textColor,
-        boxShadow: shadow || `4px 4px 0px ${borderColor}`,
-        borderColor,
-        borderRadius,
-      };
-      break;
-    default:
-      dynamicStyle = {
-        backgroundColor: primaryColor,
-        color: "white",
-        boxShadow: shadow || `4px 4px 0px ${borderColor}`,
-        borderColor,
-        borderRadius,
-      };
-      break;
-  }
+  // Define default shadow
+  const neoBrutalShadow = shadow;
+
+  const getVariantStyles = () => {
+    let bgColor = primaryColor;
+    let color = textColor;
+    let currentShadow = isPressed ? "none" : neoBrutalShadow;
+    let currentTransform = isPressed ? `translate(${shadowOffset}px, ${shadowOffset}px)` : 'translate(0, 0)';
+
+    switch (variant) {
+      case "primary":
+        bgColor = primaryColor;
+        color = textColor;
+        break;
+      case "secondary":
+        bgColor = secondaryColor;
+        color = textColor;
+        break;
+      case "outline":
+        bgColor = "transparent";
+        color = primaryColor;
+        break;
+      case "get-started":
+        bgColor = accentColor;
+        color = primaryColor;
+        break;
+      default:
+        bgColor = primaryColor;
+        color = textColor;
+        break;
+    }
+
+    return {
+      backgroundColor: bgColor,
+      color: color,
+      borderColor: borderColor,
+      borderWidth: '4px',
+      boxShadow: currentShadow,
+      transform: currentTransform,
+      borderRadius: '0', // Enforce sharp corners
+      transition: "box-shadow 0.1s ease-out, transform 0.1s ease-out",
+      cursor: "pointer",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "0.75rem",
+      padding: "0.75rem 1.5rem",
+      textTransform: "uppercase",
+      fontWeight: 900,
+      letterSpacing: "0.05em",
+    };
+  };
+
+  const handleAction = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Only handle navigation on mouse up/click after a potential press
+    if (onClick) onClick();
+    if (href && href !== "#") window.location.href = href;
+  };
 
   return (
-    <a href={href} onClick={onClick} className={baseStyle} style={dynamicStyle}>
+    <a
+      href={href}
+      // Use mouse/touch events to manage the pressed state cleanly
+      onMouseDown={() => setIsPressed(true)}
+      onMouseUp={() => { setIsPressed(false); handleAction(); }}
+      onMouseLeave={() => setIsPressed(false)}
+      onTouchStart={() => setIsPressed(true)}
+      onTouchEnd={() => { setIsPressed(false); handleAction(); }}
+      style={getVariantStyles()}
+    >
+      {icon && <span className="flex-shrink-0">{icon}</span>}
       {text}
     </a>
   );
 };
 
+
+// Helper function for complex clip-path shapes
 const getShapeStyles = (
   shape: ShapeType = "hexagon",
   size: "small" | "medium" | "large" = "large"
@@ -172,44 +206,31 @@ const getShapeStyles = (
     blob: {
       clipPath:
         "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
-      borderRadius: "30px",
+      borderRadius: "0px", // Enforce brutalist square corners where possible
     },
-    star: {
-      clipPath:
-        "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)",
-    },
-    triangle: { clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)" },
     octagon: {
       clipPath:
         "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
-    },
-    figure8: { clipPath: "ellipse(40% 25% at 50% 25%), ellipse(40% 25% at 50% 75%)" },
-    heart: {
+    }, heart: {
       clipPath:
         "polygon(50% 30%, 85% 20%, 100% 50%, 75% 90%, 50% 100%, 25% 90%, 0% 50%, 15% 20%)",
     },
-    lightning: {
-      clipPath:
-        "polygon(20% 0%, 40% 20%, 30% 20%, 70% 100%, 50% 80%, 60% 80%, 30% 0%)",
-    },
+
     pentagon: {
       clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
     },
-    cross: {
-      clipPath:
-        "polygon(40% 0%, 60% 0%, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 60% 100%, 40% 100%, 40% 60%, 0% 60%, 0% 40%, 40% 40%)",
-    },
+
   };
 
   return { ...dimensions, ...shapes[shape] } as React.CSSProperties;
 };
 
-// -------------------- HERO -------------------- //
+// -------------------- HERO COMPONENT -------------------- //
 const NeoBrutalistHero: React.FC<ComponentProps> = ({
   title = "CREATIVE DEVELOPER & DESIGNER",
   subtitle = "BUILDING THE FUTURE",
   description =
-    "I create bold, innovative digital experiences that push boundaries and challenge conventions. Let's build something extraordinary together.",
+  "I create bold, innovative digital experiences that push boundaries and challenge conventions. Let's build something extraordinary together.",
   buttons = [
     {
       text: "VIEW MY WORK",
@@ -243,18 +264,18 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
   accentColor = "#fef08a",
   borderColor = "#000000",
   borderRadius = "0",
-  shadow = "4px 4px 0px #000",
+  shadow = "8px 8px 0px #000",
 
   height = "auto",
-  paddingY = "2rem",
-  paddingX = "1.5rem",
-  textAlign = "center",
+  paddingY = "8rem",
+  paddingX = "2rem",
+  textAlign = "left",
 
-  titleSize = "3rem",
-  subtitleSize = "2rem",
+  titleSize = "3.5rem",
+  subtitleSize = "1.75rem",
   descriptionSize = "1.125rem",
   badgeSize = "0.875rem",
-  imageShape = "hexagon",
+  imageShape = "octagon", // Changed default shape for variety
   imageSize = "large",
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -266,46 +287,51 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
   const shapeStyles = getShapeStyles(imageShape, imageSize);
 
   const heroStyle: React.CSSProperties = {
-    minHeight: height,
+    minHeight: height === "auto" ? "80vh" : height,
     background: backgroundColor,
     color: textColor,
     padding: `${paddingY} ${paddingX}`,
     textAlign: textAlign as "left" | "center" | "right",
+    // Enforce sharp corners
+    border: `0px solid ${borderColor}`,
   };
 
   const badgeStyle: React.CSSProperties = {
-    backgroundColor: accentColor,
-    color: textColor,
-    fontWeight: 800,
+    backgroundColor: primaryColor, // Using Primary for high visibility
+    color: accentColor,
+    fontWeight: 900,
     fontSize: badgeSize,
     border: `3px solid ${borderColor}`,
-    borderRadius: "50px",
-    padding: "0.75rem 1.5rem",
+    borderRadius: "0", // Force sharp badge
+    padding: "0.5rem 1rem",
     boxShadow: shadow,
     display: "inline-flex",
     alignItems: "center",
     gap: "0.5rem",
     marginBottom: "2rem",
+    textTransform: "uppercase",
   };
 
   const titleStyle: React.CSSProperties = {
     fontSize: titleSize,
     fontWeight: 900,
-    lineHeight: 1.1,
+    lineHeight: 1,
     marginBottom: "1rem",
     textTransform: "uppercase",
+    letterSpacing: "-0.05em",
   };
 
   const subtitleStyle: React.CSSProperties = {
     fontSize: subtitleSize,
-    fontWeight: 800,
-    color: primaryColor,
+    fontWeight: 700,
+    color: secondaryColor,
     marginBottom: "1.5rem",
+    textTransform: "uppercase",
   };
 
   const descriptionStyle: React.CSSProperties = {
     fontSize: descriptionSize,
-    fontWeight: 600,
+    fontWeight: 500,
     lineHeight: 1.6,
     marginBottom: "3rem",
     maxWidth: "600px",
@@ -317,11 +343,11 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
     bottom: "2rem",
     left: "50%",
     transform: "translateX(-50%)",
-    backgroundColor: textColor,
-    color: backgroundColor,
-    border: `3px solid ${borderColor}`,
-    borderRadius: "50px",
-    padding: "1rem",
+    backgroundColor: primaryColor,
+    color: accentColor,
+    border: `4px solid ${borderColor}`,
+    borderRadius: "0", // Force sharp corners
+    padding: "0.5rem",
     cursor: "pointer",
     boxShadow: shadow,
     animation: "bounce 2s infinite",
@@ -329,13 +355,24 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
 
   const otherButtons = buttons.filter((btn) => btn.variant !== "get-started");
 
+  // Hero Image Container Styles (for the drop shadow layer)
+  const imageContainerStyle: React.CSSProperties = {
+    ...shapeStyles,
+    position: "relative",
+    backgroundColor: borderColor,
+    boxShadow: shadow,
+    border: `${parseInt(shapeStyles.width) > 400 ? 6 : 4}px solid ${borderColor}`, // Thicker border for large shapes
+    transition: "transform 0.3s ease-out, box-shadow 0.3s ease-out",
+  }
+
   return (
     <section className="overflow-hidden" style={heroStyle}>
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between relative z-10">
-        {/* Left */}
+        {/* Left (Content) */}
         <div className="flex-1 lg:max-w-xl text-left mb-12 lg:mb-0 pr-0 lg:pr-12">
           {showBadge && (
             <div style={badgeStyle}>
+              <Star size={16} strokeWidth={3} />
               {badgeText}
             </div>
           )}
@@ -352,22 +389,26 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
                 secondaryColor={secondaryColor}
                 accentColor={accentColor}
                 textColor={textColor}
-                borderRadius={borderRadius}
                 shadow={shadow}
               />
             ))}
           </div>
         </div>
 
-        {/* Right */}
-        <div className="flex-1 relative h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center">
+        {/* Right (Visual Element) */}
+        <div className="flex-1 relative h-[400px] md:h-[500px] lg:h-[600px] w-full max-w-lg flex items-center justify-center">
           <div
-            style={{
-              ...shapeStyles,
-              position: "relative",
-              backgroundColor: borderColor,
-              boxShadow: shadow,
+            // Use key events to enforce hover/active state on the image container for visual feedback
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = `${parseInt(shadow.split('px')[0]) + 4}px ${parseInt(shadow.split('px')[0]) + 4}px 0px ${borderColor}`;
+              e.currentTarget.style.transform = "translate(-4px, -4px)";
             }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = shadow;
+              e.currentTarget.style.transform = "translate(0, 0)";
+            }}
+            style={imageContainerStyle}
+            className="cursor-pointer"
           >
             <img
               src={heroImage}
@@ -379,10 +420,13 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
                 ...shapeStyles,
                 position: "relative",
                 zIndex: 2,
+                // Offset the image slightly to show the border of the container underneath
+                transform: "translate(-5px, -5px)",
+                border: `4px solid ${borderColor}`,
               }}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src =
-                  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&h=600&fit=crop&crop=face";
+                  "https://placehold.co/1000x800/d9f991/000000?text=ERROR";
               }}
             />
           </div>
@@ -391,8 +435,10 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
 
       {/* Scroll Indicator */}
       {showScrollIndicator && (
-        <button
-          onClick={() => {
+        <a
+          href={scrollTarget}
+          onClick={(e) => {
+            e.preventDefault();
             const target = document.getElementById(
               scrollTarget?.replace("#", "") || ""
             );
@@ -401,7 +447,7 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
           style={scrollIndicatorStyle}
         >
           <ArrowDown size={24} strokeWidth={3} />
-        </button>
+        </a>
       )}
 
       {/* Animations */}

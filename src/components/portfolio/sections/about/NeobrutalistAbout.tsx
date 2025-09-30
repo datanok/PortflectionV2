@@ -6,7 +6,6 @@ import {
   Users,
   Trophy,
   Heart,
-  Coffee,
   Calendar,
   MapPin,
   Briefcase,
@@ -72,7 +71,7 @@ interface NeobrutalistAboutProps {
   shadowOffset?: string;
   borderWidth?: string;
 
-  // Global Theme
+  // Global Theme (not used but kept for consistency)
   globalTheme?: any;
 }
 
@@ -189,11 +188,11 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
   showValues = true,
   showQuote = true,
 
-  backgroundColor = "#22d3ee",
+  backgroundColor = "#22d3ee", // Tailwind cyan-400
   textColor = "#000000",
   primaryColor = "#000000",
-  secondaryColor = "#1f2937",
-  accentColor = "#f59e0b",
+  secondaryColor = "#1f2937", // Tailwind gray-800
+  accentColor = "#f59e0b", // Tailwind amber-500
   shadowColor = "#000000",
   borderColor = "#000000",
   paddingY = "120",
@@ -208,6 +207,9 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
 }) => {
   const [activeExperience, setActiveExperience] = useState(0);
 
+  // --- Helper Functions ---
+
+  // Converts Tailwind font size names to responsive clamp values
   const getFontSize = (size: string) => {
     const sizeMap: { [key: string]: string } = {
       xs: "clamp(0.75rem, 2vw, 1rem)",
@@ -224,6 +226,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
     return sizeMap[size] || size;
   };
 
+  // Maps icon names to Lucide React components
   const getIcon = (iconName: string) => {
     const iconMap: { [key: string]: React.ComponentType<any> } = {
       award: Award,
@@ -232,7 +235,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
       users: Users,
       trophy: Trophy,
       heart: Heart,
-      coffee: Coffee,
+      // coffee: Coffee,
       star: Star,
       briefcase: Briefcase,
       calendar: Calendar,
@@ -241,10 +244,13 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
     return iconMap[iconName] || Award;
   };
 
+  // --- Neobrutalist Styles Calculation ---
+
   const containerStyles: React.CSSProperties = {
     backgroundColor,
     color: textColor,
-    borderRadius: borderRadius !== "0" ? `${borderRadius}px` : "0px",
+    // Enforce sharp corners for brutalism
+    borderRadius: "0px",
   };
 
   const titleStyles: React.CSSProperties = {
@@ -268,10 +274,30 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
     textAlign: textAlign,
   };
 
+  // Define consistent shadow and hover shadow
   const neoBrutalShadow = `${shadowOffset}px ${shadowOffset}px 0px ${shadowColor}`;
-  const neoBrutalHoverShadow = `${parseInt(shadowOffset) + 2}px ${
-    parseInt(shadowOffset) + 2
-  }px 0px ${shadowColor}`;
+  const neoBrutalHoverShadow = `${parseInt(shadowOffset) + 4}px ${parseInt(shadowOffset) + 4
+    }px 0px ${shadowColor}`;
+
+  // Function to apply default shadow
+  const applyDefaultShadow = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.boxShadow = neoBrutalShadow;
+  };
+
+  // Function to apply hover shadow and slight transformation
+  const applyHoverStyle = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.boxShadow = neoBrutalHoverShadow;
+    // Optional: Add a slight "press" effect on hover for responsiveness
+    e.currentTarget.style.transform = "translate(-2px, -2px)";
+  };
+
+  // Function to reset style
+  const resetStyle = (e: React.MouseEvent<HTMLElement>) => {
+    e.currentTarget.style.boxShadow = neoBrutalShadow;
+    e.currentTarget.style.transform = "translate(0px, 0px)";
+  };
+
+  // --- JSX Rendering ---
 
   return (
     <section
@@ -280,7 +306,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className={`mb-16 text-${textAlign}`}>
+        <div className={`mb-20 text-${textAlign}`}>
           <h2 className="mb-6" style={titleStyles}>
             {title}
           </h2>
@@ -289,13 +315,13 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
           </p>
         </div>
 
-        {/* Story Section */}
+        {/* Story Section - Removed all rotational transforms */}
         {showStory && (
-          <div className="mb-16">
+          <div className="mb-20">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-              {/* Main Story */}
+              {/* Main Story Block */}
               <div
-                className="p-8 border transform -rotate-1 hover:rotate-0 transition-all duration-500"
+                className="p-8 border transition-all duration-300 cursor-pointer"
                 style={{
                   backgroundColor: backgroundColor,
                   borderColor: primaryColor,
@@ -303,25 +329,23 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   boxShadow: neoBrutalShadow,
                   textAlign: textAlign,
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = neoBrutalHoverShadow;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = neoBrutalShadow;
-                }}
+                onMouseEnter={applyHoverStyle}
+                onMouseLeave={resetStyle}
               >
+                {/* Title Tag - Removed rotation */}
                 <div
-                  className="inline-block px-4 py-2 border mb-6 transform rotate-2"
+                  className="inline-block px-4 py-2 border mb-6"
                   style={{
-                    backgroundColor: backgroundColor,
+                    backgroundColor: accentColor, // Use accent for visual pop
                     borderColor: primaryColor,
                     borderWidth: `2px`,
-                    color: textColor,
+                    color: primaryColor,
                     fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                     fontWeight: "800",
                     textTransform: "uppercase",
                     fontSize: getFontSize("lg"),
                     textAlign: textAlign,
+                    boxShadow: `4px 4px 0px ${shadowColor}`, // Add a small shadow here too
                   }}
                 >
                   The Origin Story
@@ -339,9 +363,9 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                 </p>
               </div>
 
-              {/* Mission */}
+              {/* Mission Block */}
               <div
-                className="p-8 border transform rotate-1 hover:rotate-0 transition-all duration-500"
+                className="p-8 border transition-all duration-300 cursor-pointer"
                 style={{
                   backgroundColor: backgroundColor,
                   borderColor: primaryColor,
@@ -349,13 +373,19 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   boxShadow: neoBrutalShadow,
                   textAlign: textAlign,
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = neoBrutalHoverShadow;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = neoBrutalShadow;
-                }}
+                onMouseEnter={applyHoverStyle}
+                onMouseLeave={resetStyle}
               >
+                <p
+                  className="text-2xl font-extrabold mb-4 uppercase"
+                  style={{
+                    color: accentColor,
+                    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                    textAlign: textAlign,
+                  }}
+                >
+                  The Mission
+                </p>
                 <p
                   className="text-lg leading-relaxed font-medium"
                   style={{
@@ -371,34 +401,30 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
           </div>
         )}
 
-        {/* Quote Section */}
+        {/* Quote Section - Removed translational transform */}
         {showQuote && (
-          <div className="mb-16">
+          <div className="mb-20">
             <div
-              className="max-w-4xl mx-auto p-8 border transform hover:-translate-y-2 transition-all duration-300"
+              className="max-w-4xl mx-auto p-8 border transition-all duration-300 cursor-pointer"
               style={{
-                backgroundColor: backgroundColor,
+                backgroundColor: accentColor, // Use accent color for high contrast
                 borderColor: primaryColor,
                 borderWidth: `${borderWidth}px`,
                 boxShadow: neoBrutalShadow,
                 textAlign: textAlign,
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = neoBrutalHoverShadow;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = neoBrutalShadow;
-              }}
+              onMouseEnter={applyHoverStyle}
+              onMouseLeave={resetStyle}
             >
               <div className="mb-4">
-                <Quote size={40} color={textColor} />
+                <Quote size={48} color={primaryColor} />
               </div>
 
               <blockquote
-                className=" mb-6 italic"
+                className="mb-6 italic"
                 style={{
-                  color: textColor,
-                  fontSize: getFontSize("lg"),
+                  color: primaryColor,
+                  fontSize: getFontSize("2xl"), // Make quote stand out
                   fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                 }}
               >
@@ -408,11 +434,12 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
               <div
                 className="inline-block px-4 py-2 border font-bold"
                 style={{
-                  backgroundColor: backgroundColor,
+                  backgroundColor: primaryColor, // Invert colors for authorship tag
                   borderColor: primaryColor,
                   borderWidth: `2px`,
-                  color: textColor,
+                  color: accentColor,
                   fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                  boxShadow: `4px 4px 0px ${secondaryColor}`,
                 }}
               >
                 - {quoteAuthor}
@@ -421,9 +448,9 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
           </div>
         )}
 
-        {/* Experience Timeline */}
+        {/* Experience Timeline - Simplified navigation styling */}
         {showExperience && (
-          <div className="mb-16">
+          <div className="mb-20">
             <div className="grid lg:grid-cols-3 gap-6">
               {/* Experience Navigation */}
               <div className="space-y-4">
@@ -431,11 +458,10 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   <button
                     key={index}
                     onClick={() => setActiveExperience(index)}
-                    className={`w-full border transform transition-all duration-300 ${
-                      activeExperience === index
-                        ? "hover:-translate-y-1 -translate-y-1"
-                        : "hover:-translate-y-1"
-                    }`}
+                    className={`w-full p-4 border transition-all duration-300 flex items-center justify-between ${activeExperience === index
+                        ? "shadow-none translate-x-1 translate-y-1" // "Pressed" state
+                        : "hover:translate-x-0.5 hover:translate-y-0.5"
+                      }`}
                     style={{
                       backgroundColor:
                         activeExperience === index
@@ -445,20 +471,21 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                       borderWidth: `${borderWidth}px`,
                       boxShadow:
                         activeExperience === index
-                          ? neoBrutalHoverShadow
-                          : `4px 4px 0px ${shadowColor}`,
+                          ? "none"
+                          : neoBrutalShadow, // Only show shadow when inactive
                       color:
-                        activeExperience === index ? textColor : primaryColor,
+                        activeExperience === index ? backgroundColor : primaryColor, // Swap text color
                       textAlign: textAlign,
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <Briefcase size={20} />
+                      <Briefcase size={20} color={activeExperience === index ? backgroundColor : primaryColor} />
                       <div>
                         <div
-                          className="font-bold"
+                          className="font-bold text-lg"
                           style={{
                             fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                            textAlign: textAlign,
                           }}
                         >
                           {exp.company}
@@ -473,8 +500,8 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                           {exp.period}
                         </div>
                       </div>
-                      <ChevronRight size={16} className="ml-auto" />
                     </div>
+                    <ChevronRight size={16} />
                   </button>
                 ))}
               </div>
@@ -484,12 +511,11 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                 {experience.map((exp, index) => (
                   <div
                     key={index}
-                    className={`transition-all duration-500 ${
-                      activeExperience === index ? "block" : "hidden"
-                    }`}
+                    className={`transition-all duration-500 ${activeExperience === index ? "block" : "hidden"
+                      }`}
                   >
                     <div
-                      className="p-8 border transform hover:-translate-y-1 hover:translate-x-1 transition-all duration-300"
+                      className="p-8 border transition-all duration-300 cursor-pointer"
                       style={{
                         backgroundColor: backgroundColor,
                         borderColor: borderColor,
@@ -497,17 +523,13 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         boxShadow: neoBrutalShadow,
                         textAlign: textAlign,
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = neoBrutalHoverShadow;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = neoBrutalShadow;
-                      }}
+                      onMouseEnter={applyHoverStyle}
+                      onMouseLeave={resetStyle}
                     >
-                      <div className="flex items-start justify-between mb-6">
+                      <div className="flex flex-col sm:flex-row items-start justify-between mb-6">
                         <div>
                           <h3
-                            className="text-2xl font-bold mb-2"
+                            className="text-2xl font-bold mb-2 uppercase"
                             style={{
                               color: primaryColor,
                               textAlign: textAlign,
@@ -530,13 +552,14 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                           </p>
                         </div>
                         <span
-                          className="px-4 py-2 border font-bold"
+                          className="mt-4 sm:mt-0 px-4 py-2 border font-bold flex-shrink-0"
                           style={{
                             backgroundColor: secondaryColor,
                             borderColor: borderColor,
                             borderWidth: `2px`,
-                            color: textColor,
+                            color: backgroundColor, // Background color for text
                             fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                            boxShadow: `4px 4px 0px ${accentColor}`, // Accent color pop
                           }}
                         >
                           {exp.period}
@@ -564,14 +587,14 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         Key Achievements:
                       </div>
 
-                      <div className="space-y-3">
+                      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
                         {exp.highlights.map((highlight, highlightIndex) => (
                           <div
                             key={highlightIndex}
                             className="flex items-center gap-3"
                           >
                             <div
-                              className="w-2 h-2"
+                              className="w-2 h-2 flex-shrink-0"
                               style={{ backgroundColor: accentColor }}
                             />
                             <span
@@ -595,74 +618,52 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
           </div>
         )}
 
-        {/* Achievements Timeline */}
+        {/* Achievements Timeline - Removed rotational transforms */}
         {showAchievements && (
-          <div className="mb-16">
-            <div
-              className="inline-block px-6 py-3 border mb-8 transform rotate-1"
-              style={{
-                backgroundColor,
-                borderColor: borderColor,
-                borderWidth: `${borderWidth}px`,
-                boxShadow: neoBrutalShadow,
-                fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                fontWeight: "800",
-                color: primaryColor,
-                textTransform: "uppercase",
-                fontSize: getFontSize("xl"),
-              }}
-            >
-              Milestone Moments
-            </div>
+          <div className="mb-20">
 
-            <div className="grid md:grid-cols-2 gap-6">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {achievements.map((achievement, index) => {
                 const IconComponent = getIcon(achievement.icon || "award");
-                const isOdd = index % 2 === 1;
+                const blockBg = index % 2 === 0 ? secondaryColor : backgroundColor;
+                const blockTextColor = index % 2 === 0 ? backgroundColor : primaryColor;
 
                 return (
                   <div
                     key={index}
-                    className={`p-6 border transform transition-all duration-300 ${
-                      isOdd
-                        ? "rotate-1 hover:rotate-0"
-                        : "-rotate-1 hover:rotate-0"
-                    } hover:-translate-y-2`}
+                    className="p-6 border transition-all duration-300 cursor-pointer"
                     style={{
-                      backgroundColor: isOdd ? secondaryColor : backgroundColor,
+                      backgroundColor: blockBg,
                       borderColor: borderColor,
                       borderWidth: `${borderWidth}px`,
                       boxShadow: neoBrutalShadow,
                     }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = neoBrutalHoverShadow;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = neoBrutalShadow;
-                    }}
+                    onMouseEnter={applyHoverStyle}
+                    onMouseLeave={resetStyle}
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex flex-col sm:flex-row items-start gap-4">
                       <div
-                        className="w-16 h-16 border flex items-center justify-center flex-shrink-0"
+                        className="w-12 h-12 border flex items-center justify-center flex-shrink-0"
                         style={{
                           backgroundColor: accentColor,
                           borderColor: borderColor,
                           borderWidth: `2px`,
+                          boxShadow: `4px 4px 0px ${primaryColor}`,
                         }}
                       >
-                        <IconComponent size={24} color={textColor} />
+                        <IconComponent size={24} color={primaryColor} />
                       </div>
 
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1 flex flex-col">
+                        <div className="flex flex-col sm:flex-row sm:justify-between mb-3">
                           <h4
-                            className="text-lg font-bold"
+                            className="text-lg font-bold mb-2 uppercase"
                             style={{
-                              color: primaryColor,
+                              color: blockTextColor,
                               textAlign: textAlign,
                               fontSize: getFontSize("lg"),
-                              fontFamily:
-                                "'Space Grotesk', 'Inter', sans-serif",
+                              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                             }}
                           >
                             {achievement.title}
@@ -672,9 +673,10 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                             style={{
                               backgroundColor: primaryColor,
                               borderColor: borderColor,
-                              color: backgroundColor,
-                              fontFamily:
-                                "'Space Grotesk', 'Inter', sans-serif",
+                              color: blockBg,
+                              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                              boxShadow: `2px 2px 0px ${accentColor}`,
+                              alignSelf: "flex-start",
                             }}
                           >
                             {achievement.year}
@@ -682,9 +684,9 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         </div>
 
                         <p
-                          className="leading-relaxed font-medium"
+                          className="leading-relaxed font-medium text-sm"
                           style={{
-                            color: secondaryColor,
+                            color: blockTextColor,
                             fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                           }}
                         >
@@ -696,6 +698,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                 );
               })}
             </div>
+
           </div>
         )}
       </div>

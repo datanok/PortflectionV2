@@ -60,6 +60,7 @@ import {
 } from "@/components/ui/tooltip";
 import ContentEditor from "./ContentEditor";
 import ColorPanel from "./ColorPanel";
+import FontPicker from "./FontPicker";
 
 interface PropertyPanelProps {
   component: PortfolioComponent | null;
@@ -72,6 +73,9 @@ interface PropertyPanelProps {
   // New props for color schemes
   portfolio?: any;
   onPortfolioChange?: (portfolio: any) => void;
+  // Theme props
+  globalTheme?: any;
+  onGlobalThemeChange?: (theme: any) => void;
 }
 
 export default function PropertyPanel({
@@ -84,6 +88,8 @@ export default function PropertyPanel({
   activeTab = "content",
   portfolio,
   onPortfolioChange,
+  globalTheme,
+  onGlobalThemeChange,
 }: PropertyPanelProps) {
   const [componentTabStates, setComponentTabStates] = useState<
     Record<string, string>
@@ -741,9 +747,12 @@ export default function PropertyPanel({
                 onValueChange={setStyleTab}
                 className="w-full"
               >
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="colors" className="text-xs">
                     Colors
+                  </TabsTrigger>
+                  <TabsTrigger value="typography" className="text-xs">
+                    Typography
                   </TabsTrigger>
                   <TabsTrigger value="styles" className="text-xs">
                     Styles
@@ -760,6 +769,48 @@ export default function PropertyPanel({
                       onPortfolioChange={onPortfolioChange}
                     />
                   )}
+                </TabsContent>
+
+                <TabsContent value="typography" className="space-y-6 mt-4">
+                  {/* Typography Settings */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-medium">Font Selection</h3>
+                      <p className="text-xs text-muted-foreground">
+                        Choose fonts for your portfolio. These will be applied globally across all components.
+                      </p>
+                      
+                      <div className="space-y-4">
+                        <FontPicker
+                          selectedFont={globalTheme?.fontHeading || "Inter"}
+                          onFontChange={(font) => {
+                            if (onGlobalThemeChange) {
+                              onGlobalThemeChange({
+                                ...globalTheme,
+                                fontHeading: font,
+                              });
+                            }
+                          }}
+                          fontType="heading"
+                          label="Heading Font"
+                        />
+                        
+                        <FontPicker
+                          selectedFont={globalTheme?.fontBody || "Inter"}
+                          onFontChange={(font) => {
+                            if (onGlobalThemeChange) {
+                              onGlobalThemeChange({
+                                ...globalTheme,
+                                fontBody: font,
+                              });
+                            }
+                          }}
+                          fontType="body"
+                          label="Body Font"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </TabsContent>
 
                 <TabsContent value="styles" className="space-y-6 mt-4">

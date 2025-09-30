@@ -14,12 +14,14 @@ interface PreviewDialogProps {
   component: PortfolioComponent | null;
   isOpen: boolean;
   onClose: () => void;
+  globalTheme?: any;
 }
 
 export default function PreviewDialog({
   component,
   isOpen,
   onClose,
+  globalTheme,
 }: PreviewDialogProps) {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [previewMode, setPreviewMode] = React.useState<
@@ -168,6 +170,7 @@ export default function PreviewDialog({
                 <ComponentRenderer
                   component={component}
                   preview={false} // Show full component, not preview mode
+                  globalTheme={globalTheme}
                 />
               </div>
             </div>

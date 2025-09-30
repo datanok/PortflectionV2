@@ -214,17 +214,25 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
     return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
   };
 
-  const getLayoutClasses = (layoutStyle: "blocks" | "stack" | "masonry" = "blocks") => {
+  const getLayoutClasses = (
+    layoutStyle: "blocks" | "stack" | "masonry" = "blocks"
+  ) => {
     switch (layoutStyle) {
       case "stack":
-        return "flex flex-row gap-8 overflow-auto"; // stacked vertically
+        // On mobile stack vertically, on md+ keep a row layout
+        return "flex flex-col md:flex-row gap-6 flex-wrap";
+  
       case "masonry":
-        return "columns-2 md:columns-3 gap-6 [column-fill:_balance]"; // masonry columns
+        // Masonry style with 1 col on mobile, 2 on md, 3 on lg+
+        return "columns-1 sm:columns-2 lg:columns-3 gap-6 [column-fill:_balance]";
+  
       case "blocks":
       default:
-        return `grid ${getGridColumns()} gap-8`; // default grid blocks
+        // Responsive grid blocks (1 -> 2 -> 3 -> 4)
+        return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6";
     }
   };
+  
 
 
   const sectionStyle: React.CSSProperties = {
