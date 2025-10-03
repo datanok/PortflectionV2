@@ -46,7 +46,17 @@ const ColorPanel: React.FC<ColorPanelProps> = ({
       </div>
       {saveMode && (
         <button
-          className="mt-4 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          className="mt-4 w-full py-2 rounded transition"
+          style={{
+            backgroundColor: colors.primary,
+            color: colors.background,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "0.8";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "1";
+          }}
           onClick={onSave}
         >
           Save Changes

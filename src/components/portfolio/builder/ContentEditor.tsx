@@ -15,6 +15,8 @@ import {
   Info,
   CheckCircle,
   Clock,
+  Image as ImageIcon,
+  Smile,
 } from "lucide-react";
 import { getComponent } from "@/lib/portfolio/registry";
 import {
@@ -31,7 +33,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FieldMetadata } from "@/lib/portfolio/registry";
+import { Memoji } from "@/types/memoji";
+import { getOptimizedMemojiUrl } from "@/lib/memoji-utils";
+import SimpleMemojiPicker from "@/components/ui/SimpleMemojiPicker";
 
 interface ContentEditorProps {
   data: any;
@@ -85,6 +91,8 @@ export default function ContentEditor({
     "saved"
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [currentImageField, setCurrentImageField] = useState<string>("");
+  const [selectedMemoji, setSelectedMemoji] = useState<Memoji | null>(null);
 
   // Debounce local data changes for auto-save
   const debouncedData = useDebounce(localData, 500);
@@ -148,6 +156,27 @@ export default function ContentEditor({
   const handleFieldUpdate = useCallback((key: string, value: any) => {
     setLocalData((prev) => ({ ...prev, [key]: value }));
     setSaveStatus("pending");
+  }, []);
+
+  // Handle memoji selection
+  const handleMemojiSelect = useCallback((memoji: Memoji) => {
+    if (currentImageField) {
+      const optimizedUrl = getOptimizedMemojiUrl(memoji.fileName, {
+        width: 400,
+        height: 400,
+        quality: 'auto',
+        format: 'auto'
+      });
+      handleFieldUpdate(currentImageField, optimizedUrl);
+      setSelectedMemoji(memoji);
+      setIsDialogOpen(false);
+    }
+  }, [currentImageField, handleFieldUpdate]);
+
+  // Open image picker dialog
+  const openImagePicker = useCallback((fieldKey: string) => {
+    setCurrentImageField(fieldKey);
+    setIsDialogOpen(true);
   }, []);
 
   const handleArrayItemAdd = useCallback(
@@ -979,6 +1008,49 @@ export default function ContentEditor({
       );
     }
 
+    // Handle objects in array items
+    if (typeof item === "object" && item !== null) {
+      return (
+        <div key={index} className="border rounded-lg p-3 bg-muted/30 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Item {index + 1}</span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => handleArrayItemRemove(key, index)}
+              className="h-6 px-2 text-destructive hover:text-destructive-foreground"
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {Object.entries(item).map(([objKey, objValue]) => (
+              <div key={objKey}>
+                <Label className="text-xs font-medium">{objKey}</Label>
+                <Input
+                  value={typeof objValue === 'string' ? objValue : JSON.stringify(objValue)}
+                  onChange={(e) => {
+                    let newValue = e.target.value;
+                    // Try to parse as JSON if it looks like JSON, otherwise keep as string
+                    try {
+                      if (newValue.startsWith('{') || newValue.startsWith('[')) {
+                        newValue = JSON.parse(newValue);
+                      }
+                    } catch {
+                      // Keep as string if JSON parsing fails
+                    }
+                    handleArrayObjectUpdate(key, index, objKey, newValue);
+                  }}
+                  className="text-xs h-7 mt-1"
+                  placeholder={`Enter ${objKey}`}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     // Default simple string item
     return (
       <div key={index} className="border rounded-lg p-3 bg-muted/30">
@@ -994,7 +1066,7 @@ export default function ContentEditor({
           </Button>
         </div>
         <Input
-          value={item}
+          value={typeof item === 'string' ? item : JSON.stringify(item)}
           onChange={(e) => handleArrayItemUpdate(key, index, e.target.value)}
           className="text-sm h-8"
           placeholder="Enter value"
@@ -1423,12 +1495,15 @@ export default function ContentEditor({
               key.toLowerCase().includes("photo") ||
               key.toLowerCase().includes("picture") ||
               key.toLowerCase().includes("avatar")) && (
-              <button
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => setIsDialogOpen(true)}
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-6 px-2 text-xs"
+                onClick={() => openImagePicker(key)}
               >
-                <Info className="w-3 h-3" />
-              </button>
+                <Smile className="w-3 h-3 mr-1" />
+                Memoji
+              </Button>
             )}
           </div>
           {field.metadata?.description && (
@@ -1536,122 +1611,126 @@ export default function ContentEditor({
 
       {/* Info Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl max-h-[80vh]">
           <DialogHeader>
-            <DialogTitle>How to upload images</DialogTitle>
+            <DialogTitle>Choose Image or Memoji</DialogTitle>
+            <DialogDescription>
+              Select a memoji from our collection or provide your own image URL
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 text-sm text-muted-foreground">
-            <p>
-              Upload functionality hasn&apos;t been implemented yet. In the
-              meantime, you can host your image on any free service and paste
-              the link here.
-            </p>
+          
+          <Tabs defaultValue="memoji" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="memoji" className="flex items-center gap-2">
+                <Smile className="w-4 h-4" />
+                Memoji Collection
+              </TabsTrigger>
+              <TabsTrigger value="url" className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" />
+                Image URL
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="memoji" className="mt-4">
+              <SimpleMemojiPicker
+                onSelect={handleMemojiSelect}
+                selectedMemoji={selectedMemoji}
+                className="border-0 shadow-none"
+              />
+            </TabsContent>
+            
+            <TabsContent value="url" className="mt-4 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="image-url">Image URL</Label>
+                <Input
+                  id="image-url"
+                  placeholder="https://example.com/image.jpg"
+                  value={currentImageField ? localData[currentImageField] || "" : ""}
+                  onChange={(e) => {
+                    if (currentImageField) {
+                      handleFieldUpdate(currentImageField, e.target.value);
+                    }
+                  }}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste a direct link to your image. Make sure it ends with .jpg, .png, or .webp
+                </p>
+              </div>
 
-            <div className="bg-muted/50 rounded-lg p-4 border">
-              <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-                Steps to upload your image:
-              </h4>
-
-              <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
-                      Imgur
-                    </span>
-                    <span className="text-xs text-muted-foreground hidden sm:block">
-                      •
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-foreground">Go to </span>
-                    <a
-                      href="https://imgur.com/upload"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline font-medium"
-                    >
-                      imgur.com/upload
-                    </a>
-                    <span className="text-foreground">
-                      , upload your image, then copy the &quot;Direct
-                      Link&quot;.
-                    </span>
+              {/* Image preview */}
+              {currentImageField && localData[currentImageField] && (
+                <div className="space-y-2">
+                  <Label>Preview</Label>
+                  <div className="border rounded-lg p-4 bg-gray-50">
+                    <img
+                      src={localData[currentImageField]}
+                      alt="Preview"
+                      className="max-w-full h-32 object-contain mx-auto rounded"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
                   </div>
                 </div>
+              )}
 
-                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
-                      Postimages
-                    </span>
-                    <span className="text-xs text-muted-foreground hidden sm:block">
-                      •
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-foreground">Go to </span>
-                    <a
-                      href="https://postimages.org/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline font-medium"
-                    >
-                      postimages.org
-                    </a>
-                    <span className="text-foreground">
-                      , upload, then copy the &quot;Direct Link&quot;.
-                    </span>
-                  </div>
-                </div>
+              <div className="bg-muted/50 rounded-lg p-4 border">
+                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  Free Image Hosting Services
+                </h4>
 
-                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
-                      Drive/Dropbox
-                    </span>
-                    <span className="text-xs text-muted-foreground hidden sm:block">
-                      •
-                    </span>
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                        Imgur
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <a
+                        href="https://imgur.com/upload"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        imgur.com/upload
+                      </a>
+                      <span className="text-muted-foreground text-sm"> - Free, no account needed</span>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-foreground">
-                      Upload your file, set visibility to &quot;Anyone with the
-                      link can view&quot;, and copy the share link.
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
-                      GitHub
-                    </span>
-                    <span className="text-xs text-muted-foreground hidden sm:block">
-                      •
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-foreground">
-                      Push your image to a repo and copy the raw URL.
-                    </span>
+                  <div className="flex flex-col sm:flex-row gap-2 p-3 bg-background rounded-md border">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap">
+                        Unsplash
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <a
+                        href="https://unsplash.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-medium"
+                      >
+                        unsplash.com
+                      </a>
+                      <span className="text-muted-foreground text-sm"> - Free stock photos</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => setIsDialogOpen(false)}>
+                  Done
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>

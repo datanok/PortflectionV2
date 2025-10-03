@@ -35,17 +35,21 @@ const ParentComponent: React.FC = () => {
         <div className="mb-4 flex items-center gap-4">
           <label className="font-semibold">Mode:</label>
           <button
-            className={`px-3 py-1 rounded ${
-              !saveMode ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
+            className="px-3 py-1 rounded transition-colors"
+            style={{
+              backgroundColor: !saveMode ? colors.primary : "#e5e7eb",
+              color: !saveMode ? colors.background : colors.text,
+            }}
             onClick={() => setSaveMode(false)}
           >
             Live Preview
           </button>
           <button
-            className={`px-3 py-1 rounded ${
-              saveMode ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
+            className="px-3 py-1 rounded transition-colors"
+            style={{
+              backgroundColor: saveMode ? colors.primary : "#e5e7eb",
+              color: saveMode ? colors.background : colors.text,
+            }}
             onClick={() => setSaveMode(true)}
           >
             Save Mode

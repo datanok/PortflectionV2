@@ -29,7 +29,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ImportResumePage() {
   const router = useRouter();
-  const [preset, setPreset] = useState<Preset>("brutalist");
+  const [preset, setPreset] = useState<Preset>("minimal");
   const [chosen, setChosen] = useState({
     hero: componentRegistry.hero.variants[0]?.id || "hero-section",
     about: componentRegistry.about.variants[0]?.id || undefined,
@@ -44,6 +44,14 @@ export default function ImportResumePage() {
 
   const presets = useMemo(
     () => [
+      {
+        id: "minimal",
+        name: "Minimal",
+        description: "Clean, simple, and elegant design with subtle touches",
+        accent: "var(--primary)",
+        preview:
+          "https://placehold.co/640x360/ffffff/3b82f6?text=Minimal+Preview",
+      },
       {
         id: "brutalist",
         name: "Neo-Brutalist",
@@ -80,6 +88,18 @@ export default function ImportResumePage() {
     };
     
     return {
+      minimal: {
+        templates: {
+          hero: getVariantIdByName('hero', 'minimal') || getFirstVariantId('hero') || "hero-section",
+          about: getVariantIdByName('about', 'minimal') || getFirstVariantId('about'),
+          skills: getVariantIdByName('skills', 'minimal') || getFirstVariantId('skills'),
+          projects: getVariantIdByName('projects', 'minimal') || getFirstVariantId('projects'),
+          contact: getVariantIdByName('contact', 'minimal') || getFirstVariantId('contact'),
+          testimonials: getVariantIdByName('testimonials', 'minimal') || getFirstVariantId('testimonials'),
+          navbar: getVariantIdByName('navbar', 'minimal') || getFirstVariantId('navbar')
+        },
+        colorScheme: colorSchemes[1]?.id || getDefaultColorScheme().id
+      },
       brutalist: {
         templates: {
           hero: getVariantIdByName('hero', 'neo-brutalist') || getFirstVariantId('hero') || "hero-section",

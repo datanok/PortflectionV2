@@ -41,6 +41,7 @@
     "@tabler/icons-react": "^3.31.0",
     "better-auth": "^1.2.0",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",

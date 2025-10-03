@@ -121,11 +121,11 @@ const SkillsTypography: React.FC<ComponentProps> = ({
   const getStatusColor = (status?: string) => {
     switch (status) {
       case "expert":
-        return "#10b981";
+        return primaryColor; // Use primary color for expert status
       case "active":
         return primaryColor;
       case "learning":
-        return "#f59e0b";
+        return secondaryColor; // Use secondary color for learning status
       default:
         return secondaryColor;
     }
@@ -166,8 +166,8 @@ const SkillsTypography: React.FC<ComponentProps> = ({
     right: 0,
     bottom: 0,
     backgroundImage: `
-      linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px)
+      linear-gradient(${primaryColor}08 1px, transparent 1px),
+      linear-gradient(90deg, ${primaryColor}08 1px, transparent 1px)
     `,
     backgroundSize: "40px 40px",
     pointerEvents: "none",

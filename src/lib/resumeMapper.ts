@@ -48,7 +48,7 @@ export type ResumeJson = {
   education?: any[];
 };
 
-export type Preset = "typography" | "brutalist";
+export type Preset = "minimal" | "typography" | "brutalist";
 
 const toSlug = (s: string) =>
   s
@@ -61,7 +61,7 @@ const up = (s?: string) => (s ? s.toUpperCase() : undefined);
 
 export function mapResumeToPortfolio(
   resume: ResumeJson,
-  preset: Preset = "brutalist"
+  preset: Preset = "minimal"
 ): SavePortfolioData {
   const name = resume.basics?.name || "Imported Portfolio";
   // Generate a unique slug with timestamp to avoid conflicts
@@ -72,11 +72,11 @@ export function mapResumeToPortfolio(
   // Hero - shared
   layout.push({
     type: "hero",
-    variant: preset === "typography" ? "typography-hero" : "hero-section",
+    variant: preset === "typography" ? "typography-hero" : preset === "minimal" ? "minimal-hero" : "hero-section",
     props: {
-      title: up(resume.basics?.name) || "YOUR NAME",
+      title: preset === "minimal" ? `Hi, I'm ${resume.basics?.name || "John Doe"} 👋` : up(resume.basics?.name) || "YOUR NAME",
       name: up(resume.basics?.name) || "YOUR NAME",
-      subtitle: up(resume.basics?.label) || "SOFTWARE DEVELOPER",
+      subtitle: resume.basics?.label || "SOFTWARE DEVELOPER",
       description: resume.basics?.summary || "",
       socialLinks: (resume.basics?.profiles || []).map((p) => ({
         platform: up(p.platform || "") || "",
@@ -88,6 +88,9 @@ export function mapResumeToPortfolio(
       showStatus: preset === "typography",
       statusText: preset === "typography" ? "AVAILABLE_FOR_HIRE" : undefined,
       showCodeSnippet: preset === "typography",
+      showResumeButton: preset === "minimal",
+      resumeUrl: "/resume.pdf",
+      resumeText: "Download Resume",
     },
     styles: {},
     order: 0,
@@ -106,10 +109,10 @@ export function mapResumeToPortfolio(
   if (experienceTimeline.length) {
     layout.push({
       type: "about",
-      variant: "neobrutalist-about",
+      variant: preset === "minimal" ? "minimal-about" : "neobrutalist-about",
       props: {
-        title: "MY STORY",
-        subtitle: "THE JOURNEY SO FAR",
+        title: preset === "minimal" ? "About Me" : "MY STORY",
+        subtitle: preset === "minimal" ? "My Journey" : "THE JOURNEY SO FAR",
         story: resume.basics?.summary || "",
         experience: experienceTimeline,
         showStory: true,
@@ -134,7 +137,7 @@ export function mapResumeToPortfolio(
     layout.push({
       type: "skills",
       variant:
-        preset === "brutalist" ? "skills-brutalist" : "skills-typography",
+        preset === "brutalist" ? "skills-brutalist" : preset === "minimal" ? "minimal-skills" : "skills-typography",
       props:
         preset === "brutalist"
           ? {
@@ -163,6 +166,17 @@ export function mapResumeToPortfolio(
               sortBy: "level",
               showNoise: true,
               brutalistShadows: true,
+            }
+          : preset === "minimal"
+          ? {
+              title: "Skills",
+              subtitle: "What I Work With",
+              description: "",
+              skills: skillsProps,
+              showLevelBars: true,
+              showExperience: false,
+              showStatus: false,
+              showCategories: true,
             }
           : {
               title: "SKILLS.EXE",
@@ -202,8 +216,17 @@ export function mapResumeToPortfolio(
   if (projectsProps.length) {
     layout.push({
       type: "projects",
-      variant: "projects-brutalist",
-      props: {
+      variant: preset === "minimal" ? "minimal-projects" : "projects-brutalist",
+      props: preset === "minimal" ? {
+        title: "Projects",
+        subtitle: "Things I've Built",
+        projects: projectsProps,
+        showTechnologies: true,
+        showStatus: false,
+        showYear: true,
+        showLinks: true,
+        showImages: true,
+      } : {
         title: "MY PROJECTS",
         subtitle: "BUILT WITH PASSION",
         projects: projectsProps,
@@ -269,8 +292,26 @@ export function mapResumeToPortfolio(
   if (contactMethods.length) {
     layout.push({
       type: "contact",
-      variant: "neobrutalist-contact",
-      props: {
+      variant: preset === "minimal" ? "minimal-contact" : "neobrutalist-contact",
+      props: preset === "minimal" ? {
+        title: "Let's Work Together",
+        subtitle: "Ready to start your next project?",
+        description: "I'm always interested in new opportunities and collaborations. Whether you have a project in mind or just want to chat about technology, feel free to reach out!",
+        contactMethods: contactMethods.map(method => ({
+          type: method.icon === "mail" ? "email" : method.icon === "phone" ? "phone" : "location",
+          label: method.label,
+          value: method.value,
+          href: method.link,
+        })),
+        socialLinks: (resume.basics?.profiles || []).map((p) => ({
+          platform: p.platform || "",
+          url: p.url,
+          username: p.username || p.url?.split("/").pop() || "",
+        })),
+        showContactForm: false,
+        showQRCode: true,
+        resumeUrl: "/resume.pdf",
+      } : {
         title: "GET IN TOUCH",
         subtitle: "LET'S CREATE SOMETHING AMAZING",
         description: "",
