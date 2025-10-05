@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     // Use the new hosted URL and API key
     const resumeParserUrl =
       process.env.RESUME_PARSER_URL ||
-      "https://web-production-ffa48.up.railway.app";
+      "https://resume-parser-kywf.onrender.com";
     const resumeApiKey = process.env.RESUME_API_KEY;
 
     if (!resumeApiKey) {

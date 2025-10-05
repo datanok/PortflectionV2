@@ -159,19 +159,22 @@ export default function ContentEditor({
   }, []);
 
   // Handle memoji selection
-  const handleMemojiSelect = useCallback((memoji: Memoji) => {
-    if (currentImageField) {
-      const optimizedUrl = getOptimizedMemojiUrl(memoji.fileName, {
-        width: 400,
-        height: 400,
-        quality: 'auto',
-        format: 'auto'
-      });
-      handleFieldUpdate(currentImageField, optimizedUrl);
-      setSelectedMemoji(memoji);
-      setIsDialogOpen(false);
-    }
-  }, [currentImageField, handleFieldUpdate]);
+  const handleMemojiSelect = useCallback(
+    (memoji: Memoji) => {
+      if (currentImageField) {
+        const optimizedUrl = getOptimizedMemojiUrl(memoji.fileName, {
+          width: 400,
+          height: 400,
+          quality: "auto",
+          format: "auto",
+        });
+        handleFieldUpdate(currentImageField, optimizedUrl);
+        setSelectedMemoji(memoji);
+        setIsDialogOpen(false);
+      }
+    },
+    [currentImageField, handleFieldUpdate]
+  );
 
   // Open image picker dialog
   const openImagePicker = useCallback((fieldKey: string) => {
@@ -1011,7 +1014,10 @@ export default function ContentEditor({
     // Handle objects in array items
     if (typeof item === "object" && item !== null) {
       return (
-        <div key={index} className="border rounded-lg p-3 bg-muted/30 space-y-2">
+        <div
+          key={index}
+          className="border rounded-lg p-3 bg-muted/30 space-y-2"
+        >
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Item {index + 1}</span>
             <Button
@@ -1028,12 +1034,19 @@ export default function ContentEditor({
               <div key={objKey}>
                 <Label className="text-xs font-medium">{objKey}</Label>
                 <Input
-                  value={typeof objValue === 'string' ? objValue : JSON.stringify(objValue)}
+                  value={
+                    typeof objValue === "string"
+                      ? objValue
+                      : JSON.stringify(objValue)
+                  }
                   onChange={(e) => {
                     let newValue = e.target.value;
                     // Try to parse as JSON if it looks like JSON, otherwise keep as string
                     try {
-                      if (newValue.startsWith('{') || newValue.startsWith('[')) {
+                      if (
+                        newValue.startsWith("{") ||
+                        newValue.startsWith("[")
+                      ) {
                         newValue = JSON.parse(newValue);
                       }
                     } catch {
@@ -1066,7 +1079,7 @@ export default function ContentEditor({
           </Button>
         </div>
         <Input
-          value={typeof item === 'string' ? item : JSON.stringify(item)}
+          value={typeof item === "string" ? item : JSON.stringify(item)}
           onChange={(e) => handleArrayItemUpdate(key, index, e.target.value)}
           className="text-sm h-8"
           placeholder="Enter value"
@@ -1087,7 +1100,10 @@ export default function ContentEditor({
     }
 
     return (
-      <div key={index} className="border border-border/50 rounded-md p-3 bg-muted/20 space-y-2">
+      <div
+        key={index}
+        className="border border-border/50 rounded-md p-3 bg-muted/20 space-y-2"
+      >
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium">
             {key.charAt(0).toUpperCase() + key.slice(1)} #{index + 1}
@@ -1211,7 +1227,10 @@ export default function ContentEditor({
 
                 case "boolean":
                   return (
-                    <div key={fieldKey} className="flex items-center space-x-2 pt-1">
+                    <div
+                      key={fieldKey}
+                      className="flex items-center space-x-2 pt-1"
+                    >
                       <Switch
                         checked={fieldValue}
                         onCheckedChange={(checked) =>
@@ -1430,9 +1449,7 @@ export default function ContentEditor({
                   typeof value === "object" &&
                   Object.entries(value).map(([objKey, objValue]) => (
                     <div key={objKey}>
-                      <Label className="text-xs font-medium">
-                        {objKey}
-                      </Label>
+                      <Label className="text-xs font-medium">{objKey}</Label>
                       <Input
                         value={objValue as string}
                         onChange={(e) => {
@@ -1572,28 +1589,27 @@ export default function ContentEditor({
 
   return (
     <div className="space-y-2 w-full max-w-full">
+      <div className="flex items-center gap-2">
+        {saveStatus === "saving" && (
+          <div className="flex items-center gap-1 text-amber-600">
+            <Clock className="w-3 h-3 animate-spin" />
+            <span className="text-xs">Saving...</span>
+          </div>
+        )}
+        {saveStatus === "saved" && (
+          <div className="flex items-center gap-1 text-green-600">
+            <CheckCircle className="w-3 h-3" />
+            <span className="text-xs">Saved</span>
+          </div>
+        )}
+        {saveStatus === "pending" && (
+          <div className="flex items-center gap-1 text-blue-600">
+            <Clock className="w-3 h-3" />
+            <span className="text-xs">Pending</span>
+          </div>
+        )}
+      </div>
 
-        <div className="flex items-center gap-2">
-          {saveStatus === "saving" && (
-            <div className="flex items-center gap-1 text-amber-600">
-              <Clock className="w-3 h-3 animate-spin" />
-              <span className="text-xs">Saving...</span>
-            </div>
-          )}
-          {saveStatus === "saved" && (
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle className="w-3 h-3" />
-              <span className="text-xs">Saved</span>
-            </div>
-          )}
-          {saveStatus === "pending" && (
-            <div className="flex items-center gap-1 text-blue-600">
-              <Clock className="w-3 h-3" />
-              <span className="text-xs">Pending</span>
-            </div>
-          )}
-        </div>
- 
       <Separator />
       {fieldConfigs.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
@@ -1618,7 +1634,7 @@ export default function ContentEditor({
               Select a memoji from our collection or provide your own image URL
             </DialogDescription>
           </DialogHeader>
-          
+
           <Tabs defaultValue="memoji" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="memoji" className="flex items-center gap-2">
@@ -1630,7 +1646,7 @@ export default function ContentEditor({
                 Image URL
               </TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="memoji" className="mt-4">
               <SimpleMemojiPicker
                 onSelect={handleMemojiSelect}
@@ -1638,14 +1654,16 @@ export default function ContentEditor({
                 className="border-0 shadow-none"
               />
             </TabsContent>
-            
+
             <TabsContent value="url" className="mt-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="image-url">Image URL</Label>
                 <Input
                   id="image-url"
                   placeholder="https://example.com/image.jpg"
-                  value={currentImageField ? localData[currentImageField] || "" : ""}
+                  value={
+                    currentImageField ? localData[currentImageField] || "" : ""
+                  }
                   onChange={(e) => {
                     if (currentImageField) {
                       handleFieldUpdate(currentImageField, e.target.value);
@@ -1653,7 +1671,8 @@ export default function ContentEditor({
                   }}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Paste a direct link to your image. Make sure it ends with .jpg, .png, or .webp
+                  Paste a direct link to your image. Make sure it ends with
+                  .jpg, .png, or .webp
                 </p>
               </div>
 
@@ -1667,7 +1686,7 @@ export default function ContentEditor({
                       alt="Preview"
                       className="max-w-full h-32 object-contain mx-auto rounded"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.style.display = "none";
                       }}
                     />
                   </div>
@@ -1696,7 +1715,10 @@ export default function ContentEditor({
                       >
                         imgur.com/upload
                       </a>
-                      <span className="text-muted-foreground text-sm"> - Free, no account needed</span>
+                      <span className="text-muted-foreground text-sm">
+                        {" "}
+                        - Free, no account needed
+                      </span>
                     </div>
                   </div>
 
@@ -1715,19 +1737,23 @@ export default function ContentEditor({
                       >
                         unsplash.com
                       </a>
-                      <span className="text-muted-foreground text-sm"> - Free stock photos</span>
+                      <span className="text-muted-foreground text-sm">
+                        {" "}
+                        - Free stock photos
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={() => setIsDialogOpen(false)}>
-                  Done
-                </Button>
+                <Button onClick={() => setIsDialogOpen(false)}>Done</Button>
               </div>
             </TabsContent>
           </Tabs>
