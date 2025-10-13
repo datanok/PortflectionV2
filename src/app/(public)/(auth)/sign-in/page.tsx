@@ -48,7 +48,8 @@ export default function SignIn() {
         password: values.password,
       },
       {
-        onRequest: () => setIsLoading(prev => ({ ...prev, credentials: true })),
+        onRequest: () =>
+          setIsLoading((prev) => ({ ...prev, credentials: true })),
         onSuccess: async () => {
           router.push("/dashboard");
           router.refresh();
@@ -56,42 +57,46 @@ export default function SignIn() {
         },
         onError: (ctx: ErrorContext) => {
           toast.error("Authentication failed", {
-            description: ctx.error.message ?? "Please check your credentials and try again.",
+            description:
+              ctx.error.message ??
+              "Please check your credentials and try again.",
           });
         },
       }
     );
-    setIsLoading(prev => ({ ...prev, credentials: false }));
+    setIsLoading((prev) => ({ ...prev, credentials: false }));
   };
 
   const handleSocialSignIn = async (provider: "github" | "google") => {
     const loadingKey = provider as keyof typeof isLoading;
-    
+
     await authClient.signIn.social(
       { provider },
       {
-        onRequest: () => setIsLoading(prev => ({ ...prev, [loadingKey]: true })),
+        onRequest: () =>
+          setIsLoading((prev) => ({ ...prev, [loadingKey]: true })),
         onSuccess: async () => {
           router.push("/dashboard");
           router.refresh();
 
-          setTimeout(()=>{
+          setTimeout(() => {
             toast.success("Signed in Successfully");
-          }, 1000)
+          }, 1000);
         },
         onError: (ctx: ErrorContext) => {
           toast.error("Authentication failed", {
-            description: (ctx.error.message || ctx.error.statusText) ?? 
+            description:
+              (ctx.error.message || ctx.error.statusText) ??
               `There was a problem signing in with ${provider}.`,
           });
         },
       }
     );
-    setIsLoading(prev => ({ ...prev, [loadingKey]: false }));
+    setIsLoading((prev) => ({ ...prev, [loadingKey]: false }));
   };
 
   return (
-    <div className="grow flex items-center justify-center p-4">
+    <div className="grow flex items-center justify-center p-4 mt-20">
       <Card className="w-full max-w-md">
         <CardHeader className="pb-2">
           <CardTitle className="text-3xl font-bold text-center text-primary">
@@ -122,7 +127,7 @@ export default function SignIn() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -142,9 +147,9 @@ export default function SignIn() {
                 )}
               />
 
-              <Button 
-                type="submit" 
-                className="w-full font-medium" 
+              <Button
+                type="submit"
+                className="w-full font-medium"
                 disabled={isLoading.credentials}
               >
                 {isLoading.credentials ? (
