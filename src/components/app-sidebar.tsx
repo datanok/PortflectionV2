@@ -62,11 +62,16 @@ const navItems = [
     icon: Folder,
     items: [
       { title: "My Portfolios", url: "/dashboard/my-portfolios" },
-      { title: "Create New", url: "/dashboard/portfolios/new" },
       {
         title: "Portfolio Builder",
         url: "/dashboard/portfolio-builder",
         icon: Layers,
+        isNew: true,
+      },
+      {
+        title: "Import Resume",
+        url: "/dashboard/import-resume",
+        icon: FileText,
         isNew: true,
       },
     ],

@@ -63,20 +63,20 @@ export default function Navbar() {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-transparent backdrop-blur-md px-4 pb-4 -mb-4">
-      <div className="absolute inset-0 bg-background/15 backdrop-blur-lg z-[-1]" />
+    <header className="max-w-[90%] lg:max-w-[85%] mx-auto fixed top-0 left-0 right-0 z-50">
+      {/* Blueprint Container */}
+      <div className="relative bg-background/60 backdrop-blur-lg shadow-lg">
+        <NavbarComponent className="p-0">
+          {/* Desktop Layout */}
+          <div className="w-full hidden md:grid md:grid-cols-3 blueprint-navbar">
+            {/* Left: Logo */}
+            <div className="blueprint-card p-3 flex items-center">
+              <div className="blueprint-corners"></div>
+              <Logo />
+            </div>
 
-      <div className="relative mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
-        <NavbarComponent className="py-3 flex items-center justify-between">
-          {/* Left Side: Logo */}
-          <NavbarLeft>
-            <Logo />
-          </NavbarLeft>
-
-          {/* Right Side: Navigation */}
-          <NavbarRight className="flex items-center space-x-2 sm:space-x-4">
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
+            <div className="blueprint-card p-3 flex items-center justify-center gap-6">
+              <div className="blueprint-corners"></div>
               {navLinks.map(
                 (link, index) =>
                   (!link.authRequired || (isHydrated && data)) && (
@@ -89,16 +89,26 @@ export default function Navbar() {
                     </Link>
                   )
               )}
-              {isHydrated && <AuthButtons />}
-            </nav>
-
-            {/* Theme Toggle - Hidden on mobile */}
-            <div className="hidden md:block">
-              <ThemeToggle />
             </div>
 
-            {/* Mobile Navigation - Show on mobile */}
-            <div className="md:hidden">
+            <div className="blueprint-card p-3 flex items-center justify-end gap-4">
+              <div className="blueprint-corners"></div>
+              {isHydrated && <AuthButtons />}
+              <ThemeToggle />
+            </div>
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="md:hidden grid grid-cols-2 blueprint-navbar w-full">
+            {/* Left: Logo */}
+            <div className="blueprint-card p-3 flex items-center">
+              <div className="blueprint-corners"></div>
+              <Logo />
+            </div>
+
+            {/* Right: Mobile Menu */}
+            <div className="blueprint-card p-3 flex items-center justify-end">
+              <div className="blueprint-corners"></div>
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <Button
@@ -162,7 +172,7 @@ export default function Navbar() {
                     )}
 
                     {isHydrated && (
-                      <div className="pt-4 mt-2 border-t">
+                      <div className="pt-4 mt-2 border-t border-dashed">
                         <AuthButtons />
                       </div>
                     )}
@@ -170,9 +180,91 @@ export default function Navbar() {
                 </SheetContent>
               </Sheet>
             </div>
-          </NavbarRight>
+          </div>
         </NavbarComponent>
       </div>
+      <style jsx>{`
+        .blueprint-navbar {
+          position: relative;
+          width: 100%;
+        }
+
+        .blueprint-navbar :global(.blueprint-card) {
+          position: relative;
+          border: 2px dashed var(--blueprint-accent);
+          border-right: none;
+          transition: all 0.3s ease;
+        }
+
+        /* Add right border to last card */
+        .blueprint-navbar :global(.blueprint-card:last-child) {
+          border-right: 2px dashed var(--blueprint-accent);
+        }
+
+        /* Corner brackets - only on outer corners */
+
+        /* Top Left corner - first card */
+        .blueprint-navbar :global(.blueprint-card:first-child::before) {
+          content: "";
+          position: absolute;
+          width: 25px;
+          height: 25px;
+          top: -2px;
+          left: -2px;
+          border-top: 2px solid var(--blueprint-accent);
+          border-left: 2px solid var(--blueprint-accent);
+          pointer-events: none;
+        }
+
+        /* Top Right corner - last card */
+        .blueprint-navbar :global(.blueprint-card:last-child::after) {
+          content: "";
+          position: absolute;
+          width: 25px;
+          height: 25px;
+          top: -2px;
+          right: -2px;
+          border-top: 2px solid var(--blueprint-accent);
+          border-right: 2px solid var(--blueprint-accent);
+          pointer-events: none;
+        }
+
+        /* Bottom corner brackets */
+        .blueprint-navbar :global(.blueprint-corners) {
+          position: absolute;
+          bottom: -2px;
+          left: -2px;
+          right: -2px;
+          height: 25px;
+          pointer-events: none;
+        }
+
+        /* Bottom Left corner - first card */
+        .blueprint-navbar
+          :global(.blueprint-card:first-child .blueprint-corners::before) {
+          content: "";
+          position: absolute;
+          width: 25px;
+          height: 25px;
+          bottom: 0;
+          left: 0;
+          border-bottom: 2px solid var(--blueprint-accent);
+          border-left: 2px solid var(--blueprint-accent);
+        }
+
+        /* Bottom Right corner - last card */
+        .blueprint-navbar
+          :global(.blueprint-card:last-child .blueprint-corners::after) {
+          content: "";
+          position: absolute;
+          width: 25px;
+          height: 25px;
+          bottom: 0;
+          right: 0;
+          border-bottom: 2px solid var(--blueprint-accent);
+          border-right: 2px solid var(--blueprint-accent);
+        }
+      `}</style>
     </header>
   );
 }

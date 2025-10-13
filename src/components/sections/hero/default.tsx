@@ -104,24 +104,17 @@ export default function PortflectionHero({
   };
 
   return (
-    <section className="relative overflow-hidden py-12 sm:py-20 md:py-28 grid-pattern">
-      {/* Modern gradient background */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          background:
-            "radial-gradient(circle at 20% 80%, var(--color-primary) 0%, transparent 50%), radial-gradient(circle at 80% 20%, var(--color-accent) 0%, transparent 50%)",
-        }}
-      />
+    <section className="relative overflow-hidden py-12 sm:py-20 md:py-28">
+      {/* Backgrounds removed - using blueprint borders from page layout */}
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-6 lg:px-8">
         <div className="text-center space-y-8">
           {/* Badge */}
-          {badge !== false && (
+          {/* {badge !== false && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
               {badge}
             </div>
-          )}
+          )} */}
 
           {/* Title + Subtitle */}
           <div className="space-y-6 max-w-4xl mx-auto">
@@ -202,14 +195,16 @@ export default function PortflectionHero({
           {/* Testimonial */}
           {testimonial && (
             <div
-              className="max-w-md mx-auto p-6 rounded-2xl border mx-4 sm:mx-auto"
+              className="max-w-md mx-auto p-6 rounded-2xl border-2 border-dotted mx-4 sm:mx-auto"
               style={{
                 backgroundColor: "var(--color-card)",
                 borderColor: "var(--color-border)",
                 color: "var(--color-card-foreground)",
               }}
             >
-              <p className="text-sm italic mb-3">&ldquo;{testimonial.text}&rdquo;</p>
+              <p className="text-sm italic mb-3">
+                &ldquo;{testimonial.text}&rdquo;
+              </p>
               <div className="flex items-center gap-3">
                 {testimonial.avatar && (
                   <img
@@ -232,7 +227,7 @@ export default function PortflectionHero({
           )}
 
           {/* Mockup */}
-          {/* {mockup !== false && (
+          {mockup !== false && (
             <div className="w-full pt-12 sm:pt-16 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 px-4 sm:px-0">
               <MockupFrame
                 className="hover:scale-[1.02] transition-transform duration-700"
@@ -267,7 +262,7 @@ export default function PortflectionHero({
                 </Mockup>
               </MockupFrame>
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ChevronDown,
   Github,
@@ -6,6 +6,7 @@ import {
   Mail,
   ExternalLink,
 } from "lucide-react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
 
 interface HeroSectionProps {
   // Content Props
@@ -61,23 +62,37 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   shadow = "none",
   globalTheme,
 }) => {
+  // Get font families from global theme
+  const bodyFont = useMemo(() => {
+    return PortfolioFontLoader.getThemeFontStyle(globalTheme, "body")
+      .fontFamily;
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    return PortfolioFontLoader.getThemeFontStyle(globalTheme, "heading")
+      .fontFamily;
+  }, [globalTheme]);
+
   const containerStyles = {
     backgroundColor,
     color: textColor,
     borderRadius: borderRadius !== "0" ? `${borderRadius}px` : "0px",
     boxShadow: shadow !== "none" ? shadow : "none",
+    fontFamily: bodyFont,
   };
 
   const titleStyles = {
     color: textColor,
     fontSize: fontSize === "xl" ? "3rem" : fontSize,
     fontWeight: fontWeight === "bold" ? "700" : fontWeight,
+    fontFamily: headingFont,
   };
 
   const subtitleStyles = {
     color: primaryColor,
     fontSize: "1.5rem",
     fontWeight: "600",
+    fontFamily: headingFont,
   };
 
   const descriptionStyles = {

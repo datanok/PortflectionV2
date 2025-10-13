@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 interface Project {
   id: string;
@@ -8,7 +10,7 @@ interface Project {
   status: "live" | "development" | "archived" | "featured";
   year: string;
   technologies: string[];
-  image?: string;
+  imageUrl?: string;
   liveUrl?: string;
   githubUrl?: string;
   caseStudyUrl?: string;
@@ -63,26 +65,28 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
     {
       id: "1",
       title: "E-COMMERCE BEAST",
-      description: "Full-stack e-commerce platform with real-time inventory, payment processing, and admin dashboard. Built for scale and performance.",
+      description:
+        "Full-stack e-commerce platform with real-time inventory, payment processing, and admin dashboard. Built for scale and performance.",
       category: "WEB APP",
       status: "live",
       year: "2024",
       technologies: ["REACT", "NODE.JS", "MONGODB", "STRIPE"],
-      image: "https://placehold.co/400x300/ff6b35/ffffff?text=ECOMMERCE",
+      imageUrl: "https://placehold.co/400x300/ff6b35/ffffff?text=ECOMMERCE",
       liveUrl: "https://example.com",
       githubUrl: "https://github.com/user/project",
       color: "#ff6b35",
       priority: "high",
     },
     {
-      id: "2", 
+      id: "2",
       title: "AI CHAT INTERFACE",
-      description: "Modern chat application with AI integration, real-time messaging, and smart responses. Clean UI with powerful backend.",
+      description:
+        "Modern chat application with AI integration, real-time messaging, and smart responses. Clean UI with powerful backend.",
       category: "AI/ML",
       status: "development",
       year: "2024",
       technologies: ["TYPESCRIPT", "PYTHON", "OPENAI", "WEBSOCKETS"],
-      image: "https://placehold.co/400x300/06ffa5/ffffff?text=AI+CHAT",
+      imageUrl: "https://placehold.co/400x300/06ffa5/ffffff?text=AI+CHAT",
       githubUrl: "https://github.com/user/ai-chat",
       color: "#06ffa5",
       priority: "high",
@@ -90,12 +94,13 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
     {
       id: "3",
       title: "PORTFOLIO BUILDER",
-      description: "Drag-and-drop portfolio builder with 50+ components, themes, and export options. Made for creators and developers.",
+      description:
+        "Drag-and-drop portfolio builder with 50+ components, themes, and export options. Made for creators and developers.",
       category: "TOOL",
       status: "featured",
       year: "2023",
       technologies: ["REACT", "TAILWIND", "FRAMER", "NEXT.JS"],
-      image: "https://placehold.co/400x300/ffd23f/ffffff?text=PORTFOLIO",
+      imageUrl: "https://placehold.co/400x300/ffd23f/ffffff?text=PORTFOLIO",
       liveUrl: "https://portfolio-builder.com",
       caseStudyUrl: "https://case-study.com",
       color: "#ffd23f",
@@ -104,12 +109,13 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
     {
       id: "4",
       title: "CRYPTO TRACKER",
-      description: "Real-time cryptocurrency tracking dashboard with portfolio management, alerts, and market analysis tools.",
+      description:
+        "Real-time cryptocurrency tracking dashboard with portfolio management, alerts, and market analysis tools.",
       category: "FINTECH",
       status: "archived",
       year: "2023",
       technologies: ["VUE.JS", "PYTHON", "REDIS", "WEBSOCKETS"],
-      image: "https://placehold.co/400x300/4ecdc4/ffffff?text=CRYPTO",
+      imageUrl: "https://placehold.co/400x300/4ecdc4/ffffff?text=CRYPTO",
       githubUrl: "https://github.com/user/crypto-tracker",
       color: "#4ecdc4",
       priority: "medium",
@@ -117,12 +123,13 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
     {
       id: "5",
       title: "TASK MANAGEMENT",
-      description: "Minimalist task manager with team collaboration, time tracking, and project analytics. Simple yet powerful.",
+      description:
+        "Minimalist task manager with team collaboration, time tracking, and project analytics. Simple yet powerful.",
       category: "PRODUCTIVITY",
       status: "live",
       year: "2023",
       technologies: ["SVELTE", "FIREBASE", "TYPESCRIPT"],
-      image: "https://placehold.co/400x300/f7931e/ffffff?text=TASKS",
+      imageUrl: "https://placehold.co/400x300/f7931e/ffffff?text=TASKS",
       liveUrl: "https://task-manager.com",
       color: "#f7931e",
       priority: "medium",
@@ -130,12 +137,13 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
     {
       id: "6",
       title: "WEATHER VISUALIZER",
-      description: "Interactive weather data visualization with maps, charts, and forecasting. Beautiful UI meets powerful data.",
+      description:
+        "Interactive weather data visualization with maps, charts, and forecasting. Beautiful UI meets powerful data.",
       category: "DATA VIZ",
       status: "development",
       year: "2024",
       technologies: ["D3.JS", "REACT", "MAPBOX", "API"],
-      image: "https://placehold.co/400x300/96ceb4/ffffff?text=WEATHER",
+      imageUrl: "https://placehold.co/400x300/96ceb4/ffffff?text=WEATHER",
       color: "#96ceb4",
       priority: "low",
     },
@@ -166,10 +174,22 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
   showNoise = true,
   brutalistShadows = true,
   maxTilt = 8,
+  globalTheme,
 }) => {
   const [hoveredProject, setHoveredProject] = useState<string | null>(null);
   const [visibleProjects, setVisibleProjects] = useState<string[]>([]);
   const [activeFilter, setActiveFilter] = useState<string>("all");
+
+  // Get font families from global theme with neobrutalist defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
 
   useEffect(() => {
     if (animateOnScroll) {
@@ -177,9 +197,9 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              const projectId = entry.target.getAttribute('data-project-id');
+              const projectId = entry.target.getAttribute("data-project-id");
               if (projectId && !visibleProjects.includes(projectId)) {
-                setVisibleProjects(prev => [...prev, projectId]);
+                setVisibleProjects((prev) => [...prev, projectId]);
               }
             }
           });
@@ -187,8 +207,8 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
         { threshold: 0.1 }
       );
 
-      const projectElements = document.querySelectorAll('[data-project-id]');
-      projectElements.forEach(el => observer.observe(el));
+      const projectElements = document.querySelectorAll("[data-project-id]");
+      projectElements.forEach((el) => observer.observe(el));
 
       return () => observer.disconnect();
     }
@@ -235,21 +255,30 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
       case "year":
         return parseInt(b.year) - parseInt(a.year);
       case "status":
-        const statusOrder = { featured: 0, live: 1, development: 2, archived: 3 };
+        const statusOrder = {
+          featured: 0,
+          live: 1,
+          development: 2,
+          archived: 3,
+        };
         return statusOrder[a.status] - statusOrder[b.status];
       case "title":
         return a.title.localeCompare(b.title);
       case "priority":
         const priorityOrder = { high: 0, medium: 1, low: 2 };
-        return (priorityOrder[a.priority || "low"] || 2) - (priorityOrder[b.priority || "low"] || 2);
+        return (
+          (priorityOrder[a.priority || "low"] || 2) -
+          (priorityOrder[b.priority || "low"] || 2)
+        );
       default:
         return 0;
     }
   });
 
-  const filteredProjects = filterByStatus && activeFilter !== "all"
-    ? sortedProjects.filter(project => project.status === activeFilter)
-    : sortedProjects;
+  const filteredProjects =
+    filterByStatus && activeFilter !== "all"
+      ? sortedProjects.filter((project) => project.status === activeFilter)
+      : sortedProjects;
 
   const sectionStyle: React.CSSProperties = {
     backgroundColor,
@@ -258,9 +287,25 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
     paddingBottom: `${paddingY}px`,
     paddingLeft: `${paddingX}px`,
     paddingRight: `${paddingX}px`,
-    fontFamily: "'Arial Black', 'Helvetica', sans-serif",
+    fontFamily: bodyFont,
     position: "relative",
     overflow: "hidden",
+  };
+
+  const getFontSize = (size: string) => {
+    const sizeMap: { [key: string]: string } = {
+      xs: "clamp(0.75rem, 2vw, 1rem)",
+      sm: "clamp(0.875rem, 2vw, 1.125rem)",
+      base: "clamp(1rem, 2.5vw, 1.25rem)",
+      lg: "clamp(1.125rem, 3vw, 1.5rem)",
+      xl: "clamp(1.25rem, 3.5vw, 1.75rem)",
+      "2xl": "clamp(1.5rem, 4vw, 2rem)",
+      "3xl": "clamp(1.875rem, 5vw, 2.5rem)",
+      "4xl": "clamp(2.25rem, 6vw, 3rem)",
+      "5xl": "clamp(3rem, 8vw, 4rem)",
+      "6xl": "clamp(3.75rem, 10vw, 5rem)",
+    };
+    return sizeMap[size] || size;
   };
 
   const noiseStyle: React.CSSProperties = showNoise
@@ -286,19 +331,22 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
       <div style={noiseStyle}></div>
 
       <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Brutal Header */}
-        <div className="mb-20" style={{ textAlign }}>
-          {/* Subtitle Block */}
+        {/* Header */}
+        <div className="mb-16" style={{ textAlign }}>
+          {/* Subtitle Badge */}
           <div
-            className="inline-block p-6 mb-8 border-4 transform rotate-1"
+            className="inline-block px-4 py-2 mb-6 border transform rotate-[-1deg]"
             style={{
               backgroundColor,
               borderColor: borderColor,
-              boxShadow: brutalistShadows ? `16px 16px 0px ${borderColor}` : shadow,
+              borderWidth: `${borderWidth}px`,
+              boxShadow: brutalistShadows
+                ? `4px 4px 0px ${borderColor}`
+                : shadow,
             }}
           >
             <span
-              className="text-sm font-black tracking-[0.4em] uppercase block"
+              className="text-xs font-bold tracking-[0.3em] uppercase"
               style={{ color: textColor }}
             >
               {subtitle}
@@ -307,33 +355,40 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
 
           {/* Main Title */}
           <h2
-            className="text-5xl md:text-7xl font-black mb-8 tracking-tight transform hover:scale-105 transition-all duration-300"
+            className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-[0.9] inline-block"
             style={{
               color: textColor,
-              fontSize: fontSize,
-              fontWeight: parseInt(fontWeight),
-              textShadow: brutalistShadows ? `6px 6px 0px ${primaryColor}` : undefined,
+              fontSize: getFontSize(fontSize),
+              fontWeight: fontWeight,
+              textShadow: brutalistShadows
+                ? `3px 3px 0px ${primaryColor}`
+                : undefined,
+              fontFamily: headingFont,
             }}
           >
             {title}
           </h2>
 
-          {/* Description Block */}
+          {/* Description */}
           {description && (
             <div
-              className="max-w-4xl mx-auto p-8 border-4 transform -rotate-1"
+              className="max-w-2xl p-6 border transform rotate-[0.5deg]"
               style={{
                 backgroundColor: accentColor,
                 borderColor: borderColor,
-                boxShadow: brutalistShadows ? `8px 8px 0px ${borderColor}` : shadow,
+                borderWidth: `${borderWidth}px`,
+                boxShadow: brutalistShadows
+                  ? `6px 6px 0px ${borderColor}`
+                  : shadow,
+                marginLeft: textAlign === "center" ? "auto" : "0",
+                marginRight: textAlign === "center" ? "auto" : "0",
                 textAlign: "left",
               }}
             >
               <p
-                className="text-lg md:text-xl font-bold leading-tight"
+                className="text-base md:text-lg font-medium leading-relaxed"
                 style={{
                   color: textColor,
-                  lineHeight: 1.4,
                 }}
               >
                 {description}
@@ -345,23 +400,30 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
         {/* Filter Tabs */}
         {filterByStatus && (
           <div className="flex flex-wrap gap-4 mb-12 justify-center">
-            {["all", "live", "development", "featured", "archived"].map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className="px-6 py-3 border-4 font-black text-sm tracking-wider uppercase transition-all duration-300 hover:scale-105"
-                style={{
-                  backgroundColor: activeFilter === filter ? primaryColor : backgroundColor,
-                  borderColor: borderColor,
-                  color: activeFilter === filter ? backgroundColor : textColor,
-                  boxShadow: activeFilter === filter && brutalistShadows 
-                    ? `6px 6px 0px ${borderColor}` 
-                    : brutalistShadows ? `3px 3px 0px ${borderColor}` : shadow,
-                }}
-              >
-                {filter === "all" ? "ALL PROJECTS" : getStatusLabel(filter)}
-              </button>
-            ))}
+            {["all", "live", "development", "featured", "archived"].map(
+              (filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className="px-6 py-3 border-4 font-black text-sm tracking-wider uppercase transition-all duration-300 hover:scale-105"
+                  style={{
+                    backgroundColor:
+                      activeFilter === filter ? primaryColor : backgroundColor,
+                    borderColor: borderColor,
+                    color:
+                      activeFilter === filter ? backgroundColor : textColor,
+                    boxShadow:
+                      activeFilter === filter && brutalistShadows
+                        ? `6px 6px 0px ${borderColor}`
+                        : brutalistShadows
+                        ? `3px 3px 0px ${borderColor}`
+                        : shadow,
+                  }}
+                >
+                  {filter === "all" ? "ALL PROJECTS" : getStatusLabel(filter)}
+                </button>
+              )
+            )}
           </div>
         )}
 
@@ -374,9 +436,15 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
               className="group relative transition-all duration-500 hover:scale-105 cursor-pointer"
               style={{
                 transform: `rotate(${getTiltAngle(index)}deg) ${
-                  hoveredProject === project.id ? `rotate(${getTiltAngle(index) + 2}deg)` : ""
+                  hoveredProject === project.id
+                    ? `rotate(${getTiltAngle(index) + 2}deg)`
+                    : ""
                 }`,
-                opacity: animateOnScroll ? (visibleProjects.includes(project.id) ? 1 : 0.3) : 1,
+                opacity: animateOnScroll
+                  ? visibleProjects.includes(project.id)
+                    ? 1
+                    : 0.3
+                  : 1,
                 transition: "all 0.5s ease",
               }}
               onMouseEnter={() => setHoveredProject(project.id)}
@@ -412,9 +480,14 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
                       <div
                         className="w-3 h-3 rounded-full animate-pulse"
                         style={{
-                          backgroundColor: project.status === "live" ? "#00ff00" : 
-                                           project.status === "development" ? "#ffff00" :
-                                           project.status === "featured" ? "#ff4500" : "#808080"
+                          backgroundColor:
+                            project.status === "live"
+                              ? "#00ff00"
+                              : project.status === "development"
+                              ? "#ffff00"
+                              : project.status === "featured"
+                              ? "#ff4500"
+                              : "#808080",
                         }}
                       ></div>
                       {getStatusLabel(project.status)}
@@ -422,11 +495,11 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
                   </div>
                 )}
 
-                {/* Project Image */}
-                {showImages && project.image && (
+                {/* Project imageUrl */}
+                {showImages && project.imageUrl && (
                   <div className="relative overflow-hidden h-48">
                     <img
-                      src={project.image}
+                      src={project.imageUrl}
                       alt={project.title}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
@@ -511,7 +584,9 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
                             backgroundColor,
                             borderColor: textColor,
                             color: textColor,
-                            boxShadow: brutalistShadows ? `4px 4px 0px ${textColor}` : undefined,
+                            boxShadow: brutalistShadows
+                              ? `4px 4px 0px ${textColor}`
+                              : undefined,
                           }}
                         >
                           LIVE
@@ -527,7 +602,9 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
                             backgroundColor,
                             borderColor: textColor,
                             color: textColor,
-                            boxShadow: brutalistShadows ? `4px 4px 0px ${textColor}` : undefined,
+                            boxShadow: brutalistShadows
+                              ? `4px 4px 0px ${textColor}`
+                              : undefined,
                           }}
                         >
                           CODE
@@ -543,7 +620,9 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
                             backgroundColor: accentColor,
                             borderColor: textColor,
                             color: textColor,
-                            boxShadow: brutalistShadows ? `4px 4px 0px ${textColor}` : undefined,
+                            boxShadow: brutalistShadows
+                              ? `4px 4px 0px ${textColor}`
+                              : undefined,
                           }}
                         >
                           CASE STUDY
@@ -556,8 +635,6 @@ const NeobrutalistProjects: React.FC<ComponentProps> = ({
             </div>
           ))}
         </div>
-
-   
       </div>
     </section>
   );

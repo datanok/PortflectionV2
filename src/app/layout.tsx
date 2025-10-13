@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { FONT_MAP } from "@/lib/fontMap";
 
 export const metadata: Metadata = {
   title: {
     default: "Portflection | Build Your Portfolio Effortlessly",
     template: "%s | Portflection",
   },
-  description: "Portflection helps developers, designers, and creators build professional portfolios in minutes.",
+  description:
+    "Portflection helps developers, designers, and creators build professional portfolios in minutes.",
   keywords: [
     "portfolio builder",
     "online portfolio",
@@ -20,7 +22,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.portflection.com"),
   openGraph: {
     title: "Portflection | Build Stunning Portfolios",
-    description: "Create and manage portfolios with customizable templates and analytics.",
+    description:
+      "Create and manage portfolios with customizable templates and analytics.",
     url: "https://www.portflection.com",
     siteName: "Portflection",
     images: [
@@ -49,13 +52,13 @@ export const metadata: Metadata = {
       follow: true,
       "max-snippet": -1,
       "max-image-preview": "large",
-      "max-video-preview": -1
-    }
+      "max-video-preview": -1,
+    },
   },
   icons: {
-    icon: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
-    shortcut: '/favicon-16x16.png',
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon-16x16.png",
   },
 };
 
@@ -64,13 +67,22 @@ type RootLayoutProps = {
 };
 
 export default function RootLayout({ children }: RootLayoutProps) {
+  // Combine all font class names to make CSS variables available
+  const fontClasses = Object.values(FONT_MAP)
+    .map((font) => font.className)
+    .join(" ");
+
   return (
-    <html lang="en" suppressHydrationWarning className="antialiased">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`antialiased ${fontClasses}`}
+    >
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {/* Fuchsia blurred glow */}
-            {/* <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px]"></div> */}
-       
+          {/* Fuchsia blurred glow */}
+          {/* <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px]"></div> */}
+
           {/* <Navbar /> */}
           <main>{children}</main>
           {/* <Footer /> */}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Heart,
   Github,
@@ -7,6 +7,8 @@ import {
   Mail,
   ExternalLink,
 } from "lucide-react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 const TypographyFooter = ({
   title = "LET'S_CONNECT()",
@@ -42,7 +44,14 @@ const TypographyFooter = ({
   secondaryColor = "#71717a",
   paddingY = "64",
   paddingX = "24",
+  globalTheme,
 }) => {
+  // Get font families from global theme with typography defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
   const getSocialIcon = (platform: string) => {
     const iconProps = { size: 16, strokeWidth: 1.25 };
     switch (platform.toLowerCase()) {
@@ -70,8 +79,7 @@ const TypographyFooter = ({
       style={{
         backgroundColor,
         color: textColor,
-        fontFamily:
-          '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily: bodyFont,
       }}
       className="px-6 py-8 md:px-12 md:py-16 text-sm"
     >

@@ -5,8 +5,25 @@ import {
   componentRegistry,
   getComponentVariant,
 } from "@/lib/portfolio/registry";
-import { GlobalTheme } from "@/components/portfolio/builder/GlobalThemeControls";
 import { NavigationHelper } from "@/components/portfolio/sections/navbar";
+
+interface GlobalTheme {
+  primary: string;
+  secondary: string;
+  accent: string;
+  background: string;
+  card: string;
+  muted: string;
+  fontHeading: string;
+  fontBody: string;
+  spacingBase: number;
+  spacingSection: number;
+  spacingComponent: number;
+  mode: string;
+  borderRadius: number;
+  shadowIntensity: number;
+  animationSpeed: number;
+}
 
 interface PortfolioComponent {
   id: string;
@@ -117,6 +134,11 @@ export default function PortfolioClientPage({
   // Get section IDs from component types
   const sectionIds = sortedComponents.map((comp) => comp.type);
 
+  // Check if portfolio uses Neo-Brutalist theme
+  const isNeoBrutalist = sortedComponents.some((comp) =>
+    comp.variant?.toLowerCase().includes("neobrutalist")
+  );
+
   return (
     <NavigationHelper sections={sectionIds}>
       <div
@@ -133,57 +155,131 @@ export default function PortfolioClientPage({
             </div>
           }
         >
-          {sortedComponents.map((component) => {
-            try {
-              // Get the component variant from the registry
-              const variant = getComponentVariant(
-                component.type as any,
-                component.variant
-              );
-
-              if (!variant) {
-                console.warn(
-                  `Component variant not found: ${component.type}/${component.variant}`
-                );
-                return null;
+          {isNeoBrutalist ? (
+            <div
+              style={
+                {
+                  // maxWidth: "1400px",
+                  // backgroundColor: "#f5f5f5",
+                  // borderRadius: "24px",
+                  // overflow: "hidden",
+                  // boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+                }
               }
+            >
+              {sortedComponents.map((component) => {
+                try {
+                  // Get the component variant from the registry
+                  const variant = getComponentVariant(
+                    component.type as any,
+                    component.variant
+                  );
 
-              const Component = variant.component;
+                  if (!variant) {
+                    console.warn(
+                      `Component variant not found: ${component.type}/${component.variant}`
+                    );
+                    return null;
+                  }
 
-              // Merge default props with component props and global theme
-              const mergedProps = {
-                ...variant.defaultProps,
-                ...component.props,
-                globalTheme,
-                ...component.styles,
-                // Pass sections data to navbar components for dynamic navigation
-                ...(component.type === "navbar" && {
-                  sections: sortedComponents,
-                }),
-              };
+                  const Component = variant.component;
 
-              return (
-                <div key={component.id} className="w-full">
-                  <section id={component.type}>
-                    <Component {...mergedProps} />
-                  </section>
-                </div>
-              );
-            } catch (error) {
-              console.error(
-                `Error rendering component ${component.type}/${component.variant}:`,
-                error
-              );
-              return (
-                <div
-                  key={component.id}
-                  className="p-8 text-center text-muted-foreground"
-                >
-                  <p>Error loading component: {component.type}</p>
-                </div>
-              );
-            }
-          })}
+                  // Merge default props with component props and global theme
+                  const mergedProps = {
+                    ...variant.defaultProps,
+                    ...component.props,
+                    globalTheme,
+                    ...component.styles,
+                    // Pass sections data to navbar components for dynamic navigation
+                    ...(component.type === "navbar" && {
+                      sections: sortedComponents,
+                    }),
+                  };
+
+                  return (
+                    <div
+                      key={component.id}
+                      className="w-full"
+                      style={{
+                        paddingTop: "5px",
+                        paddingLeft: "5px",
+                        paddingRight: "5px",
+                      }}
+                    >
+                      <section id={component.type}>
+                        <Component {...mergedProps} />
+                      </section>
+                    </div>
+                  );
+                } catch (error) {
+                  console.error(
+                    `Error rendering component ${component.type}/${component.variant}:`,
+                    error
+                  );
+                  return (
+                    <div
+                      key={component.id}
+                      className="p-8 text-center text-muted-foreground"
+                    >
+                      <p>Error loading component: {component.type}</p>
+                    </div>
+                  );
+                }
+              })}
+            </div>
+          ) : (
+            sortedComponents.map((component) => {
+              try {
+                // Get the component variant from the registry
+                const variant = getComponentVariant(
+                  component.type as any,
+                  component.variant
+                );
+
+                if (!variant) {
+                  console.warn(
+                    `Component variant not found: ${component.type}/${component.variant}`
+                  );
+                  return null;
+                }
+
+                const Component = variant.component;
+
+                // Merge default props with component props and global theme
+                const mergedProps = {
+                  ...variant.defaultProps,
+                  ...component.props,
+                  globalTheme,
+                  ...component.styles,
+                  // Pass sections data to navbar components for dynamic navigation
+                  ...(component.type === "navbar" && {
+                    sections: sortedComponents,
+                  }),
+                };
+
+                return (
+                  <div key={component.id} className="w-full">
+                    <section id={component.type}>
+                      <Component {...mergedProps} />
+                    </section>
+                  </div>
+                );
+              } catch (error) {
+                console.error(
+                  `Error rendering component ${component.type}/${component.variant}:`,
+                  error
+                );
+                return (
+                  <div
+                    key={component.id}
+                    className="p-8 text-center text-muted-foreground"
+                  >
+                    <p>Error loading component: {component.type}</p>
+                  </div>
+                );
+              }
+            })
+          )}
         </Suspense>
       </div>
     </NavigationHelper>

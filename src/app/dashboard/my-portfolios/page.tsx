@@ -32,14 +32,30 @@ export default function MyPortfoliosPage() {
     const fetchPortfolios = async () => {
       try {
         setPortfolioListLoading(true);
-        const response = await fetch('/api/portfolio/list');
+        const response = await fetch("/api/portfolio/list");
         if (response.ok) {
-          const data = await response.json();
-          setPortfolioList(data.portfolios || []);
-          setTotalCount(data.totalCount || 0);
+          const result = await response.json();
+
+          const rawPortfolios = result.data.portfolios || [];
+          const mappedPortfolios: Portfolio[] = rawPortfolios.map((p: any) => ({
+            id: p.id,
+            title: p.name,
+            portfolioType: p.portfolioType,
+            updatedAt: p.updatedAt,
+            views: p.views || p.stats?.totalViews || 0,
+            isPublished: p.isPublic ?? false,
+            slug: p.slug,
+            description: p.description,
+            stats: p.stats,
+          }));
+
+          setPortfolioList(mappedPortfolios);
+          setTotalCount(
+            result.data.pagination?.totalCount || mappedPortfolios.length
+          );
         }
       } catch (error) {
-        console.error('Error fetching portfolios:', error);
+        console.error("Error fetching portfolios:", error);
         setPortfolioList([]);
         setTotalCount(0);
       } finally {
@@ -55,17 +71,17 @@ export default function MyPortfoliosPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this portfolio?')) {
+    if (confirm("Are you sure you want to delete this portfolio?")) {
       try {
         const response = await fetch(`/api/portfolio/${id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         });
         if (response.ok) {
-          setPortfolioList(prev => prev.filter(p => p.id !== id));
-          setTotalCount(prev => prev - 1);
+          setPortfolioList((prev) => prev.filter((p) => p.id !== id));
+          setTotalCount((prev) => prev - 1);
         }
       } catch (error) {
-        console.error('Error deleting portfolio:', error);
+        console.error("Error deleting portfolio:", error);
       }
     }
   };
@@ -75,24 +91,11 @@ export default function MyPortfoliosPage() {
   };
 
   const handleCreate = () => {
-    router.push('/dashboard/portfolio-builder');
+    router.push("/dashboard/portfolio-builder");
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">My Portfolios</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage and organize your portfolio websites
-          </p>
-        </div>
-        <Button onClick={handleCreate} className="bg-primary hover:bg-primary/90">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Portfolio
-        </Button>
-      </div>
-
       <PortfolioListCard
         title="All Portfolios"
         description="Your complete portfolio collection"

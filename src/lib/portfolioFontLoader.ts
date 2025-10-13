@@ -4,11 +4,30 @@ import { FONT_MAP } from "./fontMap";
 export class PortfolioFontLoader {
   /**
    * Get font CSS variable name from font name
+   * Returns the actual CSS variable name like "--font-roboto"
    */
   static getFontVariable(fontName: string): string {
-    const font = FONT_MAP[fontName];
+    // Map font names to their CSS variable names
+    // We use the actual variable names, not the module property
+    const variableMap: Record<string, string> = {
+      Inter: "--font-inter",
+      Roboto: "--font-roboto",
+      Montserrat: "--font-montserrat",
+      Poppins: "--font-poppins",
+      Nunito: "--font-nunito",
+      Oswald: "--font-oswald",
+      Merriweather: "--font-merriweather",
+      Lato: "--font-lato",
+      Outfit: "--font-outfit",
+      "Open Sans": "--font-open-sans",
+      Lora: "--font-lora",
+      "Playfair Display": "--font-playfair-display",
+      "JetBrains Mono": "--font-jetbrains-mono",
+    };
+
     return (
-      font?.variable || `--font-${fontName.toLowerCase().replace(/\s+/g, "-")}`
+      variableMap[fontName] ||
+      `--font-${fontName.toLowerCase().replace(/\s+/g, "-")}`
     );
   }
 
@@ -19,8 +38,9 @@ export class PortfolioFontLoader {
     fontName: string,
     fallback: string = "sans-serif"
   ): string {
+    // Use getFontVariable to get the correct CSS variable name
     const variable = this.getFontVariable(fontName);
-    return `var(${variable}, "${fontName}", ${fallback})`;
+    return `var(${variable}, ${fallback})`;
   }
 
   /**

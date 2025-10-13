@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
 
 // Simple icon components for social links
 const GithubLogo = ({ fill = "currentColor", width = 20, height = 20 }) => (
@@ -55,6 +56,7 @@ interface MinimalHeroProps {
   fontSize?: string;
   fontWeight?: string;
   fontFamily?: string;
+  globalTheme?: any;
 }
 
 const MinimalHero: React.FC<MinimalHeroProps> = ({
@@ -64,10 +66,26 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
   profileImage = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
   showSocialLinks = true,
   socialLinks = [
-    { platform: "GitHub", url: "https://github.com/johndoe", username: "@johndoe" },
-    { platform: "LinkedIn", url: "https://linkedin.com/in/johndoe", username: "@johndoe" },
-    { platform: "Twitter", url: "https://twitter.com/johndoe", username: "@johndoe" },
-    { platform: "Email", url: "mailto:john.doe@example.com", username: "john.doe@example.com" },
+    {
+      platform: "GitHub",
+      url: "https://github.com/johndoe",
+      username: "@johndoe",
+    },
+    {
+      platform: "LinkedIn",
+      url: "https://linkedin.com/in/johndoe",
+      username: "@johndoe",
+    },
+    {
+      platform: "Twitter",
+      url: "https://twitter.com/johndoe",
+      username: "@johndoe",
+    },
+    {
+      platform: "Email",
+      url: "mailto:john.doe@example.com",
+      username: "john.doe@example.com",
+    },
   ],
   showResumeButton = true,
   resumeUrl = "/resume.pdf",
@@ -82,10 +100,11 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
   fontSize = "base",
   fontWeight = "normal",
   fontFamily = "Inter, system-ui, sans-serif",
+  globalTheme,
 }) => {
   const getSocialIcon = (platform: string) => {
     const iconProps = { fill: secondaryColor, width: 20, height: 20 };
-    
+
     switch (platform.toLowerCase()) {
       case "github":
         return <GithubLogo {...iconProps} />;
@@ -103,6 +122,17 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
     }
   };
 
+  // Get font family from global theme or use fallback
+  const bodyFont = useMemo(() => {
+    return PortfolioFontLoader.getThemeFontStyle(globalTheme, "body")
+      .fontFamily;
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    return PortfolioFontLoader.getThemeFontStyle(globalTheme, "heading")
+      .fontFamily;
+  }, [globalTheme]);
+
   const containerStyle = {
     backgroundColor,
     color: textColor,
@@ -111,13 +141,13 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
     paddingLeft: `${paddingX}px`,
     paddingRight: `${paddingX}px`,
     textAlign: textAlign as any,
-    fontFamily,
+    fontFamily: bodyFont,
     fontSize: fontSize === "base" ? "16px" : fontSize,
     fontWeight,
   };
 
   return (
-    <section 
+    <section
       className="min-h-screen flex items-center justify-center"
       style={containerStyle}
     >
@@ -125,7 +155,7 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
         {/* Profile Image */}
         {profileImage && (
           <div className="flex justify-center">
-            <div 
+            <div
               className="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg"
               style={{ borderColor: `${primaryColor}20` }}
             >
@@ -140,17 +170,26 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
 
         {/* Title */}
         <div className="space-y-4">
-          <h1 
+          <h1
             className="text-4xl md:text-5xl font-bold leading-tight"
-            style={{ color: textColor }}
+            style={{
+              color: textColor,
+              fontFamily: headingFont,
+              fontWeight: fontWeight,
+              fontSize: fontSize,
+            }}
           >
             {title}
           </h1>
-          
+
           {subtitle && (
-            <p 
-              className="text-xl md:text-2xl"
-              style={{ color: secondaryColor }}
+            <p
+              style={{
+                color: secondaryColor,
+                fontFamily: bodyFont,
+                fontWeight: fontWeight,
+                fontSize: fontSize,
+              }}
             >
               {subtitle}
             </p>
@@ -160,9 +199,14 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
         {/* Description */}
         {description && (
           <div className="max-w-xl mx-auto">
-            <p 
-              className="text-lg leading-relaxed"
-              style={{ color: secondaryColor }}
+            <p
+              className="leading-relaxed"
+              style={{
+                color: secondaryColor,
+                fontFamily: bodyFont,
+                fontWeight: fontWeight,
+                fontSize: fontSize,
+              }}
             >
               {description}
             </p>
@@ -181,19 +225,22 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
                 backgroundColor: primaryColor,
                 color: "#ffffff",
                 textDecoration: "none",
+                fontFamily: bodyFont,
+                fontWeight: fontWeight,
+                fontSize: fontSize,
               }}
             >
-              <svg 
-                className="w-5 h-5 mr-2" 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
               {resumeText}
@@ -211,9 +258,9 @@ const MinimalHero: React.FC<MinimalHeroProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 rounded-full transition-all duration-200 hover:scale-110"
-                style={{ 
+                style={{
                   backgroundColor: `${primaryColor}10`,
-                  color: secondaryColor 
+                  color: secondaryColor,
                 }}
                 title={link.username || link.platform}
               >

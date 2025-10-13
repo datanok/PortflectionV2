@@ -14,6 +14,7 @@ import {
   Tablet,
   Monitor as MonitorIcon,
   RotateCcw,
+  ArrowLeft,
 } from "lucide-react";
 import {
   Drawer,
@@ -42,10 +43,7 @@ import BulkStyleModal from "./BulkStyleModal";
 import PropertyPanel from "./PropertyPanel";
 import ComponentPalette from "./ComponentPalette";
 import DropCanvas from "./DropCanvas";
-import {
-  savePortfolio,
-  updatePortfolio,
-} from "@/actions/portfolio-actions";
+import { savePortfolio, updatePortfolio } from "@/actions/portfolio-actions";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import { motion } from "framer-motion";
 
@@ -89,7 +87,7 @@ const usePortfolioState = (initialData?: Portfolio, portfolioId?: string) => {
   const [name, setName] = useState(initialData?.name || "Untitled Portfolio");
   const [slug, setSlug] = useState(initialData?.slug || "");
   const [isPublic, setIsPublic] = useState(initialData?.isPublic || false);
-  
+
   // Theme state with default values
   const [globalTheme, setGlobalTheme] = useState({
     primary: "#3b82f6",
@@ -124,7 +122,8 @@ const usePortfolioState = (initialData?: Portfolio, portfolioId?: string) => {
   const setPortfolio = (newPortfolio: any) => {
     if (newPortfolio.name !== undefined) setName(newPortfolio.name);
     if (newPortfolio.slug !== undefined) setSlug(newPortfolio.slug);
-    if (newPortfolio.components !== undefined) setComponents(newPortfolio.components);
+    if (newPortfolio.components !== undefined)
+      setComponents(newPortfolio.components);
     if (newPortfolio.isPublic !== undefined) setIsPublic(newPortfolio.isPublic);
     if (newPortfolio.theme !== undefined) setGlobalTheme(newPortfolio.theme);
   };
@@ -176,7 +175,7 @@ export default function PortfolioEditor({
   const [activePropertyTab, setActivePropertyTab] =
     useState<PropertyTab>("content");
   const [isComponentPaletteOpen, setIsComponentPaletteOpen] = useState(true);
-  
+
   // History for undo/redo
   const [history, setHistory] = useState<PortfolioComponent[][]>([components]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -187,14 +186,17 @@ export default function PortfolioEditor({
   const [canvasZoom, setCanvasZoom] = useState(0.9);
 
   // Add to history when components change
-  const addToHistory = useCallback((newComponents: PortfolioComponent[]) => {
-    setHistory(prev => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(newComponents);
-      return newHistory.slice(-50); // Keep only last 50 states
-    });
-    setHistoryIndex(prev => Math.min(prev + 1, 49));
-  }, [historyIndex]);
+  const addToHistory = useCallback(
+    (newComponents: PortfolioComponent[]) => {
+      setHistory((prev) => {
+        const newHistory = prev.slice(0, historyIndex + 1);
+        newHistory.push(newComponents);
+        return newHistory.slice(-50); // Keep only last 50 states
+      });
+      setHistoryIndex((prev) => Math.min(prev + 1, 49));
+    },
+    [historyIndex]
+  );
 
   // Undo function
   const undo = useCallback(() => {
@@ -213,7 +215,6 @@ export default function PortfolioEditor({
       setComponents(history[newIndex]);
     }
   }, [historyIndex, history]);
-
 
   useEffect(() => {
     if (isMobile) {
@@ -269,7 +270,9 @@ export default function PortfolioEditor({
   const handleUpdateComponent = useCallback(
     (id: string, updates: Partial<PortfolioComponent>) => {
       setComponents((prev) => {
-        const newComponents = prev.map((comp) => (comp.id === id ? { ...comp, ...updates } : comp));
+        const newComponents = prev.map((comp) =>
+          comp.id === id ? { ...comp, ...updates } : comp
+        );
         addToHistory(newComponents);
         return newComponents;
       });
@@ -406,7 +409,7 @@ export default function PortfolioEditor({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
-          case 'z':
+          case "z":
             e.preventDefault();
             if (e.shiftKey) {
               redo();
@@ -414,25 +417,25 @@ export default function PortfolioEditor({
               undo();
             }
             break;
-          case 's':
+          case "s":
             e.preventDefault();
             handleSave();
             break;
-          case 'y':
+          case "y":
             e.preventDefault();
             redo();
             break;
         }
       }
-      
+
       // Delete selected component
-      if (e.key === 'Delete' && selectedComponent) {
+      if (e.key === "Delete" && selectedComponent) {
         handleDeleteComponent(selectedComponent.id);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [undo, redo, selectedComponent, handleSave, handleDeleteComponent]);
 
   // Property tabs configuration
@@ -462,6 +465,19 @@ export default function PortfolioEditor({
           <div className="flex items-center justify-between p-2 sm:p-3 gap-2 sm:gap-3">
             {/* Left side */}
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              {/* Back button - always visible */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/dashboard")}
+                className="gap-2 shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </Button>
+
+              <Separator orientation="vertical" className="h-6" />
+
               {isMobile ? (
                 /* Mobile: Menu button only */
                 <Button

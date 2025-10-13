@@ -69,7 +69,7 @@ export function PortfolioListCard({
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "Unknown";
-    
+
     try {
       const date = new Date(dateString);
       const now = new Date();
@@ -80,10 +80,10 @@ export function PortfolioListCard({
       if (diffDays === 2) return "Yesterday";
       if (diffDays < 7) return `${diffDays - 1} days ago`;
       if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-      return date.toLocaleDateString("en-US", { 
-        month: "short", 
+      return date.toLocaleDateString("en-US", {
+        month: "short",
         day: "numeric",
-        year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined
+        year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
       });
     } catch (error) {
       console.error("Error formatting date:", error);
@@ -106,13 +106,24 @@ export function PortfolioListCard({
     <Card className="flex-1 bg-background overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="flex-1 min-w-0">
-          <CardTitle className="text-foreground text-xl font-semibold">
+          <CardTitle className="text-foreground text-xl font-semibold flex justify-between gap-2">
             {title}
+            <Button
+              onClick={onCreate}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Portfolio
+            </Button>
           </CardTitle>
+
           {!portfolioListLoading && totalCount > 0 && (
             <CardDescription className="text-muted-foreground text-sm mt-1">
               {description ||
-                `Showing ${Math.min(portfolioList.length, limit)} of ${totalCount} portfolios`}
+                `Showing ${Math.min(
+                  portfolioList.length,
+                  limit
+                )} of ${totalCount} portfolios`}
             </CardDescription>
           )}
         </div>
@@ -136,7 +147,9 @@ export function PortfolioListCard({
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <div className="absolute inset-0 rounded-full border-2 border-muted"></div>
             </div>
-            <p className="text-muted-foreground mt-4 text-sm">Loading your portfolios...</p>
+            <p className="text-muted-foreground mt-4 text-sm">
+              Loading your portfolios...
+            </p>
           </div>
         ) : portfolioList?.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border rounded-xl bg-muted/20">
@@ -146,9 +159,12 @@ export function PortfolioListCard({
                 <Plus className="h-2.5 w-2.5 text-primary-foreground" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">No portfolios yet</h3>
+            <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">
+              No portfolios yet
+            </h3>
             <p className="text-muted-foreground text-center mb-6 max-w-sm">
-              Create your first portfolio to showcase your work and start building your online presence
+              Create your first portfolio to showcase your work and start
+              building your online presence
             </p>
             <Button
               onClick={onCreate}
@@ -168,7 +184,7 @@ export function PortfolioListCard({
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     handleViewPortfolio(portfolio);
                   }
@@ -226,7 +242,9 @@ export function PortfolioListCard({
                         {portfolio.views !== undefined && (
                           <div className="flex items-center gap-1">
                             <ViewsIcon className="h-3 w-3 flex-shrink-0" />
-                            <span className="text-xs">{portfolio.views} views</span>
+                            <span className="text-xs">
+                              {portfolio.views} views
+                            </span>
                           </div>
                         )}
 
@@ -268,7 +286,11 @@ export function PortfolioListCard({
                           e.stopPropagation();
                           handleViewPortfolio(portfolio);
                         }}
-                        title={portfolio.isPublished ? "View live portfolio" : "Preview portfolio"}
+                        title={
+                          portfolio.isPublished
+                            ? "View live portfolio"
+                            : "Preview portfolio"
+                        }
                       >
                         {portfolio.isPublished ? (
                           <ExternalLink className="h-4 w-4" />

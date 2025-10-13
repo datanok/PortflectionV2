@@ -77,8 +77,6 @@ interface ComponentProps {
   statusText?: string;
   statusColor?: string;
   profileImage?: string;
-  showProfileImage?: boolean;
-  showCodeSnippet?: boolean;
   codeSnippet?: string;
   floatingCodeElement1?: string;
   floatingCodeElement2?: string;
@@ -91,22 +89,28 @@ interface ComponentProps {
   paddingY?: string;
   paddingX?: string;
   textAlign?: "left" | "center" | "right";
-  fontSize?: string;
-  fontWeight?: string;
+  fontSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
+  fontWeight?:
+    | "normal"
+    | "medium"
+    | "semibold"
+    | "bold"
+    | "extrabold"
+    | "black";
   borderRadius?: string;
   shadow?: string;
 
   // Theme Options
   theme?: "minimal" | "code" | "modern";
 
-  // Visual Display Options
+  // Visual Display Options (Choose ONE: either image, code snippet, or decorative element)
   visualDisplay?: "profile" | "code" | "geometric" | "minimal" | "none";
 
   // Global Theme
   globalTheme?: any;
 }
 
-function getContrastColor(hex: string) {
+export function getContrastColor(hex: string) {
   if (hex.length === 4) {
     hex = "#" + [...hex.slice(1)].map((c) => c + c).join("");
   }
@@ -119,6 +123,80 @@ function getContrastColor(hex: string) {
 
   return brightness > 128 ? "#000000" : "#FFFFFF";
 }
+
+// Font size mapping utility
+const getFontSizeValues = (size: string) => {
+  const sizeMap = {
+    sm: {
+      greeting: "0.875rem", // 14px
+      name: "clamp(1.5rem, 6vw, 2.5rem)",
+      title: "clamp(1rem, 3vw, 1.5rem)",
+      tagline: "1rem", // 16px
+      description: "0.875rem", // 14px
+      button: "0.75rem", // 12px
+      code: "0.75rem", // 12px
+    },
+    md: {
+      greeting: "1rem", // 16px
+      name: "clamp(2rem, 7vw, 3rem)",
+      title: "clamp(1.125rem, 4vw, 1.875rem)",
+      tagline: "1.125rem", // 18px
+      description: "1rem", // 16px
+      button: "0.875rem", // 14px
+      code: "0.875rem", // 14px
+    },
+    lg: {
+      greeting: "1.125rem", // 18px
+      name: "clamp(2.5rem, 8vw, 3.5rem)",
+      title: "clamp(1.25rem, 5vw, 2.25rem)",
+      tagline: "1.25rem", // 20px
+      description: "1.125rem", // 18px
+      button: "0.875rem", // 14px
+      code: "0.875rem", // 14px
+    },
+    xl: {
+      greeting: "1.25rem", // 20px
+      name: "clamp(2.75rem, 8vw, 4rem)",
+      title: "clamp(1.5rem, 5vw, 2.5rem)",
+      tagline: "1.375rem", // 22px
+      description: "1.125rem", // 18px
+      button: "0.875rem", // 14px
+      code: "0.875rem", // 14px
+    },
+    "2xl": {
+      greeting: "1.5rem", // 24px
+      name: "clamp(3rem, 9vw, 4.5rem)",
+      title: "clamp(1.75rem, 6vw, 3rem)",
+      tagline: "1.5rem", // 24px
+      description: "1.25rem", // 20px
+      button: "1rem", // 16px
+      code: "1rem", // 16px
+    },
+    "3xl": {
+      greeting: "1.75rem", // 28px
+      name: "clamp(3.5rem, 10vw, 5rem)",
+      title: "clamp(2rem, 7vw, 3.5rem)",
+      tagline: "1.75rem", // 28px
+      description: "1.375rem", // 22px
+      button: "1.125rem", // 18px
+      code: "1.125rem", // 18px
+    },
+  };
+  return sizeMap[size as keyof typeof sizeMap] || sizeMap.xl;
+};
+
+// Font weight mapping utility
+const getFontWeightValue = (weight: string) => {
+  const weightMap = {
+    normal: "400",
+    medium: "500",
+    semibold: "600",
+    bold: "700",
+    extrabold: "800",
+    black: "900",
+  };
+  return weightMap[weight as keyof typeof weightMap] || "700";
+};
 
 const TypographyHero: React.FC<ComponentProps> = ({
   greeting = "HELLO_WORLD();",
@@ -133,8 +211,6 @@ const TypographyHero: React.FC<ComponentProps> = ({
   statusText = "AVAILABLE_FOR_HIRE",
   statusColor = "#10b981",
   profileImage = "",
-  showProfileImage = false,
-  showCodeSnippet = true,
   codeSnippet,
   floatingCodeElement1 = 'console.log("Hello!");',
   floatingCodeElement2 = "return success;",
@@ -156,6 +232,13 @@ const TypographyHero: React.FC<ComponentProps> = ({
   const [currentTypingIndex, setCurrentTypingIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Font sizing and weight
+  const fontSizes = useMemo(() => getFontSizeValues(fontSize), [fontSize]);
+  const fontWeightValue = useMemo(
+    () => getFontWeightValue(fontWeight),
+    [fontWeight]
+  );
 
   // Theme configurations
   const themeConfigs = {
@@ -284,7 +367,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
       alignItems: "center",
       overflow: "hidden",
     }),
-    [currentTheme, paddingY, paddingX, borderRadius, shadow, theme]
+    [currentTheme, paddingY, paddingX, borderRadius, shadow, globalTheme]
   );
 
   const gridOverlayStyle: React.CSSProperties = useMemo(
@@ -324,79 +407,21 @@ const TypographyHero: React.FC<ComponentProps> = ({
   const renderVisualDisplay = () => {
     switch (visualDisplay) {
       case "profile":
-        return showProfileImage && profileImage ? (
+        // Only show profile image if URL is provided
+        return profileImage ? (
           <div className="relative flex items-center justify-center w-full">
-            {showProfileImage && profileImage ? (
-              <div
-                className="relative w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-lg overflow-hidden border"
-                style={{
-                  borderColor: primaryColor,
-                }}
-              >
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : showCodeSnippet ? (
-              <div className="relative w-full max-w-md md:max-w-lg">
-                {/* Code Window */}
-                <div
-                  className="rounded-lg overflow-hidden shadow-md"
-                  style={{
-                    backgroundColor: secondaryColor,
-                    border: `1px solid ${primaryColor}40`,
-                  }}
-                >
-                  {/* Window Header */}
-                  <div
-                    className="flex items-center justify-between px-3 py-2 border-b"
-                    style={{
-                      backgroundColor: primaryColor,
-                    }}
-                  >
-                    <div className="flex space-x-1">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                    </div>
-                    <span
-                      className="text-[10px] md:text-xs font-medium truncate"
-                      style={{ color: getContrastColor(primaryColor) }}
-                    >
-                      {title}
-                    </span>
-                  </div>
-
-                  {/* Code Content */}
-                  <div className="p-4 overflow-x-auto text-xs md:text-sm">
-                    <pre
-                      style={{
-                        color: getContrastColor(secondaryColor),
-                        fontFamily:
-                          "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
-                      }}
-                    >
-                      <code>
-                        {memoizedCodeSnippet.split("\n").map((line, index) => (
-                          <div key={index} className="flex items-start">
-                            <span className="opacity-50 pr-3 select-none">
-                              {String(index + 1).padStart(2, "0")}
-                            </span>
-                            <span>{line}</span>
-                          </div>
-                        ))}
-                      </code>
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center text-5xl md:text-7xl font-bold opacity-20">
-                {"</>"}
-              </div>
-            )}
+            <div
+              className="relative w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-lg overflow-hidden border"
+              style={{
+                borderColor: primaryColor,
+              }}
+            >
+              <img
+                src={profileImage}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         ) : null;
 
@@ -422,8 +447,12 @@ const TypographyHero: React.FC<ComponentProps> = ({
                 }}
               ></div>
               <div
-                className="absolute inset-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl sm:text-6xl font-black"
-                style={{ color: currentTheme.primaryColor }}
+                className="absolute inset-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  color: currentTheme.primaryColor,
+                  fontSize: "clamp(2rem, 10vw, 4rem)",
+                  fontWeight: fontWeightValue,
+                }}
               >
                 {"</>"}
               </div>
@@ -436,14 +465,22 @@ const TypographyHero: React.FC<ComponentProps> = ({
           <div className="relative flex items-center justify-center">
             <div className="text-center space-y-4">
               <div
-                className="text-6xl sm:text-7xl lg:text-8xl font-black opacity-10"
-                style={{ color: currentTheme.primaryColor }}
+                className="opacity-10"
+                style={{
+                  color: currentTheme.primaryColor,
+                  fontSize: "clamp(3rem, 12vw, 6rem)",
+                  fontWeight: fontWeightValue,
+                }}
               >
                 {"{}"}
               </div>
               <div
-                className="text-2xl sm:text-3xl font-light opacity-20"
-                style={{ color: currentTheme.secondaryColor }}
+                className="opacity-20"
+                style={{
+                  color: currentTheme.secondaryColor,
+                  fontSize: fontSizes.tagline,
+                  fontWeight: "300",
+                }}
               >
                 {title.toLowerCase().replace(/_/g, " ")}
               </div>
@@ -452,7 +489,8 @@ const TypographyHero: React.FC<ComponentProps> = ({
         );
 
       case "code":
-        return showCodeSnippet ? (
+        // Only show code snippet if memoizedCodeSnippet exists
+        return memoizedCodeSnippet ? (
           <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg">
             <div
               className="rounded-lg overflow-hidden shadow-2xl"
@@ -474,8 +512,12 @@ const TypographyHero: React.FC<ComponentProps> = ({
                   <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500"></div>
                 </div>
                 <span
-                  className="text-xs font-medium hidden sm:block"
-                  style={{ color: currentTheme.secondaryColor }}
+                  className="hidden sm:block"
+                  style={{
+                    color: currentTheme.secondaryColor,
+                    fontSize: fontSizes.code,
+                    fontWeight: fontWeightValue,
+                  }}
                 >
                   {title}
                 </span>
@@ -483,11 +525,14 @@ const TypographyHero: React.FC<ComponentProps> = ({
 
               <div className="p-3 sm:p-4 lg:p-6">
                 <pre
-                  className="text-xs leading-relaxed"
+                  className="leading-relaxed"
                   style={{
                     color: getContrastColor(currentTheme.secondaryColor),
-                    fontFamily:
-                      "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                    fontSize: fontSizes.code,
+                    fontFamily: PortfolioFontLoader.getThemeFontStyle(
+                      globalTheme,
+                      "mono"
+                    ).fontFamily,
                   }}
                 >
                   <code>
@@ -510,8 +555,9 @@ const TypographyHero: React.FC<ComponentProps> = ({
                         }}
                       >
                         <span
-                          className="text-xs mr-2 sm:mr-4 select-none"
+                          className="mr-2 sm:mr-4 select-none"
                           style={{
+                            fontSize: fontSizes.code,
                             color: getContrastColor(
                               currentTheme.secondaryColor
                             ),
@@ -528,19 +574,23 @@ const TypographyHero: React.FC<ComponentProps> = ({
             </div>
 
             <div
-              className="absolute -top-6 -left-6 sm:-top-8 sm:-left-8 px-2 py-1 rounded text-xs font-bold animate-float"
+              className="absolute -top-6 -left-6 sm:-top-8 sm:-left-8 px-2 py-1 rounded animate-float"
               style={{
                 backgroundColor: currentTheme.primaryColor,
                 color: getContrastColor(currentTheme.primaryColor),
+                fontSize: fontSizes.code,
+                fontWeight: fontWeightValue,
               }}
             >
               {floatingCodeElement1}
             </div>
             <div
-              className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 px-2 py-1 rounded text-xs font-bold animate-float"
+              className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 px-2 py-1 rounded animate-float"
               style={{
                 backgroundColor: statusColor,
                 color: getContrastColor(statusColor),
+                fontSize: fontSizes.code,
+                fontWeight: fontWeightValue,
                 animationDelay: "1s",
               }}
             >
@@ -642,9 +692,11 @@ const TypographyHero: React.FC<ComponentProps> = ({
             {/* Greeting */}
             <div className="space-y-2">
               <p
-                className="text-sm sm:text-base md:text-lg font-bold tracking-wide"
+                className="tracking-wide"
                 style={{
                   color: currentTheme.primaryColor,
+                  fontSize: fontSizes.greeting,
+                  fontWeight: fontWeightValue,
                   animationDelay: "0.2s",
                 }}
               >
@@ -654,11 +706,11 @@ const TypographyHero: React.FC<ComponentProps> = ({
 
             {/* Name */}
             <h1
-              className="font-black tracking-tight leading-none"
+              className="tracking-tight leading-none"
               style={{
-                fontSize: "clamp(2rem, 8vw, 4rem)",
+                fontSize: fontSizes.name,
                 color: currentTheme.textColor,
-                fontWeight: 900,
+                fontWeight: fontWeightValue,
                 lineHeight: 0.85,
                 animationDelay: "0.4s",
               }}
@@ -670,8 +722,12 @@ const TypographyHero: React.FC<ComponentProps> = ({
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center space-x-2 sm:space-x-4">
                 <span
-                  className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black tracking-tight"
-                  style={{ color: currentTheme.primaryColor }}
+                  className="tracking-tight"
+                  style={{
+                    fontSize: fontSizes.title,
+                    fontWeight: fontWeightValue,
+                    color: currentTheme.primaryColor,
+                  }}
                 >
                   {currentText}
                   <span
@@ -684,8 +740,10 @@ const TypographyHero: React.FC<ComponentProps> = ({
               </div>
 
               <p
-                className="text-base sm:text-lg md:text-xl font-medium leading-relaxed"
+                className="leading-relaxed"
                 style={{
+                  fontSize: fontSizes.tagline,
+                  fontWeight: fontWeightValue,
                   color: currentTheme.secondaryColor,
                   lineHeight: 1.6,
                 }}
@@ -696,8 +754,10 @@ const TypographyHero: React.FC<ComponentProps> = ({
 
             {/* Description */}
             <p
-              className="text-sm sm:text-base leading-relaxed max-w-2xl"
+              className="leading-relaxed max-w-2xl"
               style={{
+                fontSize: fontSizes.description,
+                fontWeight: fontWeightValue,
                 color: currentTheme.textColor,
                 lineHeight: 1.7,
                 animationDelay: "0.8s",
@@ -713,7 +773,7 @@ const TypographyHero: React.FC<ComponentProps> = ({
                   key={button.label}
                   href={button.href}
                   download={button.downloadFile}
-                  className="group w-full sm:w-fit px-4 py-2 sm:px-6 sm:py-3 font-bold tracking-wider uppercase transition-all duration-300 hover:scale-105 border-2 relative text-center"
+                  className="group w-full sm:w-fit px-4 py-2 sm:px-6 sm:py-3 tracking-wider uppercase transition-all duration-300 hover:scale-105 border-2 relative text-center"
                   style={{
                     backgroundColor: button.isPrimary
                       ? currentTheme.primaryColor
@@ -723,7 +783,8 @@ const TypographyHero: React.FC<ComponentProps> = ({
                       : currentTheme.primaryColor,
                     borderColor: currentTheme.primaryColor,
                     borderRadius: `${borderRadius}px`,
-                    fontSize: "0.75rem",
+                    fontSize: fontSizes.button,
+                    fontWeight: fontWeightValue,
                     textDecoration: "none",
                     animationDelay: `${1 + index * 0.1}s`,
                   }}

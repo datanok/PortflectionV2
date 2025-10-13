@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Mail,
   Phone,
@@ -10,6 +10,8 @@ import {
   Twitter,
   Instagram,
 } from "lucide-react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 interface ContactMethod {
   icon: string;
@@ -35,6 +37,9 @@ interface NeobrutalistContactProps {
   secondaryColor?: string;
   accentColor?: string;
   shadowColor?: string;
+  cardBackgroundColor?: string;
+  successColor?: string;
+  borderColor?: string;
   paddingY?: string;
   paddingX?: string;
   textAlign?: "left" | "center" | "right";
@@ -87,7 +92,10 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
   secondaryColor = "#1f2937",
   accentColor = "#ef4444",
   shadowColor = "#000000",
-  paddingY = "120",
+  cardBackgroundColor = "#ffffff",
+  successColor = "#10b981",
+  borderColor = "#000000",
+  paddingY = "12",
   paddingX = "32",
   textAlign = "left",
   fontSize = "4xl",
@@ -97,6 +105,17 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
   borderWidth = "4",
   globalTheme,
 }) => {
+  // Get font families from global theme with neobrutalist defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -148,7 +167,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
     color: primaryColor,
     fontSize: getFontSize(fontSize),
     fontWeight: fontWeight === "black" ? "900" : fontWeight,
-    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+    fontFamily: headingFont,
     lineHeight: "0.9",
     letterSpacing: "-0.025em",
     textTransform: "uppercase",
@@ -158,7 +177,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
     color: secondaryColor,
     fontSize: getFontSize("xl"),
     fontWeight: "700",
-    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+    fontFamily: headingFont,
     letterSpacing: "0.05em",
     textTransform: "uppercase",
   };
@@ -191,7 +210,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
   return (
     <section
       className={`py-${paddingY} px-4 sm:px-${paddingX} relative overflow-hidden`}
-      style={containerStyles}
+      style={{ ...containerStyles, fontFamily: bodyFont }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -207,7 +226,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
               className="max-w-2xl text-lg font-medium leading-relaxed"
               style={{
                 color: secondaryColor,
-                fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                fontFamily: bodyFont,
               }}
             >
               {description}
@@ -215,84 +234,83 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
           )}
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
+        <div
+          className={`grid gap-8 lg:gap-16 ${
+            showContactForm ? "lg:grid-cols-12" : "lg:grid-cols-1"
+          }`}
+        >
           {/* Left Column - Contact Info */}
-          <div className="lg:col-span-5 space-y-8">
+          <div
+            className={`${
+              showContactForm ? "lg:col-span-5" : "lg:col-span-12"
+            }`}
+          >
             <div
-              className="inline-block px-6 py-3 border transform rotate-1 hover:rotate-0 transition-all duration-300"
-              style={{
-                backgroundColor: accentColor,
-                color: backgroundColor,
-                borderColor: primaryColor,
-                borderWidth: `${borderWidth}px`,
-                boxShadow: neoBrutalShadow,
-                fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                fontWeight: "800",
-                fontSize: "1.25rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.1em",
-              }}
+              className={`grid gap-4 ${
+                showContactForm
+                  ? "sm:grid-cols-1 md:grid-cols-2"
+                  : "sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
+              }`}
             >
-              Contact Info
-            </div>
-
-            <div className="space-y-6">
               {contactMethods.map((method, index) => {
                 const IconComponent = getIcon(method.icon);
-                const cardColor = index % 2 === 0 ? "#ffffff" : "#f3f4f6";
 
                 return (
                   <a
                     key={index}
                     href={method.link}
-                    className="group block p-6 border transform hover:-translate-y-2 hover:translate-x-1 transition-all duration-300"
+                    target="_blank"
+                    className="group relative block p-5 border transition-all duration-300 hover:scale-[1.02]"
                     style={{
-                      backgroundColor: cardColor,
+                      backgroundColor: backgroundColor,
                       borderColor: primaryColor,
                       borderWidth: `${borderWidth}px`,
-                      boxShadow: neoBrutalShadow,
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.boxShadow = neoBrutalHoverShadow;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.boxShadow = neoBrutalShadow;
+                      borderRadius: `${borderRadius}px`,
                     }}
                   >
-                    <div className="flex items-center gap-4">
+                    {/* Icon */}
+                    <div
+                      className="inline-flex items-center justify-center w-12 h-12 border mb-4 transition-transform duration-300 group-hover:scale-110"
+                      style={{
+                        backgroundColor: accentColor,
+                        borderColor: primaryColor,
+                        borderWidth: `${borderWidth}px`,
+                        borderRadius: `${borderRadius}px`,
+                        color: primaryColor,
+                      }}
+                    >
+                      <IconComponent size={20} />
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-1">
                       <div
-                        className="flex-shrink-0 w-16 h-16 border flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                        className="text-xs uppercase tracking-widest font-semibold"
                         style={{
-                          backgroundColor: accentColor,
-                          borderColor: primaryColor,
-                          borderWidth: `${borderWidth}px`,
-                          color: backgroundColor,
+                          color: secondaryColor,
+                          fontFamily: headingFont,
                         }}
                       >
-                        <IconComponent size={24} />
+                        {method.label}
                       </div>
-
-                      <div className="flex-1">
-                        <div
-                          className="text-sm uppercase tracking-wider mb-2 font-bold"
-                          style={{
-                            color: secondaryColor,
-                            fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                          }}
-                        >
-                          {method.label}
-                        </div>
-                        <div
-                          className="text-lg font-bold"
-                          style={{
-                            color: primaryColor,
-                            fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                          }}
-                        >
-                          {method.value}
-                        </div>
+                      <div
+                        className="text-base font-bold leading-tight break-words"
+                        style={{
+                          color: primaryColor,
+                          fontFamily: headingFont,
+                        }}
+                      >
+                        {method.value}
                       </div>
                     </div>
+
+                    {/* Hover indicator */}
+                    <div
+                      className="absolute bottom-0 left-0 h-1 w-0 group-hover:w-full transition-all duration-300"
+                      style={{
+                        backgroundColor: primaryColor,
+                      }}
+                    />
                   </a>
                 );
               })}
@@ -307,14 +325,14 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                   <div
                     className="inline-block px-6 py-3 border mb-4 transform -rotate-1 hover:rotate-0 transition-all duration-300"
                     style={{
-                      backgroundColor: "#ffffff",
+                      backgroundColor: backgroundColor,
                       color: primaryColor,
                       borderColor: primaryColor,
                       borderWidth: `${borderWidth}px`,
                       boxShadow: neoBrutalShadow,
-                      fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                      fontWeight: "800",
-                      fontSize: getFontSize("2xl"),
+                      fontFamily: headingFont,
+                      fontWeight: fontWeight,
+                      fontSize: getFontSize("lg"),
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
                     }}
@@ -322,10 +340,10 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                     {formTitle}
                   </div>
                   <p
-                    className="text-lg font-medium"
+                    className="text-base font-medium"
                     style={{
                       color: secondaryColor,
-                      fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                      fontFamily: headingFont,
                     }}
                   >
                     {formSubtitle}
@@ -339,7 +357,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                         className="block text-sm uppercase tracking-wider mb-3 font-bold"
                         style={{
                           color: primaryColor,
-                          fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                          fontFamily: headingFont,
                         }}
                       >
                         Name *
@@ -350,13 +368,13 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-4 border outline-none transition-all duration-300 font-medium"
+                        className="w-full px-2 py-2 border outline-none transition-all duration-300 font-medium"
                         style={{
                           borderColor: primaryColor,
                           borderWidth: `${borderWidth}px`,
                           boxShadow: `4px 4px 0px ${shadowColor}`,
-                          fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                          backgroundColor: "#ffffff",
+                          fontFamily: headingFont,
+                          backgroundColor: backgroundColor,
                         }}
                         onFocus={(e) => {
                           e.target.style.boxShadow = `6px 6px 0px ${shadowColor}`;
@@ -374,7 +392,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                         className="block text-sm uppercase tracking-wider mb-3 font-bold"
                         style={{
                           color: primaryColor,
-                          fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                          fontFamily: headingFont,
                         }}
                       >
                         Email *
@@ -385,13 +403,13 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-4 border outline-none transition-all duration-300 font-medium"
+                        className="w-full px-4 py-2 border outline-none transition-all duration-300 font-medium"
                         style={{
                           borderColor: primaryColor,
                           borderWidth: `${borderWidth}px`,
                           boxShadow: `4px 4px 0px ${shadowColor}`,
-                          fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                          backgroundColor: "#ffffff",
+                          fontFamily: headingFont,
+                          backgroundColor: backgroundColor,
                         }}
                         onFocus={(e) => {
                           e.target.style.boxShadow = `6px 6px 0px ${shadowColor}`;
@@ -410,7 +428,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                       className="block text-sm uppercase tracking-wider mb-3 font-bold"
                       style={{
                         color: primaryColor,
-                        fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                        fontFamily: headingFont,
                       }}
                     >
                       Subject *
@@ -421,13 +439,13 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                       value={formData.subject}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-4 border outline-none transition-all duration-300 font-medium"
+                      className="w-full px-4 py-2 border outline-none transition-all duration-300 font-medium"
                       style={{
                         borderColor: primaryColor,
                         borderWidth: `${borderWidth}px`,
                         boxShadow: `4px 4px 0px ${shadowColor}`,
-                        fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                        backgroundColor: "#ffffff",
+                        fontFamily: headingFont,
+                        backgroundColor: backgroundColor,
                       }}
                       onFocus={(e) => {
                         e.target.style.boxShadow = `6px 6px 0px ${shadowColor}`;
@@ -445,7 +463,7 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                       className="block text-sm uppercase tracking-wider mb-3 font-bold"
                       style={{
                         color: primaryColor,
-                        fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                        fontFamily: headingFont,
                       }}
                     >
                       Message *
@@ -455,14 +473,14 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                       value={formData.message}
                       onChange={handleInputChange}
                       required
-                      rows={6}
-                      className="w-full px-4 py-4 border outline-none transition-all duration-300 resize-vertical font-medium"
+                      rows={4}
+                      className="w-full px-2 py-2 border outline-none transition-all duration-300 resize-vertical font-medium"
                       style={{
                         borderColor: primaryColor,
                         borderWidth: `${borderWidth}px`,
                         boxShadow: `4px 4px 0px ${shadowColor}`,
-                        fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                        backgroundColor: "#ffffff",
+                        fontFamily: headingFont,
+                        backgroundColor: backgroundColor,
                       }}
                       onFocus={(e) => {
                         e.target.style.boxShadow = `6px 6px 0px ${shadowColor}`;
@@ -479,15 +497,15 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                     type="button"
                     onClick={handleSubmit}
                     disabled={formStatus === "sending"}
-                    className="group flex items-center gap-3 px-8 py-4 border font-bold uppercase tracking-wider transition-all duration-300 disabled:opacity-50 hover:-translate-y-1 hover:translate-x-1"
+                    className="group flex items-center gap-3 px-8 py-4 border  uppercase tracking-wider transition-all duration-300 disabled:opacity-50 hover:-translate-y-1 hover:translate-x-1"
                     style={{
                       borderColor: primaryColor,
                       backgroundColor:
-                        formStatus === "sent" ? "#10b981" : accentColor,
-                      color: backgroundColor,
+                        formStatus === "sent" ? successColor : accentColor,
+                      color: primaryColor,
                       borderWidth: `${borderWidth}px`,
                       boxShadow: neoBrutalShadow,
-                      fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                      fontFamily: headingFont,
                       fontSize: "1.125rem",
                     }}
                     onMouseEnter={(e) => {
@@ -529,18 +547,18 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
                     <div
                       className="flex items-center gap-3 p-4 border font-medium"
                       style={{
-                        backgroundColor: "#dcfce7",
-                        borderColor: "#10b981",
+                        backgroundColor: backgroundColor,
+                        borderColor: successColor,
                         borderWidth: `${borderWidth}px`,
-                        boxShadow: `4px 4px 0px #10b981`,
-                        color: "#059669",
-                        fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+                        boxShadow: `4px 4px 0px ${successColor}`,
+                        color: successColor,
+                        fontFamily: headingFont,
                       }}
                     >
                       <CheckCircle size={20} />
                       <span>
-                        Awesome! I&apos;ll get back to you faster than you can say
-                        &ldquo;neobrutalism&rdquo;!
+                        Awesome! I&apos;ll get back to you faster than you can
+                        say &ldquo;neobrutalism&rdquo;!
                       </span>
                     </div>
                   )}
@@ -548,31 +566,6 @@ const NeobrutalistContact: React.FC<NeobrutalistContactProps> = ({
               </div>
             </div>
           )}
-        </div>
-
-        {/* Bottom Decorative Element */}
-        <div className="mt-24 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <div
-            className="w-20 h-1 transform rotate-12"
-            style={{ backgroundColor: accentColor }}
-          />
-          <div
-            className="px-6 py-2 border font-bold uppercase tracking-widest text-sm transform -rotate-1"
-            style={{
-              backgroundColor: "#ffffff",
-              borderColor: primaryColor,
-              borderWidth: `${borderWidth}px`,
-              boxShadow: `3px 3px 0px ${shadowColor}`,
-              color: primaryColor,
-              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-            }}
-          >
-            Let&apos;s Build Something Epic
-          </div>
-          <div
-            className="w-20 h-1 transform -rotate-12"
-            style={{ backgroundColor: accentColor }}
-          />
         </div>
       </div>
     </section>

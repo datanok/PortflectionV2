@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Mail, Phone, MapPin, Send, CheckCircle } from "lucide-react";
 import { sendEmail } from "../../../../../actions/email";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 interface ContactMethod {
   icon: string;
@@ -84,7 +86,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
   textColor = "#111827",
   primaryColor = "#000000",
   secondaryColor = "#6b7280",
-  paddingY = "120",
+  paddingY = "12",
   paddingX = "32",
   textAlign = "left",
   fontSize = "3rem",
@@ -93,6 +95,17 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
   shadow = "none",
   globalTheme,
 }) => {
+  // Get font families from global theme with typography defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -114,7 +127,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
     color: primaryColor,
     fontSize: getFontSize(fontSize),
     fontWeight: fontWeight === "black" ? "900" : fontWeight,
-    fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+    fontFamily: headingFont,
     lineHeight: "0.85",
     letterSpacing: "-0.02em",
   };
@@ -123,7 +136,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
     color: secondaryColor,
     fontSize: "1.5rem",
     fontWeight: "400",
-    fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+    fontFamily: bodyFont,
     letterSpacing: "0.1em",
     textTransform: "uppercase" as const,
   };
@@ -217,8 +230,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                 className="text-xl font-bold uppercase tracking-wider"
                 style={{
                   color: primaryColor,
-                  fontFamily:
-                    "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                  fontFamily: bodyFont,
                 }}
               >
                 Get In Touch
@@ -231,13 +243,19 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                   <a
                     key={index}
                     href={method.link}
-                    className="group block border border-gray-200 p-2 hover:border-black transition-all duration-300 hover:translate-x-2"
-                    style={{ borderColor: `${secondaryColor}20` }}
+                    className="group block border border-gray-200 p-2 transition-all duration-300 hover:translate-x-2"
+                    style={{
+                      borderColor: `${secondaryColor}20`,
+                      fontFamily: bodyFont,
+                    }}
                   >
                     <div className="flex items-start gap-2">
                       <div
-                        className="flex-shrink-0 w-12 h-12 border border-gray-300 flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-300"
-                        style={{ borderColor: `${secondaryColor}40` }}
+                        className="flex-shrink-0 w-12 h-12 border border-gray-300 flex items-center justify-center transition-all duration-300"
+                        style={{
+                          borderColor: `${secondaryColor}40`,
+                          fontFamily: bodyFont,
+                        }}
                       >
                         <IconComponent size={16} />
                       </div>
@@ -247,15 +265,14 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                           className="text-sm uppercase tracking-wider mb-1 font-medium"
                           style={{
                             color: secondaryColor,
-                            fontFamily:
-                              "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                            fontFamily: bodyFont,
                           }}
                         >
                           {method.label}
                         </div>
                         <div
                           className="text-md font-medium"
-                          style={{ color: textColor }}
+                          style={{ color: textColor, fontFamily: bodyFont }}
                         >
                           {method.value}
                         </div>
@@ -277,8 +294,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                     style={{
                       color: primaryColor,
                       fontSize: getFontSize(fontSize),
-                      fontFamily:
-                        "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                      fontFamily: bodyFont,
                     }}
                   >
                     {formTitle}{" "}
@@ -295,8 +311,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                         className="block text-sm uppercase tracking-wider mb-2 font-medium"
                         style={{
                           color: secondaryColor,
-                          fontFamily:
-                            "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                          fontFamily: bodyFont,
                         }}
                       >
                         Name *
@@ -310,8 +325,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                         className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300"
                         style={{
                           borderColor: `${secondaryColor}40`,
-                          fontFamily:
-                            "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                          fontFamily: bodyFont,
                         }}
                       />
                     </div>
@@ -336,8 +350,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                         className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300"
                         style={{
                           borderColor: `${secondaryColor}40`,
-                          fontFamily:
-                            "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                          fontFamily: bodyFont,
                         }}
                       />
                     </div>
@@ -363,8 +376,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                       className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300"
                       style={{
                         borderColor: `${secondaryColor}40`,
-                        fontFamily:
-                          "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                        fontFamily: bodyFont,
                       }}
                     />
                   </div>
@@ -374,8 +386,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                       className="block text-sm uppercase tracking-wider mb-2 font-medium"
                       style={{
                         color: secondaryColor,
-                        fontFamily:
-                          "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                        fontFamily: bodyFont,
                       }}
                     >
                       Message *
@@ -389,8 +400,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                       className="w-full px-4 py-2 border border-gray-300 focus:border-black outline-none transition-all duration-300 resize-vertical"
                       style={{
                         borderColor: `${secondaryColor}40`,
-                        fontFamily:
-                          "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                        fontFamily: bodyFont,
                       }}
                     />
                   </div>
@@ -410,8 +420,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
                           : formStatus === "sending"
                           ? "#ffffff"
                           : backgroundColor,
-                      fontFamily:
-                        "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                      fontFamily: bodyFont,
                     }}
                   >
                     {formStatus === "sending" && (
@@ -457,8 +466,7 @@ const ContactTypography: React.FC<ContactTypographyProps> = ({
               className="text-sm uppercase tracking-widest"
               style={{
                 color: secondaryColor,
-                fontFamily:
-                  "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                fontFamily: bodyFont,
               }}
             >
               Let&apos;s Connect

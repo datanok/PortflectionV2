@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Award,
   Target,
@@ -11,15 +11,9 @@ import {
   Briefcase,
   Star,
   ChevronRight,
-  Quote,
 } from "lucide-react";
-
-interface Achievement {
-  title: string;
-  description: string;
-  year: string;
-  icon?: string;
-}
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 interface Experience {
   role: string;
@@ -41,18 +35,13 @@ interface NeobrutalistAboutProps {
   subtitle?: string;
   story?: string;
   mission?: string;
-  quote?: string;
-  quoteAuthor?: string;
 
-  achievements?: Achievement[];
   experience?: Experience[];
   values?: Value[];
 
   showStory?: boolean;
   showExperience?: boolean;
-  showAchievements?: boolean;
   showValues?: boolean;
-  showQuote?: boolean;
 
   // Style Props
   backgroundColor?: string;
@@ -80,39 +69,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
   subtitle = "THE JOURNEY SO FAR",
   story = "Started as a curious kid who broke more computers than fixed them. Fast forward through countless late-night coding sessions, failed projects that taught me everything, and eureka moments that kept me going. Today, I'm passionate about creating digital experiences that don't just work, but make people's lives better.",
   mission = "My mission is simple: turn complex problems into elegant solutions. I believe great software should feel like magic to users while being rock-solid under the hood.",
-  quote = "Code is poetry written in logic, and every bug is just a plot twist waiting for its resolution.",
-  quoteAuthor = "Me, after fixing a particularly stubborn bug at 3 AM",
-
-  achievements = [
-    {
-      title: "First App Published",
-      description:
-        "Built and launched my first mobile app that got 1000+ downloads in the first month",
-      year: "2020",
-      icon: "rocket",
-    },
-    {
-      title: "Team Lead Promotion",
-      description:
-        "Promoted to lead a team of 5 developers on a major product redesign",
-      year: "2022",
-      icon: "users",
-    },
-    {
-      title: "Open Source Contribution",
-      description:
-        "Contributed to popular open-source projects with 50k+ GitHub stars",
-      year: "2023",
-      icon: "star",
-    },
-    {
-      title: "Speaking Engagement",
-      description:
-        "Gave my first tech conference talk about modern web development",
-      year: "2024",
-      icon: "award",
-    },
-  ],
 
   experience = [
     {
@@ -184,9 +140,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
 
   showStory = true,
   showExperience = true,
-  showAchievements = true,
   showValues = true,
-  showQuote = true,
 
   backgroundColor = "#22d3ee", // Tailwind cyan-400
   textColor = "#000000",
@@ -195,17 +149,28 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
   accentColor = "#f59e0b", // Tailwind amber-500
   shadowColor = "#000000",
   borderColor = "#000000",
-  paddingY = "120",
+  paddingY = "12",
   paddingX = "32",
   textAlign = "left",
   fontSize = "4xl",
   fontWeight = "black",
   borderRadius = "0",
   shadowOffset = "8",
-  borderWidth = "4",
+  borderWidth = "1",
   globalTheme,
 }) => {
   const [activeExperience, setActiveExperience] = useState(0);
+
+  // Get font families from global theme with neobrutalist defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
 
   // --- Helper Functions ---
 
@@ -257,7 +222,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
     color: primaryColor,
     fontSize: getFontSize(fontSize),
     fontWeight: fontWeight === "black" ? "900" : fontWeight,
-    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+    fontFamily: headingFont,
     lineHeight: "0.9",
     letterSpacing: "-0.025em",
     textTransform: "uppercase",
@@ -268,7 +233,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
     color: secondaryColor,
     fontSize: getFontSize("xl"),
     fontWeight: "700",
-    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
+    fontFamily: headingFont,
     letterSpacing: "0.05em",
     textTransform: "uppercase",
     textAlign: textAlign,
@@ -276,8 +241,9 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
 
   // Define consistent shadow and hover shadow
   const neoBrutalShadow = `${shadowOffset}px ${shadowOffset}px 0px ${shadowColor}`;
-  const neoBrutalHoverShadow = `${parseInt(shadowOffset) + 4}px ${parseInt(shadowOffset) + 4
-    }px 0px ${shadowColor}`;
+  const neoBrutalHoverShadow = `${parseInt(shadowOffset) + 4}px ${
+    parseInt(shadowOffset) + 4
+  }px 0px ${shadowColor}`;
 
   // Function to apply default shadow
   const applyDefaultShadow = (e: React.MouseEvent<HTMLElement>) => {
@@ -302,7 +268,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
   return (
     <section
       className={`py-${paddingY} px-4 sm:px-${paddingX} relative overflow-hidden`}
-      style={containerStyles}
+      style={{ ...containerStyles, fontFamily: bodyFont }}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -340,7 +306,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                     borderColor: primaryColor,
                     borderWidth: `2px`,
                     color: primaryColor,
-                    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                     fontWeight: "800",
                     textTransform: "uppercase",
                     fontSize: getFontSize("lg"),
@@ -356,7 +321,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   style={{
                     color: primaryColor,
                     textAlign: textAlign,
-                    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                   }}
                 >
                   {story}
@@ -380,7 +344,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   className="text-2xl font-extrabold mb-4 uppercase"
                   style={{
                     color: accentColor,
-                    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                     textAlign: textAlign,
                   }}
                 >
@@ -390,59 +353,11 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   className="text-lg leading-relaxed font-medium"
                   style={{
                     color: primaryColor,
-                    fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                     textAlign: textAlign,
                   }}
                 >
                   {mission}
                 </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Quote Section - Removed translational transform */}
-        {showQuote && (
-          <div className="mb-20">
-            <div
-              className="max-w-4xl mx-auto p-8 border transition-all duration-300 cursor-pointer"
-              style={{
-                backgroundColor: accentColor, // Use accent color for high contrast
-                borderColor: primaryColor,
-                borderWidth: `${borderWidth}px`,
-                boxShadow: neoBrutalShadow,
-                textAlign: textAlign,
-              }}
-              onMouseEnter={applyHoverStyle}
-              onMouseLeave={resetStyle}
-            >
-              <div className="mb-4">
-                <Quote size={48} color={primaryColor} />
-              </div>
-
-              <blockquote
-                className="mb-6 italic"
-                style={{
-                  color: primaryColor,
-                  fontSize: getFontSize("2xl"), // Make quote stand out
-                  fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                }}
-              >
-                &quot;{quote}&quot;
-              </blockquote>
-
-              <div
-                className="inline-block px-4 py-2 border font-bold"
-                style={{
-                  backgroundColor: primaryColor, // Invert colors for authorship tag
-                  borderColor: primaryColor,
-                  borderWidth: `2px`,
-                  color: accentColor,
-                  fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                  boxShadow: `4px 4px 0px ${secondaryColor}`,
-                }}
-              >
-                - {quoteAuthor}
               </div>
             </div>
           </div>
@@ -458,10 +373,11 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                   <button
                     key={index}
                     onClick={() => setActiveExperience(index)}
-                    className={`w-full p-4 border transition-all duration-300 flex items-center justify-between ${activeExperience === index
+                    className={`w-full p-4 border transition-all duration-300 flex items-center justify-between ${
+                      activeExperience === index
                         ? "shadow-none translate-x-1 translate-y-1" // "Pressed" state
                         : "hover:translate-x-0.5 hover:translate-y-0.5"
-                      }`}
+                    }`}
                     style={{
                       backgroundColor:
                         activeExperience === index
@@ -470,21 +386,27 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                       borderColor: borderColor,
                       borderWidth: `${borderWidth}px`,
                       boxShadow:
-                        activeExperience === index
-                          ? "none"
-                          : neoBrutalShadow, // Only show shadow when inactive
+                        activeExperience === index ? "none" : neoBrutalShadow, // Only show shadow when inactive
                       color:
-                        activeExperience === index ? backgroundColor : primaryColor, // Swap text color
+                        activeExperience === index
+                          ? backgroundColor
+                          : primaryColor, // Swap text color
                       textAlign: textAlign,
                     }}
                   >
                     <div className="flex items-center gap-3">
-                      <Briefcase size={20} color={activeExperience === index ? backgroundColor : primaryColor} />
+                      <Briefcase
+                        size={20}
+                        color={
+                          activeExperience === index
+                            ? backgroundColor
+                            : primaryColor
+                        }
+                      />
                       <div>
                         <div
                           className="font-bold text-lg"
                           style={{
-                            fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                             textAlign: textAlign,
                           }}
                         >
@@ -493,7 +415,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         <div
                           className="text-sm opacity-80"
                           style={{
-                            fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                             textAlign: textAlign,
                           }}
                         >
@@ -511,8 +432,9 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                 {experience.map((exp, index) => (
                   <div
                     key={index}
-                    className={`transition-all duration-500 ${activeExperience === index ? "block" : "hidden"
-                      }`}
+                    className={`transition-all duration-500 ${
+                      activeExperience === index ? "block" : "hidden"
+                    }`}
                   >
                     <div
                       className="p-8 border transition-all duration-300 cursor-pointer"
@@ -533,8 +455,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                             style={{
                               color: primaryColor,
                               textAlign: textAlign,
-                              fontFamily:
-                                "'Space Grotesk', 'Inter', sans-serif",
+                              fontFamily: bodyFont,
                             }}
                           >
                             {exp.role}
@@ -544,8 +465,7 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                             style={{
                               color: secondaryColor,
                               textAlign: textAlign,
-                              fontFamily:
-                                "'Space Grotesk', 'Inter', sans-serif",
+                              fontFamily: bodyFont,
                             }}
                           >
                             {exp.company}
@@ -558,7 +478,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                             borderColor: borderColor,
                             borderWidth: `2px`,
                             color: backgroundColor, // Background color for text
-                            fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                             boxShadow: `4px 4px 0px ${accentColor}`, // Accent color pop
                           }}
                         >
@@ -570,7 +489,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         className="text-lg mb-6 leading-relaxed"
                         style={{
                           color: secondaryColor,
-                          fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                         }}
                       >
                         {exp.description}
@@ -580,7 +498,6 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                         className="mb-4 font-bold uppercase tracking-wider"
                         style={{
                           color: primaryColor,
-                          fontFamily: "'Space Grotesk', 'Inter', sans-serif",
                           fontSize: "0.875rem",
                         }}
                       >
@@ -588,117 +505,34 @@ const NeobrutalistAbout: React.FC<NeobrutalistAboutProps> = ({
                       </div>
 
                       <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
-                        {exp.highlights.map((highlight, highlightIndex) => (
-                          <div
-                            key={highlightIndex}
-                            className="flex items-center gap-3"
-                          >
+                        {exp.highlights &&
+                          exp.highlights.length > 0 &&
+                          exp.highlights.map((highlight, highlightIndex) => (
                             <div
-                              className="w-2 h-2 flex-shrink-0"
-                              style={{ backgroundColor: accentColor }}
-                            />
-                            <span
-                              className="font-medium"
-                              style={{
-                                color: secondaryColor,
-                                fontFamily:
-                                  "'Space Grotesk', 'Inter', sans-serif",
-                              }}
+                              key={highlightIndex}
+                              className="flex items-center gap-3"
                             >
-                              {highlight}
-                            </span>
-                          </div>
-                        ))}
+                              <div
+                                className="w-2 h-2 flex-shrink-0"
+                                style={{ backgroundColor: accentColor }}
+                              />
+                              <span
+                                className="font-medium"
+                                style={{
+                                  color: secondaryColor,
+                                  fontFamily: bodyFont,
+                                }}
+                              >
+                                {highlight}
+                              </span>
+                            </div>
+                          ))}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Achievements Timeline - Removed rotational transforms */}
-        {showAchievements && (
-          <div className="mb-20">
-
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {achievements.map((achievement, index) => {
-                const IconComponent = getIcon(achievement.icon || "award");
-                const blockBg = index % 2 === 0 ? secondaryColor : backgroundColor;
-                const blockTextColor = index % 2 === 0 ? backgroundColor : primaryColor;
-
-                return (
-                  <div
-                    key={index}
-                    className="p-6 border transition-all duration-300 cursor-pointer"
-                    style={{
-                      backgroundColor: blockBg,
-                      borderColor: borderColor,
-                      borderWidth: `${borderWidth}px`,
-                      boxShadow: neoBrutalShadow,
-                    }}
-                    onMouseEnter={applyHoverStyle}
-                    onMouseLeave={resetStyle}
-                  >
-                    <div className="flex flex-col sm:flex-row items-start gap-4">
-                      <div
-                        className="w-12 h-12 border flex items-center justify-center flex-shrink-0"
-                        style={{
-                          backgroundColor: accentColor,
-                          borderColor: borderColor,
-                          borderWidth: `2px`,
-                          boxShadow: `4px 4px 0px ${primaryColor}`,
-                        }}
-                      >
-                        <IconComponent size={24} color={primaryColor} />
-                      </div>
-
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex flex-col sm:flex-row sm:justify-between mb-3">
-                          <h4
-                            className="text-lg font-bold mb-2 uppercase"
-                            style={{
-                              color: blockTextColor,
-                              textAlign: textAlign,
-                              fontSize: getFontSize("lg"),
-                              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                            }}
-                          >
-                            {achievement.title}
-                          </h4>
-                          <span
-                            className="px-3 py-1 border text-sm font-bold"
-                            style={{
-                              backgroundColor: primaryColor,
-                              borderColor: borderColor,
-                              color: blockBg,
-                              fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                              boxShadow: `2px 2px 0px ${accentColor}`,
-                              alignSelf: "flex-start",
-                            }}
-                          >
-                            {achievement.year}
-                          </span>
-                        </div>
-
-                        <p
-                          className="leading-relaxed font-medium text-sm"
-                          style={{
-                            color: blockTextColor,
-                            fontFamily: "'Space Grotesk', 'Inter', sans-serif",
-                          }}
-                        >
-                          {achievement.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
           </div>
         )}
       </div>

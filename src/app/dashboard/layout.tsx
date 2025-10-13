@@ -17,13 +17,22 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const isEditPage = pathname?.includes("/portfolios/edit/");
 
+  // If on edit page, render without sidebar
+  if (isEditPage) {
+    return (
+      <div className="min-h-screen">
+        <main className="overflow-auto">{children}</main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       <SidebarProvider>
         <div className="flex w-full">
           <AppSidebar />
           <SidebarInset className="flex flex-col">
-            {!isEditPage && <DashboardHeader />}
+            <DashboardHeader />
             <main className="overflow-auto px-2">{children}</main>
           </SidebarInset>
         </div>

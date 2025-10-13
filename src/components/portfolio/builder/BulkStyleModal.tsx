@@ -16,17 +16,11 @@ import {
   Palette,
   Type,
   Layout,
-  Save,
   RotateCcw,
   Sparkles,
   Zap,
-  Globe,
-  Settings,
-  Layers,
   Paintbrush,
-  Wand2,
   Target,
-  Eye,
   Sparkles as SparklesIcon,
 } from "lucide-react";
 import {
@@ -39,7 +33,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioComponent } from "@/lib/portfolio/types";
 import { cn } from "@/lib/utils";
-import { generateCompleteStyleCSS } from "@/lib/backgroundEffects";
+import { colorSchemes } from "@/lib/colorSchemes";
 
 interface BulkStyleModalProps {
   components: PortfolioComponent[];
@@ -48,35 +42,30 @@ interface BulkStyleModalProps {
 }
 
 interface BulkStyleSettings {
+  // All color variables
   backgroundColor?: string;
   textColor?: string;
   primaryColor?: string;
   secondaryColor?: string;
+  accentColor?: string;
+  borderColor?: string;
+  shadowColor?: string;
+  statusColor?: string;
+  cardBackgroundColor?: string;
+
+  // Font options
+  headingFont?: string;
+  bodyFont?: string;
+
+  // Typography
   borderRadius?: string;
   fontSize?: string;
   fontWeight?: string;
   textAlign?: "left" | "center" | "right";
+
+  // Layout
   paddingY?: string;
   paddingX?: string;
-
-  // Gradient Options
-  gradientType?: "linear" | "radial" | "conic";
-  gradientDirection?:
-    | "to-r"
-    | "to-l"
-    | "to-t"
-    | "to-b"
-    | "to-tr"
-    | "to-tl"
-    | "to-br"
-    | "to-bl";
-  gradientColors?: string[];
-  // Advanced Effects
-  backdropBlur?: string;
-  boxShadow?: string;
-  borderStyle?: "solid" | "dashed" | "dotted" | "double";
-  borderWidth?: string;
-  borderColor?: string;
 }
 
 export default function BulkStyleModal({
@@ -91,79 +80,27 @@ export default function BulkStyleModal({
     textColor: "",
     primaryColor: "",
     secondaryColor: "",
+    accentColor: "",
+    borderColor: "",
+    shadowColor: "",
+    statusColor: "",
+    cardBackgroundColor: "",
+    headingFont: "",
+    bodyFont: "",
     borderRadius: "",
     fontSize: "",
     fontWeight: "",
     textAlign: "left",
     paddingY: "",
     paddingX: "",
-
-    // Gradient Options
-    gradientType: "linear",
-    gradientDirection: "to-r",
-    gradientColors: ["#3b82f6", "#8b5cf6"],
-    // Advanced Effects
-    backdropBlur: "",
-    boxShadow: "",
-    borderStyle: "solid",
-    borderWidth: "",
-    borderColor: "",
   });
 
   const handleBulkUpdate = useCallback(() => {
     const styleUpdates: Record<string, any> = {};
 
-    // Generate CSS for advanced styling
-    const effectSettings = {
-      gradient:
-        bulkSettings.gradientType && bulkSettings.gradientColors
-          ? {
-              type: bulkSettings.gradientType,
-              direction: bulkSettings.gradientDirection,
-              colors: bulkSettings.gradientColors,
-            }
-          : undefined,
-      border:
-        bulkSettings.borderWidth && bulkSettings.borderColor
-          ? {
-              style: bulkSettings.borderStyle,
-              width: bulkSettings.borderWidth,
-              color: bulkSettings.borderColor,
-            }
-          : undefined,
-      shadow: bulkSettings.boxShadow
-        ? {
-            type: "box" as const,
-            color: "rgba(0,0,0,0.1)",
-            blur: "4px",
-            spread: "0px",
-            offsetX: "0px",
-            offsetY: "2px",
-          }
-        : undefined,
-      backdropBlur: bulkSettings.backdropBlur,
-    };
-
-    // Generate CSS for effects
-    const effectCSS = generateCompleteStyleCSS(effectSettings);
-    if (effectCSS && Object.keys(effectCSS).length > 0) {
-      // Merge the generated CSS properties into styleUpdates
-      Object.assign(styleUpdates, effectCSS);
-    }
-
-    // Only include non-empty basic values
+    // Only include non-empty values
     Object.entries(bulkSettings).forEach(([key, value]) => {
-      if (
-        value &&
-        value !== "" &&
-        !key.startsWith("backgroundEffect") &&
-        !key.startsWith("gradient") &&
-        key !== "borderStyle" &&
-        key !== "borderWidth" &&
-        key !== "borderColor" &&
-        key !== "boxShadow" &&
-        key !== "backdropBlur"
-      ) {
+      if (value && value !== "") {
         styleUpdates[key] = value;
       }
     });
@@ -180,23 +117,19 @@ export default function BulkStyleModal({
       textColor: "",
       primaryColor: "",
       secondaryColor: "",
+      accentColor: "",
+      borderColor: "",
+      shadowColor: "",
+      statusColor: "",
+      cardBackgroundColor: "",
+      headingFont: "",
+      bodyFont: "",
       borderRadius: "",
       fontSize: "",
       fontWeight: "",
       textAlign: "left",
       paddingY: "",
       paddingX: "",
-
-      // Gradient Options
-      gradientType: "linear",
-      gradientDirection: "to-r",
-      gradientColors: ["#3b82f6", "#8b5cf6"],
-      // Advanced Effects
-      backdropBlur: "",
-      boxShadow: "",
-      borderStyle: "solid",
-      borderWidth: "",
-      borderColor: "",
     });
   }, []);
 
@@ -219,7 +152,7 @@ export default function BulkStyleModal({
   );
 
   return (
-<Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="max-w-5xl max-h-[90vh] p-0 flex flex-col">
         {/* Compact Header */}
@@ -267,9 +200,9 @@ export default function BulkStyleModal({
                   <Layout className="w-3 h-3" />
                   <span className="hidden sm:inline">Layout</span>
                 </TabsTrigger>
-                <TabsTrigger value="effects" className="gap-1 text-xs px-2">
+                <TabsTrigger value="themes" className="gap-1 text-xs px-2">
                   <Sparkles className="w-3 h-3" />
-                  <span className="hidden sm:inline">Effects</span>
+                  <span className="hidden sm:inline">Themes</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -277,7 +210,7 @@ export default function BulkStyleModal({
             <div className="flex-1 overflow-y-auto px-4 py-3 min-h-0">
               {/* Colors Tab */}
               <TabsContent value="colors" className="space-y-3 mt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {/* Background Color */}
                   <div className="space-y-2 p-3 rounded-lg border border-border/50">
                     <div className="flex items-center gap-2">
@@ -405,12 +338,210 @@ export default function BulkStyleModal({
                       />
                     </div>
                   </div>
+
+                  {/* Accent Color */}
+                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-accent" />
+                      <span className="text-sm font-medium">Accent</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="color"
+                        value={bulkSettings.accentColor || "#f59e0b"}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            accentColor: e.target.value,
+                          }))
+                        }
+                        className="w-8 h-7 p-0 border-0 rounded cursor-pointer"
+                      />
+                      <Input
+                        value={bulkSettings.accentColor || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            accentColor: e.target.value,
+                          }))
+                        }
+                        placeholder="#f59e0b"
+                        className="flex-1 h-7 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Border Color */}
+                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full border-2" />
+                      <span className="text-sm font-medium">Border</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="color"
+                        value={bulkSettings.borderColor || "#e5e7eb"}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            borderColor: e.target.value,
+                          }))
+                        }
+                        className="w-8 h-7 p-0 border-0 rounded cursor-pointer"
+                      />
+                      <Input
+                        value={bulkSettings.borderColor || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            borderColor: e.target.value,
+                          }))
+                        }
+                        placeholder="#e5e7eb"
+                        className="flex-1 h-7 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Shadow Color */}
+                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full shadow-md" />
+                      <span className="text-sm font-medium">Shadow</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="color"
+                        value={bulkSettings.shadowColor || "#000000"}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            shadowColor: e.target.value,
+                          }))
+                        }
+                        className="w-8 h-7 p-0 border-0 rounded cursor-pointer"
+                      />
+                      <Input
+                        value={bulkSettings.shadowColor || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            shadowColor: e.target.value,
+                          }))
+                        }
+                        placeholder="#000000"
+                        className="flex-1 h-7 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Status Color */}
+                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                      <span className="text-sm font-medium">Status</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="color"
+                        value={bulkSettings.statusColor || "#22c55e"}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            statusColor: e.target.value,
+                          }))
+                        }
+                        className="w-8 h-7 p-0 border-0 rounded cursor-pointer"
+                      />
+                      <Input
+                        value={bulkSettings.statusColor || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            statusColor: e.target.value,
+                          }))
+                        }
+                        placeholder="#22c55e"
+                        className="flex-1 h-7 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card Background Color */}
+                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-sm bg-card border" />
+                      <span className="text-sm font-medium">Card BG</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Input
+                        type="color"
+                        value={bulkSettings.cardBackgroundColor || "#f8fafc"}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            cardBackgroundColor: e.target.value,
+                          }))
+                        }
+                        className="w-8 h-7 p-0 border-0 rounded cursor-pointer"
+                      />
+                      <Input
+                        value={bulkSettings.cardBackgroundColor || ""}
+                        onChange={(e) =>
+                          setBulkSettings((prev) => ({
+                            ...prev,
+                            cardBackgroundColor: e.target.value,
+                          }))
+                        }
+                        placeholder="#f8fafc"
+                        className="flex-1 h-7 text-xs"
+                      />
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
 
               {/* Typography Tab */}
               <TabsContent value="typography" className="space-y-3 mt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Heading Font */}
+                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Type className="w-3.5 h-3.5" />
+                      <span className="text-sm font-medium">Heading Font</span>
+                    </div>
+                    <Input
+                      value={bulkSettings.headingFont || ""}
+                      onChange={(e) =>
+                        setBulkSettings((prev) => ({
+                          ...prev,
+                          headingFont: e.target.value,
+                        }))
+                      }
+                      placeholder="e.g., Inter, Roboto"
+                      className="h-7 text-xs"
+                    />
+                  </div>
+
+                  {/* Body Font */}
+                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Type className="w-3.5 h-3.5" />
+                      <span className="text-sm font-medium">Body Font</span>
+                    </div>
+                    <Input
+                      value={bulkSettings.bodyFont || ""}
+                      onChange={(e) =>
+                        setBulkSettings((prev) => ({
+                          ...prev,
+                          bodyFont: e.target.value,
+                        }))
+                      }
+                      placeholder="e.g., Inter, Roboto"
+                      className="h-7 text-xs"
+                    />
+                  </div>
+
                   {/* Font Size */}
                   <div className="space-y-2 p-3 rounded-lg border border-border/50">
                     <div className="flex items-center gap-2">
@@ -535,7 +666,9 @@ export default function BulkStyleModal({
                   <div className="space-y-2 p-3 rounded-lg border border-border/50">
                     <div className="flex items-center gap-2">
                       <div className="w-3.5 h-2 bg-muted rounded border" />
-                      <span className="text-sm font-medium">Vertical Padding</span>
+                      <span className="text-sm font-medium">
+                        Vertical Padding
+                      </span>
                     </div>
                     <Input
                       value={bulkSettings.paddingY || ""}
@@ -554,7 +687,9 @@ export default function BulkStyleModal({
                   <div className="space-y-2 p-3 rounded-lg border border-border/50">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-3.5 bg-muted rounded border" />
-                      <span className="text-sm font-medium">Horizontal Padding</span>
+                      <span className="text-sm font-medium">
+                        Horizontal Padding
+                      </span>
                     </div>
                     <Input
                       value={bulkSettings.paddingX || ""}
@@ -571,137 +706,89 @@ export default function BulkStyleModal({
                 </div>
               </TabsContent>
 
-              {/* Effects Tab */}
-              <TabsContent value="effects" className="space-y-3 mt-0">
-                {/* Compact Preview */}
-                <div className="p-3 rounded-lg border border-border/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Eye className="w-3.5 h-3.5" />
-                    <span className="text-sm font-medium">Live Preview</span>
-                  </div>
-                  <div
-                    className="w-full h-20 rounded-lg border-2 border-dashed border-muted-foreground/20 flex items-center justify-center relative overflow-hidden backdrop-blur-sm"
-                    style={{
-                      ...(bulkSettings.backgroundColor && {
-                        backgroundColor: bulkSettings.backgroundColor,
-                      }),
-                      ...generateCompleteStyleCSS({
-                        gradient:
-                          bulkSettings.gradientType &&
-                          bulkSettings.gradientColors
-                            ? {
-                                type: bulkSettings.gradientType,
-                                direction: bulkSettings.gradientDirection,
-                                colors: bulkSettings.gradientColors,
-                              }
-                            : undefined,
-                        border:
-                          bulkSettings.borderWidth && bulkSettings.borderColor
-                            ? {
-                                style: bulkSettings.borderStyle,
-                                width: bulkSettings.borderWidth,
-                                color: bulkSettings.borderColor,
-                              }
-                            : undefined,
-                        shadow: bulkSettings.boxShadow
-                          ? {
-                              type: "box",
-                              color: "rgba(0,0,0,0.1)",
-                              blur: "4px",
-                              spread: "0px",
-                              offsetX: "0px",
-                              offsetY: "2px",
-                            }
-                          : undefined,
-                        backdropBlur: bulkSettings.backdropBlur,
-                      }),
-                    }}
-                  >
-                    <div className="text-center">
-                      <div className="text-xs font-medium mb-0.5">Preview</div>
-                      <div className="text-xs text-muted-foreground">
-                        Style Preview
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {/* Gradient Type */}
-                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-3.5 h-3.5" />
-                      <span className="text-sm font-medium">Gradient</span>
-                    </div>
-                    <Select
-                      value={bulkSettings.gradientType || ""}
-                      onValueChange={(value: "linear" | "radial" | "conic") =>
-                        setBulkSettings((prev) => ({
-                          ...prev,
-                          gradientType: value,
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="h-7 text-xs">
-                        <SelectValue placeholder="Select gradient" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="linear">Linear</SelectItem>
-                        <SelectItem value="radial">Radial</SelectItem>
-                        <SelectItem value="conic">Conic</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Box Shadow */}
-                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3.5 h-3.5 rounded-sm bg-muted border shadow-sm" />
-                      <span className="text-sm font-medium">Shadow</span>
-                    </div>
-                    <Input
-                      value={bulkSettings.boxShadow || ""}
-                      onChange={(e) =>
-                        setBulkSettings((prev) => ({
-                          ...prev,
-                          boxShadow: e.target.value,
-                        }))
-                      }
-                      placeholder="0 4px 6px rgba(0,0,0,0.1)"
-                      className="h-7 text-xs"
-                    />
-                  </div>
-
-                  {/* Border Color */}
-                  <div className="space-y-2 p-3 rounded-lg border border-border/50">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full border-2 border-border" />
-                      <span className="text-sm font-medium">Border</span>
-                    </div>
-                    <div className="flex gap-1.5">
-                      <Input
-                        type="color"
-                        value={bulkSettings.borderColor || "#e5e7eb"}
-                        onChange={(e) =>
+              {/* Themes Tab */}
+              <TabsContent value="themes" className="space-y-3 mt-0">
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground px-1">
+                    Apply a pre-built color scheme to all components instantly
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {colorSchemes.map((scheme) => (
+                      <button
+                        key={scheme.id}
+                        onClick={() => {
+                          // Apply the color scheme to bulkSettings
                           setBulkSettings((prev) => ({
                             ...prev,
-                            borderColor: e.target.value,
-                          }))
-                        }
-                        className="w-8 h-7 p-0 border-0 rounded cursor-pointer"
-                      />
-                      <Input
-                        value={bulkSettings.borderColor || ""}
-                        onChange={(e) =>
-                          setBulkSettings((prev) => ({
-                            ...prev,
-                            borderColor: e.target.value,
-                          }))
-                        }
-                        placeholder="#e5e7eb"
-                        className="flex-1 h-7 text-xs"
-                      />
-                    </div>
+                            backgroundColor: scheme.styles.backgroundColor,
+                            textColor: scheme.styles.textColor,
+                            primaryColor: scheme.styles.primaryColor,
+                            secondaryColor: scheme.styles.secondaryColor,
+                            accentColor: scheme.styles.accentColor || "",
+                            borderColor: scheme.styles.borderColor || "",
+                            shadowColor: scheme.styles.shadowColor || "",
+                            statusColor: scheme.styles.statusColor || "",
+                            cardBackgroundColor:
+                              scheme.styles.cardBackgroundColor || "",
+                          }));
+                        }}
+                        className="group p-3 rounded-lg border border-border/50 hover:border-primary/50 transition-all duration-200 text-left hover:shadow-md"
+                      >
+                        <div className="space-y-2">
+                          {/* Color Preview */}
+                          <div
+                            className="w-full h-16 rounded-md border"
+                            style={{
+                              background: scheme.preview,
+                            }}
+                          />
+
+                          {/* Theme Info */}
+                          <div>
+                            <h4 className="text-sm font-semibold group-hover:text-primary transition-colors">
+                              {scheme.name}
+                            </h4>
+                            <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                              {scheme.description}
+                            </p>
+                          </div>
+
+                          {/* Color Swatches */}
+                          <div className="flex gap-1">
+                            <div
+                              className="w-5 h-5 rounded-sm border"
+                              style={{
+                                backgroundColor: scheme.styles.backgroundColor,
+                              }}
+                              title="Background"
+                            />
+                            <div
+                              className="w-5 h-5 rounded-sm border"
+                              style={{
+                                backgroundColor: scheme.styles.primaryColor,
+                              }}
+                              title="Primary"
+                            />
+                            <div
+                              className="w-5 h-5 rounded-sm border"
+                              style={{
+                                backgroundColor: scheme.styles.secondaryColor,
+                              }}
+                              title="Secondary"
+                            />
+                            {scheme.styles.accentColor && (
+                              <div
+                                className="w-5 h-5 rounded-sm border"
+                                style={{
+                                  backgroundColor: scheme.styles.accentColor,
+                                }}
+                                title="Accent"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </TabsContent>

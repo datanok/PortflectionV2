@@ -1,16 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 // Menu icon for mobile
 const MenuIcon = ({ width = 24, height = 24, fill = "currentColor" }) => (
   <svg width={width} height={height} viewBox="0 0 24 24" fill={fill}>
-    <path d="M3 12h18M3 6h18M3 18h18" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <path
+      d="M3 12h18M3 6h18M3 18h18"
+      stroke={fill}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
   </svg>
 );
 
 // Close icon for mobile
 const CloseIcon = ({ width = 24, height = 24, fill = "currentColor" }) => (
   <svg width={width} height={height} viewBox="0 0 24 24" fill={fill}>
-    <path d="M18 6L6 18M6 6l12 12" stroke={fill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+    <path
+      d="M18 6L6 18M6 6l12 12"
+      stroke={fill}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
   </svg>
 );
 
@@ -65,9 +81,16 @@ const MinimalNavbar: React.FC<MinimalNavbarProps> = ({
   fontFamily = "Inter, system-ui, sans-serif",
   isFixed = true,
   showBorder = true,
+  globalTheme,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  // Get font families from global theme with minimal defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "minimal");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -95,7 +118,7 @@ const MinimalNavbar: React.FC<MinimalNavbarProps> = ({
     paddingBottom: `${paddingY}px`,
     paddingLeft: `${paddingX}px`,
     paddingRight: `${paddingX}px`,
-    fontFamily,
+    fontFamily: bodyFont,
     fontSize: fontSize === "base" ? "16px" : fontSize,
     fontWeight,
     borderBottom: showBorder ? `1px solid ${borderColor}` : "none",
@@ -115,7 +138,7 @@ const MinimalNavbar: React.FC<MinimalNavbarProps> = ({
   };
 
   return (
-    <nav 
+    <nav
       className={`w-full z-50 ${isFixed ? "fixed top-0" : "relative"}`}
       style={navbarStyle}
     >
@@ -156,7 +179,9 @@ const MinimalNavbar: React.FC<MinimalNavbarProps> = ({
                 style={ctaStyle}
                 className="hover:opacity-90 transition-opacity"
                 target={ctaHref.startsWith("http") ? "_blank" : undefined}
-                rel={ctaHref.startsWith("http") ? "noopener noreferrer" : undefined}
+                rel={
+                  ctaHref.startsWith("http") ? "noopener noreferrer" : undefined
+                }
               >
                 {ctaText}
               </a>
@@ -192,7 +217,7 @@ const MinimalNavbar: React.FC<MinimalNavbarProps> = ({
                   {item.label}
                 </a>
               ))}
-              
+
               {showCTA && (
                 <div className="pt-2">
                   <a
@@ -200,7 +225,11 @@ const MinimalNavbar: React.FC<MinimalNavbarProps> = ({
                     style={ctaStyle}
                     className="inline-block hover:opacity-90 transition-opacity"
                     target={ctaHref.startsWith("http") ? "_blank" : undefined}
-                    rel={ctaHref.startsWith("http") ? "noopener noreferrer" : undefined}
+                    rel={
+                      ctaHref.startsWith("http")
+                        ? "noopener noreferrer"
+                        : undefined
+                    }
                     onClick={closeMobileMenu}
                   >
                     {ctaText}

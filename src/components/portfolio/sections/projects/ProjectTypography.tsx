@@ -1,5 +1,7 @@
 import { ExternalLinkIcon } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 // Simple icon components since we can't import lucide-react
 const ExternalLink = ({ size, className, style }) => (
@@ -315,6 +317,17 @@ const ProjectsTypography: React.FC<ProjectsTypographyProps> = ({
   globalTheme,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  // Get font families from global theme with typography defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
   // Theme configurations
@@ -354,7 +367,7 @@ const ProjectsTypography: React.FC<ProjectsTypographyProps> = ({
     paddingRight: `${paddingX}px`,
     borderRadius: borderRadius !== "0" ? `${borderRadius}px` : "0px",
     boxShadow: shadow !== "none" ? shadow : "none",
-    fontFamily: currentTheme.fontFamily,
+    fontFamily: bodyFont,
   };
 
   const titleStyles: React.CSSProperties = {

@@ -1,11 +1,6 @@
-import React, { useState, useEffect } from "react";
-import {
-  ArrowDown,
-  ExternalLink,
-  Download,
-  Star,
-  Quote,
-} from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { ArrowDown, ExternalLink, Download, Star, Quote } from "lucide-react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
 
 // --- INTERFACES ---
 
@@ -25,7 +20,7 @@ type ShapeType =
   | "star"
   | "octagon"
   | "heart"
-  | "pentagon"
+  | "pentagon";
 
 interface ComponentProps {
   // Content Props
@@ -113,8 +108,10 @@ const BrutalistButton: React.FC<BrutalistButtonProps> = ({
   const getVariantStyles = () => {
     let bgColor = primaryColor;
     let color = textColor;
-    let currentShadow = isPressed ? "none" : neoBrutalShadow;
-    let currentTransform = isPressed ? `translate(${shadowOffset}px, ${shadowOffset}px)` : 'translate(0, 0)';
+    const currentShadow = isPressed ? "none" : neoBrutalShadow;
+    const currentTransform = isPressed
+      ? `translate(${shadowOffset}px, ${shadowOffset}px)`
+      : "translate(0, 0)";
 
     switch (variant) {
       case "primary":
@@ -143,23 +140,23 @@ const BrutalistButton: React.FC<BrutalistButtonProps> = ({
       backgroundColor: bgColor,
       color: color,
       borderColor: borderColor,
-      borderWidth: '4px',
+      borderWidth: "4px",
       boxShadow: currentShadow,
       transform: currentTransform,
-      borderRadius: '0', // Enforce sharp corners
+      borderRadius: "0", // Enforce sharp corners
       transition: "box-shadow 0.1s ease-out, transform 0.1s ease-out",
       cursor: "pointer",
       display: "inline-flex",
       alignItems: "center",
       gap: "0.75rem",
       padding: "0.75rem 1.5rem",
-      textTransform: "uppercase",
+      textTransform: "uppercase" as const,
       fontWeight: 900,
       letterSpacing: "0.05em",
     };
   };
 
-  const handleAction = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleAction = (e?: React.MouseEvent<HTMLAnchorElement>) => {
     // Only handle navigation on mouse up/click after a potential press
     if (onClick) onClick();
     if (href && href !== "#") window.location.href = href;
@@ -170,10 +167,16 @@ const BrutalistButton: React.FC<BrutalistButtonProps> = ({
       href={href}
       // Use mouse/touch events to manage the pressed state cleanly
       onMouseDown={() => setIsPressed(true)}
-      onMouseUp={() => { setIsPressed(false); handleAction(); }}
+      onMouseUp={() => {
+        setIsPressed(false);
+        handleAction();
+      }}
       onMouseLeave={() => setIsPressed(false)}
       onTouchStart={() => setIsPressed(true)}
-      onTouchEnd={() => { setIsPressed(false); handleAction(); }}
+      onTouchEnd={() => {
+        setIsPressed(false);
+        handleAction();
+      }}
       style={getVariantStyles()}
     >
       {icon && <span className="flex-shrink-0">{icon}</span>}
@@ -181,7 +184,6 @@ const BrutalistButton: React.FC<BrutalistButtonProps> = ({
     </a>
   );
 };
-
 
 // Helper function for complex clip-path shapes
 const getShapeStyles = (
@@ -199,8 +201,7 @@ const getShapeStyles = (
   const shapes: Record<ShapeType, React.CSSProperties> = {
     circle: { clipPath: "circle(50%)", borderRadius: "50%" },
     hexagon: {
-      clipPath:
-        "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
+      clipPath: "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)",
     },
     diamond: { clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)" },
     blob: {
@@ -211,7 +212,8 @@ const getShapeStyles = (
     octagon: {
       clipPath:
         "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
-    }, heart: {
+    },
+    heart: {
       clipPath:
         "polygon(50% 30%, 85% 20%, 100% 50%, 75% 90%, 50% 100%, 25% 90%, 0% 50%, 15% 20%)",
     },
@@ -219,7 +221,10 @@ const getShapeStyles = (
     pentagon: {
       clipPath: "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
     },
-
+    star: {
+      clipPath:
+        "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)",
+    },
   };
 
   return { ...dimensions, ...shapes[shape] } as React.CSSProperties;
@@ -229,8 +234,7 @@ const getShapeStyles = (
 const NeoBrutalistHero: React.FC<ComponentProps> = ({
   title = "CREATIVE DEVELOPER & DESIGNER",
   subtitle = "BUILDING THE FUTURE",
-  description =
-  "I create bold, innovative digital experiences that push boundaries and challenge conventions. Let's build something extraordinary together.",
+  description = "I create bold, innovative digital experiences that push boundaries and challenge conventions. Let's build something extraordinary together.",
   buttons = [
     {
       text: "VIEW MY WORK",
@@ -277,12 +281,24 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
   badgeSize = "0.875rem",
   imageShape = "octagon", // Changed default shape for variety
   imageSize = "large",
+  globalTheme,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  // Get font families from global theme
+  const bodyFont = useMemo(() => {
+    return PortfolioFontLoader.getThemeFontStyle(globalTheme, "body")
+      .fontFamily;
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    return PortfolioFontLoader.getThemeFontStyle(globalTheme, "heading")
+      .fontFamily;
+  }, [globalTheme]);
 
   const shapeStyles = getShapeStyles(imageShape, imageSize);
 
@@ -294,6 +310,7 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
     textAlign: textAlign as "left" | "center" | "right",
     // Enforce sharp corners
     border: `0px solid ${borderColor}`,
+    fontFamily: bodyFont,
   };
 
   const badgeStyle: React.CSSProperties = {
@@ -319,11 +336,13 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
     marginBottom: "1rem",
     textTransform: "uppercase",
     letterSpacing: "-0.05em",
+    fontFamily: headingFont,
   };
 
   const subtitleStyle: React.CSSProperties = {
     fontSize: subtitleSize,
     fontWeight: 700,
+    fontFamily: headingFont,
     color: secondaryColor,
     marginBottom: "1.5rem",
     textTransform: "uppercase",
@@ -356,14 +375,19 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
   const otherButtons = buttons.filter((btn) => btn.variant !== "get-started");
 
   // Hero Image Container Styles (for the drop shadow layer)
+  const widthValue =
+    typeof shapeStyles.width === "string"
+      ? parseInt(shapeStyles.width)
+      : shapeStyles.width || 400;
+
   const imageContainerStyle: React.CSSProperties = {
     ...shapeStyles,
     position: "relative",
     backgroundColor: borderColor,
     boxShadow: shadow,
-    border: `${parseInt(shapeStyles.width) > 400 ? 6 : 4}px solid ${borderColor}`, // Thicker border for large shapes
+    border: `${widthValue > 400 ? 6 : 4}px solid ${borderColor}`, // Thicker border for large shapes
     transition: "transform 0.3s ease-out, box-shadow 0.3s ease-out",
-  }
+  };
 
   return (
     <section className="overflow-hidden" style={heroStyle}>
@@ -400,7 +424,9 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
           <div
             // Use key events to enforce hover/active state on the image container for visual feedback
             onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = `${parseInt(shadow.split('px')[0]) + 4}px ${parseInt(shadow.split('px')[0]) + 4}px 0px ${borderColor}`;
+              e.currentTarget.style.boxShadow = `${
+                parseInt(shadow.split("px")[0]) + 4
+              }px ${parseInt(shadow.split("px")[0]) + 4}px 0px ${borderColor}`;
               e.currentTarget.style.transform = "translate(-4px, -4px)";
             }}
             onMouseLeave={(e) => {
@@ -453,9 +479,19 @@ const NeoBrutalistHero: React.FC<ComponentProps> = ({
       {/* Animations */}
       <style jsx>{`
         @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
-          40% { transform: translateX(-50%) translateY(-10px); }
-          60% { transform: translateX(-50%) translateY(-5px); }
+          0%,
+          20%,
+          50%,
+          80%,
+          100% {
+            transform: translateX(-50%) translateY(0);
+          }
+          40% {
+            transform: translateX(-50%) translateY(-10px);
+          }
+          60% {
+            transform: translateX(-50%) translateY(-5px);
+          }
         }
       `}</style>
     </section>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   MapPin,
   Calendar,
@@ -9,6 +9,8 @@ import {
   Users,
   BookOpen,
 } from "lucide-react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 interface TimelineItem {
   year: string;
@@ -122,6 +124,17 @@ const AboutTypography: React.FC<AboutTypographyProps> = ({
   shadow = "none",
   globalTheme,
 }) => {
+  // Get font families from global theme with typography defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
   const containerStyles = {
     backgroundColor,
     color: textColor,
@@ -130,6 +143,7 @@ const AboutTypography: React.FC<AboutTypographyProps> = ({
     height: "auto",
     display: "flex",
     alignItems: "center",
+    fontFamily: bodyFont,
   };
 
   const getIconComponent = (iconName: string) => {
@@ -161,15 +175,14 @@ const AboutTypography: React.FC<AboutTypographyProps> = ({
     }
   };
 
-  {
-    console.log(compactMode);
-  }
   return (
     <section className="relative" style={containerStyles}>
       <div className="max-w-7xl mx-auto w-full">
         <div
           className={`grid ${
-            compactMode
+            !showTimeline
+              ? "grid-cols-1"
+              : compactMode
               ? "grid-cols-1 lg:grid-cols-2"
               : "grid-cols-1 md:grid-cols-2"
           } gap-12 lg:gap-16 h-full`}
@@ -199,6 +212,7 @@ const AboutTypography: React.FC<AboutTypographyProps> = ({
                     fontWeight: titleFontWeight,
                     lineHeight: "1",
                     letterSpacing: "-0.02em",
+                    fontFamily: headingFont,
                   }}
                 >
                   {title}

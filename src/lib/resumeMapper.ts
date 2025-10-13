@@ -59,6 +59,10 @@ const toSlug = (s: string) =>
 
 const up = (s?: string) => (s ? s.toUpperCase() : undefined);
 
+// Convert name to typography format (e.g., "Tanmay Patil" -> "TANMAY_PATIL")
+const toTypographyName = (s?: string) =>
+  s ? s.toUpperCase().replace(/\s+/g, "_") : undefined;
+
 export function mapResumeToPortfolio(
   resume: ResumeJson,
   preset: Preset = "minimal"
@@ -72,11 +76,27 @@ export function mapResumeToPortfolio(
   // Hero - shared
   layout.push({
     type: "hero",
-    variant: preset === "typography" ? "typography-hero" : preset === "minimal" ? "minimal-hero" : "hero-section",
+    variant:
+      preset === "typography"
+        ? "typography-hero"
+        : preset === "minimal"
+        ? "minimal-hero"
+        : "hero-section",
     props: {
-      title: preset === "minimal" ? `Hi, I'm ${resume.basics?.name || "John Doe"} 👋` : up(resume.basics?.name) || "YOUR NAME",
-      name: up(resume.basics?.name) || "YOUR NAME",
-      subtitle: resume.basics?.label || "SOFTWARE DEVELOPER",
+      title:
+        preset === "minimal"
+          ? `Hi, I'm ${resume.basics?.name || "John Doe"} 👋`
+          : preset === "typography"
+          ? toTypographyName(resume.basics?.name) || "YOUR_NAME"
+          : up(resume.basics?.name) || "YOUR NAME",
+      name:
+        preset === "typography"
+          ? toTypographyName(resume.basics?.name) || "YOUR_NAME"
+          : up(resume.basics?.name) || "YOUR NAME",
+      subtitle:
+        preset === "typography"
+          ? toTypographyName(resume.basics?.label) || "SOFTWARE_DEVELOPER"
+          : up(resume.basics?.label) || "SOFTWARE DEVELOPER",
       description: resume.basics?.summary || "",
       socialLinks: (resume.basics?.profiles || []).map((p) => ({
         platform: up(p.platform || "") || "",
@@ -87,7 +107,7 @@ export function mapResumeToPortfolio(
       ctaLink: "#projects",
       showStatus: preset === "typography",
       statusText: preset === "typography" ? "AVAILABLE_FOR_HIRE" : undefined,
-      showCodeSnippet: preset === "typography",
+      visualDisplay: preset === "typography" ? "code" : "none",
       showResumeButton: preset === "minimal",
       resumeUrl: "/resume.pdf",
       resumeText: "Download Resume",
@@ -107,17 +127,54 @@ export function mapResumeToPortfolio(
   }));
 
   if (experienceTimeline.length) {
+    const aboutVariant =
+      preset === "typography"
+        ? "about-typography"
+        : preset === "minimal"
+        ? "minimal-about"
+        : "neobrutalist-about";
+
+    // Map experience timeline to AboutTypography format
+    const timelineItems = experienceTimeline.map((exp, idx) => ({
+      year: exp.period.split(" – ")[0] || String(new Date().getFullYear()),
+      title: exp.role,
+      company: exp.company,
+      description: exp.description,
+      type: "work" as const,
+    }));
+
     layout.push({
       type: "about",
-      variant: preset === "minimal" ? "minimal-about" : "neobrutalist-about",
-      props: {
-        title: preset === "minimal" ? "About Me" : "MY STORY",
-        subtitle: preset === "minimal" ? "My Journey" : "THE JOURNEY SO FAR",
-        story: resume.basics?.summary || "",
-        experience: experienceTimeline,
-        showStory: true,
-        showExperience: true,
-      },
+      variant: aboutVariant,
+      props:
+        preset === "typography"
+          ? {
+              title: "ABOUT",
+              subtitle: "WHO I AM",
+              bio: resume.basics?.summary || "",
+              location: resume.basics?.location || "",
+              locationLabel: "Location",
+              currentRole: experienceTimeline[0]?.role || "",
+              roleLabel: "Current Role",
+              yearsExperience:
+                experienceTimeline.length > 0
+                  ? `${experienceTimeline.length}+`
+                  : "3+",
+              experienceLabel: "Experience",
+              timelineHeading: "Career Timeline",
+              timelineItems: timelineItems,
+              showTimeline: true,
+              compactMode: false,
+            }
+          : {
+              title: preset === "minimal" ? "About Me" : "MY STORY",
+              subtitle:
+                preset === "minimal" ? "My Journey" : "THE JOURNEY SO FAR",
+              story: resume.basics?.summary || "",
+              experience: experienceTimeline,
+              showStory: true,
+              showExperience: true,
+            },
       styles: {},
       order: 1,
       isActive: true,
@@ -137,7 +194,11 @@ export function mapResumeToPortfolio(
     layout.push({
       type: "skills",
       variant:
-        preset === "brutalist" ? "skills-brutalist" : preset === "minimal" ? "minimal-skills" : "skills-typography",
+        preset === "brutalist"
+          ? "skills-brutalist"
+          : preset === "minimal"
+          ? "minimal-skills"
+          : "skills-typography",
       props:
         preset === "brutalist"
           ? {
@@ -217,32 +278,35 @@ export function mapResumeToPortfolio(
     layout.push({
       type: "projects",
       variant: preset === "minimal" ? "minimal-projects" : "projects-brutalist",
-      props: preset === "minimal" ? {
-        title: "Projects",
-        subtitle: "Things I've Built",
-        projects: projectsProps,
-        showTechnologies: true,
-        showStatus: false,
-        showYear: true,
-        showLinks: true,
-        showImages: true,
-      } : {
-        title: "MY PROJECTS",
-        subtitle: "BUILT WITH PASSION",
-        projects: projectsProps,
-        showTechnologies: true,
-        showStatus: true,
-        showYear: true,
-        showLinks: true,
-        showImages: false,
-        animateOnScroll: true,
-        layoutStyle: "tilted",
-        filterByStatus: false,
-        sortBy: "priority",
-        showNoise: true,
-        brutalistShadows: true,
-        maxTilt: 8,
-      },
+      props:
+        preset === "minimal"
+          ? {
+              title: "Projects",
+              subtitle: "Things I've Built",
+              projects: projectsProps,
+              showTechnologies: true,
+              showStatus: false,
+              showYear: true,
+              showLinks: true,
+              showImages: true,
+            }
+          : {
+              title: "MY PROJECTS",
+              subtitle: "BUILT WITH PASSION",
+              projects: projectsProps,
+              showTechnologies: true,
+              showStatus: true,
+              showYear: true,
+              showLinks: true,
+              showImages: false,
+              animateOnScroll: true,
+              layoutStyle: "tilted",
+              filterByStatus: false,
+              sortBy: "priority",
+              showNoise: true,
+              brutalistShadows: true,
+              maxTilt: 8,
+            },
       styles: {},
       order: 3,
       isActive: true,
@@ -292,32 +356,42 @@ export function mapResumeToPortfolio(
   if (contactMethods.length) {
     layout.push({
       type: "contact",
-      variant: preset === "minimal" ? "minimal-contact" : "neobrutalist-contact",
-      props: preset === "minimal" ? {
-        title: "Let's Work Together",
-        subtitle: "Ready to start your next project?",
-        description: "I'm always interested in new opportunities and collaborations. Whether you have a project in mind or just want to chat about technology, feel free to reach out!",
-        contactMethods: contactMethods.map(method => ({
-          type: method.icon === "mail" ? "email" : method.icon === "phone" ? "phone" : "location",
-          label: method.label,
-          value: method.value,
-          href: method.link,
-        })),
-        socialLinks: (resume.basics?.profiles || []).map((p) => ({
-          platform: p.platform || "",
-          url: p.url,
-          username: p.username || p.url?.split("/").pop() || "",
-        })),
-        showContactForm: false,
-        showQRCode: true,
-        resumeUrl: "/resume.pdf",
-      } : {
-        title: "GET IN TOUCH",
-        subtitle: "LET'S CREATE SOMETHING AMAZING",
-        description: "",
-        contactMethods,
-        showContactForm: false,
-      },
+      variant:
+        preset === "minimal" ? "minimal-contact" : "neobrutalist-contact",
+      props:
+        preset === "minimal"
+          ? {
+              title: "Let's Work Together",
+              subtitle: "Ready to start your next project?",
+              description:
+                "I'm always interested in new opportunities and collaborations. Whether you have a project in mind or just want to chat about technology, feel free to reach out!",
+              contactMethods: contactMethods.map((method) => ({
+                type:
+                  method.icon === "mail"
+                    ? "email"
+                    : method.icon === "phone"
+                    ? "phone"
+                    : "location",
+                label: method.label,
+                value: method.value,
+                href: method.link,
+              })),
+              socialLinks: (resume.basics?.profiles || []).map((p) => ({
+                platform: p.platform || "",
+                url: p.url,
+                username: p.username || p.url?.split("/").pop() || "",
+              })),
+              showContactForm: false,
+              showQRCode: true,
+              resumeUrl: "/resume.pdf",
+            }
+          : {
+              title: "GET IN TOUCH",
+              subtitle: "LET'S CREATE SOMETHING AMAZING",
+              description: "",
+              contactMethods,
+              showContactForm: false,
+            },
       styles: {},
       order: 4,
       isActive: true,
@@ -414,9 +488,18 @@ export function mapWithRegistry(
       p.platform.toLowerCase() === "email" || p.platform.toLowerCase() === "web"
   );
 
+  // Format name/title based on hero variant
+  const isTypographyHero = chosen.hero === "typography-hero";
   const heroProps = {
-    title: up(resume.basics?.name) || "YOUR NAME",
-    subtitle: up(resume.basics?.label) || "SOFTWARE DEVELOPER",
+    title: isTypographyHero
+      ? toTypographyName(resume.basics?.name) || "YOUR_NAME"
+      : up(resume.basics?.name) || "YOUR NAME",
+    name: isTypographyHero
+      ? toTypographyName(resume.basics?.name) || "YOUR_NAME"
+      : up(resume.basics?.name) || "YOUR NAME",
+    subtitle: isTypographyHero
+      ? toTypographyName(resume.basics?.label) || "SOFTWARE_DEVELOPER"
+      : up(resume.basics?.label) || "SOFTWARE DEVELOPER",
     description: resume.basics?.summary || "",
   };
 
@@ -451,21 +534,45 @@ export function mapWithRegistry(
     highlights: w.highlights || [],
   }));
   if (chosen.about && experience.length) {
-    layout.push(
-      createFromRegistry(
-        "about",
-        chosen.about,
-        {
+    const isAboutTypography = chosen.about === "about-typography";
+
+    // Map experience timeline to AboutTypography format
+    const timelineItems = experience.map((exp, idx) => ({
+      year: exp.period.split(" – ")[0] || String(new Date().getFullYear()),
+      title: exp.role,
+      company: exp.company,
+      description: exp.description,
+      type: "work" as const,
+    }));
+
+    const aboutProps = isAboutTypography
+      ? {
+          title: "ABOUT",
+          subtitle: "WHO I AM",
+          bio: resume.basics?.summary || "",
+          location: resume.basics?.location || "",
+          locationLabel: "Location",
+          currentRole: experience[0]?.role || "",
+          roleLabel: "Current Role",
+          yearsExperience:
+            experience.length > 0 ? `${experience.length}+` : "3+",
+          experienceLabel: "Experience",
+          timelineHeading: "Career Timeline",
+          timelineItems: timelineItems,
+          showTimeline: true,
+          compactMode: false,
+        }
+      : {
           title: "MY STORY",
           subtitle: "THE JOURNEY SO FAR",
           story: resume.basics?.summary || "",
           experience,
           showStory: true,
           showExperience: true,
-        },
-        1,
-        colorScheme
-      )
+        };
+
+    layout.push(
+      createFromRegistry("about", chosen.about, aboutProps, 1, colorScheme)
     );
   }
 

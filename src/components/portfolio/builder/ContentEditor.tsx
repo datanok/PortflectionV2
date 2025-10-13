@@ -108,10 +108,38 @@ export default function ContentEditor({
 
   // Update local data when props change or component type changes
   useEffect(() => {
-    // When component type changes, we need to merge with new defaultProps
+    // Always prioritize incoming data over defaults
+    // Only use defaultProps for keys that don't exist in data
     if (Object.keys(componentConfig.defaultProps).length > 0) {
-      // Merge incoming data with defaultProps, but prioritize incoming data
-      const mergedData = { ...componentConfig.defaultProps, ...data };
+      const mergedData: any = {};
+
+      // First, add all default props
+      Object.keys(componentConfig.defaultProps).forEach((key) => {
+        mergedData[key] = componentConfig.defaultProps[key];
+      });
+
+      // Then override with incoming data (which preserves user changes)
+      Object.keys(data).forEach((key) => {
+        const value = data[key];
+        // Only override if the value is meaningful
+        if (value !== undefined && value !== null) {
+          // For arrays, only override if non-empty
+          if (Array.isArray(value)) {
+            if (value.length > 0) {
+              mergedData[key] = value;
+            }
+          }
+          // For objects, only override if non-empty
+          else if (typeof value === "object" && Object.keys(value).length > 0) {
+            mergedData[key] = value;
+          }
+          // For primitives, always override (including empty strings if intentional)
+          else if (typeof value !== "object") {
+            mergedData[key] = value;
+          }
+        }
+      });
+
       setLocalData(mergedData);
     } else {
       setLocalData(data);
@@ -553,24 +581,26 @@ export default function ContentEditor({
             />
           </div>
 
-          <div>
-            <Label className="text-xs text-muted-foreground">
-              Long Description
-            </Label>
-            <Textarea
-              value={item.longDescription || ""}
-              onChange={(e) =>
-                handleArrayObjectUpdate(
-                  key,
-                  index,
-                  "longDescription",
-                  e.target.value
-                )
-              }
-              className="text-sm mt-1 min-h-[100px]"
-              placeholder="Detailed description of the project, technologies used, and key features."
-            />
-          </div>
+          {item.longDescription && item.longDescription !== "" && (
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                Long Description
+              </Label>
+              <Textarea
+                value={item.longDescription || ""}
+                onChange={(e) =>
+                  handleArrayObjectUpdate(
+                    key,
+                    index,
+                    "longDescription",
+                    e.target.value
+                  )
+                }
+                className="text-sm mt-1 min-h-[100px]"
+                placeholder="Detailed description of the project, technologies used, and key features."
+              />
+            </div>
+          )}
 
           <div>
             <Label className="text-xs text-muted-foreground">
@@ -620,6 +650,17 @@ export default function ContentEditor({
               }
               className="text-sm h-8 mt-1"
               placeholder="https://github.com/username/repo"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Image URL</Label>
+            <Input
+              value={item.imageUrl || ""}
+              onChange={(e) =>
+                handleArrayObjectUpdate(key, index, "imageUrl", e.target.value)
+              }
+              className="text-sm h-8 mt-1"
+              placeholder="https://example.com/image.jpg"
             />
           </div>
 
@@ -1545,7 +1586,7 @@ export default function ContentEditor({
               value={String(value || "")}
               onValueChange={(newValue) => {
                 // Convert string values to appropriate types for specific fields
-                if (key === "showStatus" || key === "showCodeSnippet") {
+                if (key === "showStatus") {
                   handleFieldUpdate(key, newValue === "true");
                 } else {
                   handleFieldUpdate(key, newValue);

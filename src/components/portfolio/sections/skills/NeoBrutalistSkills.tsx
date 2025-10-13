@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
+import { getContrastColor } from "@/lib/utils";
 
 interface Skill {
   name: string;
@@ -149,9 +152,21 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
   borderWidth = "4",
   showNoise = true,
   brutalistShadows = true,
+  globalTheme,
 }) => {
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
   const [animationStep, setAnimationStep] = useState(0);
+
+  // Get font families from global theme with neobrutalist defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "neobrutalist");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
 
   useEffect(() => {
     if (animateOnLoad) {
@@ -189,8 +204,6 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
     }
   };
 
-
-
   const sortedSkills = [...skills].sort((a, b) => {
     switch (sortBy) {
       case "level":
@@ -205,6 +218,16 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
         return 0;
     }
   });
+  const getFontSize = (size: string) => {
+    const sizeMap: { [key: string]: string } = {
+      xs: "clamp(0.75rem, 2vw, 1rem)",
+      sm: "clamp(0.875rem, 2vw, 1.125rem)",
+      base: "clamp(1rem, 2.5vw, 1.25rem)",
+      lg: "clamp(1.125rem, 3vw, 1.5rem)",
+      xl: "clamp(1.25rem, 3.5vw, 1.75rem)",
+    };
+    return sizeMap[size] || size;
+  };
 
   const getGridColumns = () => {
     const count = skills.length;
@@ -215,25 +238,37 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
   };
 
   const getLayoutClasses = (
-    layoutStyle: "blocks" | "stack" | "masonry" = "blocks"
+    layoutStyle: "blocks" | "stack" | "masonry" | "compact" | "rows" = "blocks",
+    itemCount: number = 0
   ) => {
     switch (layoutStyle) {
       case "stack":
-        // On mobile stack vertically, on md+ keep a row layout
         return "flex flex-col md:flex-row gap-6 flex-wrap";
-  
+
       case "masonry":
-        // Masonry style with 1 col on mobile, 2 on md, 3 on lg+
         return "columns-1 sm:columns-2 lg:columns-3 gap-6 [column-fill:_balance]";
-  
+
+      case "compact":
+        // Tighter spacing, more columns for large lists
+        return itemCount > 12
+          ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"
+          : "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4";
+
+      case "rows":
+        // Horizontal rows with tight spacing - great for many items
+        return "flex flex-wrap gap-2";
+
       case "blocks":
       default:
-        // Responsive grid blocks (1 -> 2 -> 3 -> 4)
+        // Auto-adjust columns based on item count
+        if (itemCount > 16) {
+          return "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4";
+        } else if (itemCount > 12) {
+          return "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5";
+        }
         return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6";
     }
   };
-  
-
 
   const sectionStyle: React.CSSProperties = {
     backgroundColor,
@@ -244,25 +279,25 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
     paddingRight: `${paddingX}px`,
     textAlign,
     borderRadius: `${borderRadius}px`,
-    fontFamily: "'Arial Black', 'Helvetica', sans-serif",
+    fontFamily: bodyFont,
     position: "relative",
     overflow: "hidden",
   };
 
   const noiseStyle: React.CSSProperties = showNoise
     ? {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: `
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: `
           radial-gradient(circle at 25% 25%, ${textColor}08 1px, transparent 1px),
           radial-gradient(circle at 75% 75%, ${textColor}05 1px, transparent 1px)
         `,
-      backgroundSize: "20px 20px, 30px 30px",
-      pointerEvents: "none",
-    }
+        backgroundSize: "20px 20px, 30px 30px",
+        pointerEvents: "none",
+      }
     : {};
 
   return (
@@ -279,7 +314,9 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
             style={{
               backgroundColor: primaryColor,
               borderColor: borderColor,
-              boxShadow: brutalistShadows ? `12px 12px 0px ${borderColor}` : shadow,
+              boxShadow: brutalistShadows
+                ? `12px 12px 0px ${borderColor}`
+                : shadow,
             }}
           >
             <span
@@ -290,25 +327,32 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
             </span>
           </div>
 
-          <h2
-            className="text-4xl md:text-6xl font-black mb-8 tracking-tight transform hover:scale-105 transition-transform duration-300"
-            style={{
-              color: textColor,
-              fontSize: fontSize,
-              fontWeight: 900,
-              textShadow: brutalistShadows ? `4px 4px 0px ${primaryColor}` : undefined,
-            }}
-          >
-            {title}
-          </h2>
+          {title && title !== "" && (
+            <h2
+              className=" mb-8 tracking-tight transform hover:scale-105 transition-transform duration-300"
+              style={{
+                color: textColor,
+                fontSize: getFontSize(fontSize),
+                fontWeight: fontWeight,
+                textShadow: brutalistShadows
+                  ? `4px 4px 0px ${primaryColor}`
+                  : "none",
+                fontFamily: headingFont,
+              }}
+            >
+              {title}
+            </h2>
+          )}
 
-          {description && (
+          {description && description !== "" && (
             <div
               className="max-w-4xl mx-auto p-6 border-4"
               style={{
                 backgroundColor: accentColor,
                 borderColor: borderColor,
-                boxShadow: brutalistShadows ? `6px 6px 0px ${borderColor}` : shadow,
+                boxShadow: brutalistShadows
+                  ? `6px 6px 0px ${borderColor}`
+                  : shadow,
               }}
             >
               <p
@@ -326,16 +370,27 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
 
         {/* Skills Grid */}
         <div style={sectionStyle}>
-          <div className={getLayoutClasses(layoutStyle)}>
+          <div
+            className={`${getLayoutClasses(
+              layoutStyle,
+              skills.length
+            )} max-h-[600px] overflow-y-auto pr-2`}
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: `${primaryColor} transparent`,
+            }}
+          >
             {sortedSkills.map((skill, index) => (
               <div
                 key={skill.name}
-                className={`group relative transition-all duration-300 hover:scale-105 cursor-pointer ${layoutStyle === "masonry" ? "mb-6 break-inside-avoid" : ""
-                  }`}
+                className={`group relative transition-all duration-300 hover:scale-105 cursor-pointer ${
+                  layoutStyle === "masonry" ? "mb-6 break-inside-avoid" : ""
+                }`}
                 style={{
                   opacity: animateOnLoad && index >= animationStep ? 0.3 : 1,
-                  transform: `translateY(${animateOnLoad && index >= animationStep ? 30 : 0
-                    }px) rotate(${hoveredSkill === skill.name ? 2 : 0}deg)`,
+                  transform: `translateY(${
+                    animateOnLoad && index >= animationStep ? 30 : 0
+                  }px) rotate(${hoveredSkill === skill.name ? 2 : 0}deg)`,
                 }}
                 onMouseEnter={() => setHoveredSkill(skill.name)}
                 onMouseLeave={() => setHoveredSkill(null)}
@@ -343,7 +398,7 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                 {layoutStyle === "stack" ? (
                   // 🔹 Minimal Card: Only Name
                   <div
-                    className="p-6 border-4 text-center"
+                    className="p-2 border-4 text-center"
                     style={{
                       backgroundColor: skill.color || primaryColor,
                       borderColor,
@@ -355,8 +410,13 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                     }}
                   >
                     <h3
-                      className="text-2xl md:text-3xl font-black tracking-tight"
-                      style={{ color: textColor }}
+                      className="tracking-tight"
+                      style={{
+                        color: textColor,
+                        fontFamily: headingFont,
+                        fontWeight: fontWeight,
+                        fontSize: getFontSize(fontSize),
+                      }}
                     >
                       {skill.name}
                     </h3>
@@ -374,15 +434,20 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                         hoveredSkill === skill.name && brutalistShadows
                           ? `16px 16px 0px ${borderColor}`
                           : brutalistShadows
-                            ? `8px 8px 0px ${borderColor}`
-                            : shadow,
+                          ? `8px 8px 0px ${borderColor}`
+                          : shadow,
                       transition: "all 0.3s ease",
                     }}
                   >
                     <div className="mb-6">
                       <h3
-                        className="text-xl md:text-2xl font-black tracking-tight mb-2"
-                        style={{ color: textColor }}
+                        className="font-black tracking-tight mb-2"
+                        style={{
+                          color: textColor,
+                          fontFamily: headingFont,
+                          fontWeight: fontWeight,
+                          fontSize: getFontSize(fontSize),
+                        }}
                       >
                         {skill.name}
                       </h3>
@@ -394,6 +459,8 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                             backgroundColor,
                             borderColor: textColor,
                             color: textColor,
+                            fontSize: getFontSize(fontSize),
+                            fontWeight: fontWeight,
                           }}
                         >
                           {skill.category}
@@ -404,8 +471,13 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                     {/* Level */}
                     <div className="mb-6">
                       <div
-                        className="text-4xl md:text-5xl font-black tabular-nums mb-2"
-                        style={{ color: textColor }}
+                        className="font-black tabular-nums mb-2"
+                        style={{
+                          color: textColor,
+                          fontFamily: headingFont,
+                          fontWeight: fontWeight,
+                          fontSize: getFontSize(fontSize),
+                        }}
                       >
                         {skill.level}
                         <span className="text-2xl">%</span>
@@ -418,6 +490,8 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                             style={{
                               borderColor: textColor,
                               backgroundColor,
+                              fontSize: getFontSize(fontSize),
+                              fontWeight: fontWeight,
                             }}
                           >
                             <div
@@ -442,8 +516,13 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                           style={{ backgroundColor, borderColor: textColor }}
                         >
                           <div
-                            className="text-2xl font-black"
-                            style={{ color: textColor }}
+                            className="font-black"
+                            style={{
+                              color: textColor,
+                              fontFamily: headingFont,
+                              fontWeight: fontWeight,
+                              fontSize: getFontSize(fontSize),
+                            }}
                           >
                             {skill.yearsExperience}
                           </div>
@@ -462,8 +541,13 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                           style={{ backgroundColor, borderColor: textColor }}
                         >
                           <div
-                            className="text-2xl font-black"
-                            style={{ color: textColor }}
+                            className="font-black"
+                            style={{
+                              color: textColor,
+                              fontFamily: headingFont,
+                              fontWeight: fontWeight,
+                              fontSize: getFontSize(fontSize),
+                            }}
                           >
                             {skill.projects}
                           </div>
@@ -480,11 +564,14 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
                     {/* Status */}
                     {showStatus && skill.status && (
                       <div
-                        className="inline-block px-4 py-2 border-2 font-black text-xs tracking-[0.2em] uppercase"
+                        className="inline-block px-4 py-2 border-2 font-black tracking-[0.2em] uppercase"
                         style={{
                           backgroundColor: getStatusColor(skill.status),
                           borderColor: textColor,
                           color: textColor,
+                          fontFamily: headingFont,
+                          fontWeight: fontWeight,
+                          fontSize: getFontSize(fontSize),
                         }}
                       >
                         {getStatusLabel(skill.status)}
@@ -493,41 +580,26 @@ const NeoBrutalistSkills: React.FC<ComponentProps> = ({
 
                     {/* Hover Overlay */}
                     <div
-                      className="absolute inset-0 transition-all duration-300 pointer-events-none border-4"
+                      className="absolute inset-0 transition-all duration-300 pointer-events-none"
                       style={{
                         backgroundColor:
-                          hoveredSkill === skill.name ? `${backgroundColor}20` : "transparent",
-                        borderColor: hoveredSkill === skill.name ? textColor : "transparent",
+                          hoveredSkill === skill.name
+                            ? `${backgroundColor}20`
+                            : "transparent",
+                        borderColor:
+                          hoveredSkill === skill.name
+                            ? textColor
+                            : "transparent",
+                        borderWidth: `${borderWidth}px`,
+
+                        borderRadius: `${borderRadius}px`,
                       }}
                     />
                   </div>
                 )}
               </div>
             ))}
-
           </div>
-        </div>
-
-
-        {/* Bottom Brutal Accent */}
-        <div className="flex items-center justify-center mt-20 gap-6">
-          <div
-            className="w-8 h-8 border-4 transform rotate-45"
-            style={{
-              backgroundColor: primaryColor,
-              borderColor: borderColor,
-              boxShadow: brutalistShadows ? `4px 4px 0px ${borderColor}` : undefined,
-            }}
-          ></div>
-      
-          <div
-            className="w-8 h-8 border-4 transform rotate-45"
-            style={{
-              backgroundColor: primaryColor,
-              borderColor: borderColor,
-              boxShadow: brutalistShadows ? `4px 4px 0px ${borderColor}` : undefined,
-            }}
-          ></div>
         </div>
       </div>
     </section>

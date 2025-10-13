@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import { PortfolioFontLoader } from "@/lib/portfolioFontLoader";
+import { getFontWithDefault } from "@/lib/componentDefaultFonts";
 
 interface Skill {
   name: string;
@@ -115,8 +117,20 @@ const SkillsTypography: React.FC<ComponentProps> = ({
   fontWeight = "bold",
   borderRadius = "0",
   shadow = "none",
+  globalTheme,
 }) => {
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+
+  // Get font families from global theme with typography defaults
+  const bodyFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "body", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
+
+  const headingFont = useMemo(() => {
+    const fontName = getFontWithDefault(globalTheme, "heading", "typography");
+    return PortfolioFontLoader.getFontFamily(fontName);
+  }, [globalTheme]);
 
   const getStatusColor = (status?: string) => {
     switch (status) {
@@ -205,6 +219,7 @@ const SkillsTypography: React.FC<ComponentProps> = ({
               color: textColor,
               lineHeight: 0.9,
               fontSize: fontSize,
+              fontFamily: headingFont,
             }}
           >
             {title}

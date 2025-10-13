@@ -203,7 +203,7 @@ export default function PropertyPanel({
     // Skip color fields, handled by ColorPanel
     if (colorKeys.includes(key)) return null;
     const value = component.styles?.[key] ?? defaultStyles[key] ?? "";
-    
+
     // Color picker
     if (key.toLowerCase().includes("color")) {
       return (
@@ -225,7 +225,7 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     // Number input for spacing
     if (
       key.toLowerCase().includes("padding") ||
@@ -244,7 +244,7 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     // Typography selects
     if (key === "fontSize") {
       return (
@@ -269,7 +269,7 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     if (key === "fontWeight") {
       return (
         <div key={key} className="mb-3">
@@ -282,18 +282,18 @@ export default function PropertyPanel({
               <SelectValue placeholder="Select weight" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="light">Light</SelectItem>
-              <SelectItem value="normal">Normal</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="semibold">Semibold</SelectItem>
-              <SelectItem value="bold">Bold</SelectItem>
-              <SelectItem value="extrabold">Extra Bold</SelectItem>
+              <SelectItem value="300">Light</SelectItem>
+              <SelectItem value="400">Normal</SelectItem>
+              <SelectItem value="500">Medium</SelectItem>
+              <SelectItem value="600">Semibold</SelectItem>
+              <SelectItem value="700">Bold</SelectItem>
+              <SelectItem value="800">Extra Bold</SelectItem>
             </SelectContent>
           </Select>
         </div>
       );
     }
-    
+
     if (key === "textAlign") {
       return (
         <div key={key} className="mb-3">
@@ -315,7 +315,7 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     // Border radius selector
     if (key === "borderRadius") {
       return (
@@ -329,18 +329,25 @@ export default function PropertyPanel({
               <SelectValue placeholder="Select radius" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="sm">Small</SelectItem>
-              <SelectItem value="md">Medium</SelectItem>
-              <SelectItem value="lg">Large</SelectItem>
-              <SelectItem value="xl">Extra Large</SelectItem>
-              <SelectItem value="full">Full</SelectItem>
+              <SelectItem value="0">0px</SelectItem>
+              <SelectItem value="2">2px</SelectItem>
+              <SelectItem value="4">4px</SelectItem>
+              <SelectItem value="6">6px</SelectItem>
+              <SelectItem value="8">8px</SelectItem>
+              <SelectItem value="10">10px</SelectItem>
+              <SelectItem value="12">12px</SelectItem>
+              <SelectItem value="16">16px</SelectItem>
+              <SelectItem value="20">20px</SelectItem>
+              <SelectItem value="25">25px</SelectItem>
+              <SelectItem value="30">30px</SelectItem>
+              <SelectItem value="50">50px</SelectItem>
+              <SelectItem value="100">100px</SelectItem>
             </SelectContent>
           </Select>
         </div>
       );
     }
-    
+
     // Display/positioning selects
     if (key === "display") {
       return (
@@ -365,7 +372,7 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     if (key === "flexDirection") {
       return (
         <div key={key} className="mb-3">
@@ -387,7 +394,7 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     if (key === "justifyContent") {
       return (
         <div key={key} className="mb-3">
@@ -411,7 +418,7 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     if (key === "alignItems") {
       return (
         <div key={key} className="mb-3">
@@ -434,12 +441,16 @@ export default function PropertyPanel({
         </div>
       );
     }
-    
+
     // Default to text input with better styling
     console.log(key, value);
     return (
       <div key={key} className="mb-3">
-        <Label className="text-xs font-medium">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</Label>
+        <Label className="text-xs font-medium">
+          {key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase())}
+        </Label>
         <Input
           value={value}
           onChange={(e) => handleStyleChange(key, e.target.value)}
@@ -448,7 +459,7 @@ export default function PropertyPanel({
         />
       </div>
     );
-  }
+  };
 
   if (!component) {
     return (
@@ -501,15 +512,52 @@ export default function PropertyPanel({
       try {
         const newVariantConfig = getComponent(component.type as any, value);
         if (newVariantConfig) {
-          const mergedProps = {
-            ...newVariantConfig.defaultProps,
-            ...component.props,
+          // Start with new variant's default props
+          const mergedProps = { ...newVariantConfig.defaultProps };
+
+          // Define prop mappings for cross-variant compatibility
+          const propMappings: Record<string, string> = {
+            // About section mappings
+            timelineItems: "experience", // Typography → Minimal/Neobrutalist
+            experience: "timelineItems", // Minimal/Neobrutalist → Typography
           };
-          for (const key of Object.keys(newVariantConfig.defaultProps)) {
-            if (mergedProps[key] === undefined || mergedProps[key] === "") {
-              mergedProps[key] = newVariantConfig.defaultProps[key];
+
+          // Preserve existing props that are compatible with the new variant
+          // Only override with existing values if they're not empty/undefined
+          Object.keys(component.props).forEach((key) => {
+            const existingValue = component.props[key];
+
+            // Skip if the value is undefined, null, or empty string
+            if (
+              existingValue !== undefined &&
+              existingValue !== null &&
+              existingValue !== ""
+            ) {
+              // Check if this prop needs to be mapped to a different name
+              const targetKey =
+                propMappings[key] &&
+                mergedProps.hasOwnProperty(propMappings[key])
+                  ? propMappings[key]
+                  : key;
+
+              // For arrays, only preserve if non-empty
+              if (Array.isArray(existingValue) && existingValue.length > 0) {
+                mergedProps[targetKey] = existingValue;
+              }
+              // For objects, only preserve if non-empty
+              else if (
+                typeof existingValue === "object" &&
+                !Array.isArray(existingValue) &&
+                Object.keys(existingValue).length > 0
+              ) {
+                mergedProps[targetKey] = existingValue;
+              }
+              // For primitives (strings, numbers, booleans), preserve if meaningful
+              else if (typeof existingValue !== "object") {
+                mergedProps[targetKey] = existingValue;
+              }
             }
-          }
+          });
 
           const mergedStyles = {
             ...newVariantConfig.defaultStyles,
@@ -762,8 +810,8 @@ export default function PropertyPanel({
                 <TabsContent value="colors" className="space-y-6 mt-4">
                   {/* Colors */}
                   {colorKeys.length > 0 && (
-                    <ColorPanel 
-                      colors={colors} 
+                    <ColorPanel
+                      colors={colors}
                       setColors={setColors}
                       portfolio={portfolio}
                       onPortfolioChange={onPortfolioChange}
@@ -777,9 +825,10 @@ export default function PropertyPanel({
                     <div className="space-y-4">
                       <h3 className="text-sm font-medium">Font Selection</h3>
                       <p className="text-xs text-muted-foreground">
-                        Choose fonts for your portfolio. These will be applied globally across all components.
+                        Choose fonts for your portfolio. These will be applied
+                        globally across all components.
                       </p>
-                      
+
                       <div className="space-y-4">
                         <FontPicker
                           selectedFont={globalTheme?.fontHeading || "Inter"}
@@ -794,7 +843,7 @@ export default function PropertyPanel({
                           fontType="heading"
                           label="Heading Font"
                         />
-                        
+
                         <FontPicker
                           selectedFont={globalTheme?.fontBody || "Inter"}
                           onFontChange={(font) => {

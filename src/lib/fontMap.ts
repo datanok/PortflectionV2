@@ -1,40 +1,114 @@
-import { Lato } from "next/font/google";
-import { Roboto } from "next/font/google";
-import { Montserrat } from "next/font/google";
-import { Poppins } from "next/font/google";
-import { Nunito } from "next/font/google";
-import { Oswald } from "next/font/google";
-import { Merriweather } from "next/font/google";
-import { Inter } from "next/font/google";
-import { Outfit } from "next/font/google";
-import { Open_Sans } from "next/font/google";
-import { Lora } from "next/font/google";
-import { Playfair_Display } from "next/font/google";
+import {
+  Inter,
+  Roboto,
+  Poppins,
+  Lora,
+  Playfair_Display,
+  Montserrat,
+  Lato,
+  Nunito,
+  Oswald,
+  Merriweather,
+  Outfit,
+  Open_Sans,
+  JetBrains_Mono,
+} from "next/font/google";
 
-const lato = Lato({ subsets: ["latin"], variable: "--font-lato", weight: "400" });
-const roboto = Roboto({ subsets: ["latin"], variable: "--font-roboto", weight: "400" });
-const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat", weight: "400" });
-const poppins = Poppins({ subsets: ["latin"], variable: "--font-poppins", weight: "400" });
-const nunito = Nunito({ subsets: ["latin"], variable: "--font-nunito", weight: "400" });
-const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald", weight: "400" });
-const merriweather = Merriweather({ subsets: ["latin"], variable: "--font-merriweather", weight: "400" });
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", weight: "400" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", weight: "400" });
-const openSans = Open_Sans({ subsets: ["latin"], variable: "--font-open-sans", weight: "400" });
-const lora = Lora({ subsets: ["latin"], variable: "--font-lora", weight: "400" });
-const playfairDisplay = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair-display", weight: "400" });
+// Initialize all fonts
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
-export const FONT_MAP = {
-  "Lato": lato,
-  "Roboto": roboto,
-  "Montserrat": montserrat,
-  "Poppins": poppins,
-  "Nunito": nunito,
-  "Oswald": oswald,
-  "Merriweather": merriweather,
-  "Inter": inter,
-  "Outfit": outfit,
-  "Open Sans": openSans,
-  "Lora": lora,
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-roboto",
+  display: "swap",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
+const lora = Lora({
+  subsets: ["latin"],
+  variable: "--font-lora",
+  display: "swap",
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair-display",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
+const lato = Lato({
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+  variable: "--font-lato",
+  display: "swap",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+  display: "swap",
+});
+
+const oswald = Oswald({
+  subsets: ["latin"],
+  variable: "--font-oswald",
+  display: "swap",
+});
+
+const merriweather = Merriweather({
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+  variable: "--font-merriweather",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+const openSans = Open_Sans({
+  subsets: ["latin"],
+  variable: "--font-open-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains-mono",
+  display: "swap",
+});
+
+export const FONT_MAP: Record<string, any> = {
+  Inter: inter,
+  Roboto: roboto,
+  Poppins: poppins,
+  Lora: lora,
   "Playfair Display": playfairDisplay,
+  Montserrat: montserrat,
+  Lato: lato,
+  Nunito: nunito,
+  Oswald: oswald,
+  Merriweather: merriweather,
+  Outfit: outfit,
+  "Open Sans": openSans,
+  "JetBrains Mono": jetbrainsMono,
 };

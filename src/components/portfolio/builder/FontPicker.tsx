@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Check, ChevronDown, Type } from "lucide-react";
+import { Check, Type } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -14,18 +14,71 @@ import { FONT_MAP } from "@/lib/fontMap";
 
 // Available Google Fonts for selection
 const AVAILABLE_FONTS = [
-  { name: "Inter", category: "Sans-serif", description: "Modern, clean, and highly readable" },
-  { name: "Roboto", category: "Sans-serif", description: "Google's signature font" },
-  { name: "Poppins", category: "Sans-serif", description: "Geometric sans-serif with friendly curves" },
-  { name: "Lora", category: "Serif", description: "Elegant serif with excellent readability" },
-  { name: "Playfair Display", category: "Serif", description: "High contrast serif for headings" },
-  { name: "Montserrat", category: "Sans-serif", description: "Urban typography with geometric forms" },
-  { name: "Lato", category: "Sans-serif", description: "Humanist sans-serif with warmth" },
-  { name: "Nunito", category: "Sans-serif", description: "Rounded sans-serif with personality" },
-  { name: "Oswald", category: "Sans-serif", description: "Condensed sans-serif for impact" },
-  { name: "Merriweather", category: "Serif", description: "Designed for pleasant reading" },
-  { name: "Outfit", category: "Sans-serif", description: "Modern geometric sans-serif" },
-  { name: "Open Sans", category: "Sans-serif", description: "Humanist sans-serif designed for print and web" },
+  {
+    name: "Inter",
+    category: "Sans-serif",
+    description: "Modern, clean, and highly readable",
+  },
+  {
+    name: "Roboto",
+    category: "Sans-serif",
+    description: "Google's signature font",
+  },
+  {
+    name: "Poppins",
+    category: "Sans-serif",
+    description: "Geometric sans-serif with friendly curves",
+  },
+  {
+    name: "Lora",
+    category: "Serif",
+    description: "Elegant serif with excellent readability",
+  },
+  {
+    name: "Playfair Display",
+    category: "Serif",
+    description: "High contrast serif for headings",
+  },
+  {
+    name: "Montserrat",
+    category: "Sans-serif",
+    description: "Urban typography with geometric forms",
+  },
+  {
+    name: "Lato",
+    category: "Sans-serif",
+    description: "Humanist sans-serif with warmth",
+  },
+  {
+    name: "Nunito",
+    category: "Sans-serif",
+    description: "Rounded sans-serif with personality",
+  },
+  {
+    name: "Oswald",
+    category: "Sans-serif",
+    description: "Condensed sans-serif for impact",
+  },
+  {
+    name: "Merriweather",
+    category: "Serif",
+    description: "Designed for pleasant reading",
+  },
+  {
+    name: "Outfit",
+    category: "Sans-serif",
+    description: "Modern geometric sans-serif",
+  },
+  {
+    name: "Open Sans",
+    category: "Sans-serif",
+    description: "Humanist sans-serif designed for print and web",
+  },
+  {
+    name: "JetBrains Mono",
+    category: "Monospace",
+    description: "Modern monospace font for developers",
+  },
 ];
 
 interface FontPickerProps {
@@ -45,15 +98,44 @@ export default function FontPicker({
 }: FontPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Get all font classes to inject into this component's scope
+  const fontClasses = useMemo(() => {
+    return Object.values(FONT_MAP)
+      .map((font) => font.className)
+      .join(" ");
+  }, []);
+
   // Get the current font configuration
   const currentFont = useMemo(() => {
-    return AVAILABLE_FONTS.find(font => font.name === selectedFont) || AVAILABLE_FONTS[0];
+    return (
+      AVAILABLE_FONTS.find((font) => font.name === selectedFont) ||
+      AVAILABLE_FONTS[0]
+    );
   }, [selectedFont]);
 
   // Get font CSS variable for preview
   const fontVariable = useMemo(() => {
-    const fontConfig = FONT_MAP[selectedFont];
-    return fontConfig?.variable || `--font-${selectedFont.toLowerCase().replace(/\s+/g, "-")}`;
+    // Map font names to their actual CSS variable names
+    const variableMap: Record<string, string> = {
+      Inter: "--font-inter",
+      Roboto: "--font-roboto",
+      Montserrat: "--font-montserrat",
+      Poppins: "--font-poppins",
+      Nunito: "--font-nunito",
+      Oswald: "--font-oswald",
+      Merriweather: "--font-merriweather",
+      Lato: "--font-lato",
+      Outfit: "--font-outfit",
+      "Open Sans": "--font-open-sans",
+      Lora: "--font-lora",
+      "Playfair Display": "--font-playfair-display",
+      "JetBrains Mono": "--font-jetbrains-mono",
+    };
+
+    return (
+      variableMap[selectedFont] ||
+      `--font-${selectedFont.toLowerCase().replace(/\s+/g, "-")}`
+    );
   }, [selectedFont]);
 
   const handleFontSelect = (fontName: string) => {
@@ -62,7 +144,7 @@ export default function FontPicker({
   };
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-3 ${className} ${fontClasses}`}>
       {label && (
         <div className="flex items-center gap-2">
           <Type className="h-4 w-4 text-muted-foreground" />
@@ -84,10 +166,10 @@ export default function FontPicker({
         </CardHeader>
         <CardContent className="pt-0">
           {/* Font Preview Text */}
-          <div 
+          <div
             className="space-y-2"
             style={{
-              fontFamily: `var(${fontVariable}, "${selectedFont}", sans-serif)`,
+              fontFamily: `var(${fontVariable}), ${selectedFont}, sans-serif`,
             }}
           >
             {fontType === "heading" ? (
@@ -105,10 +187,13 @@ export default function FontPicker({
             ) : (
               <>
                 <p className="text-base leading-relaxed text-foreground">
-                  The quick brown fox jumps over the lazy dog. This is a sample of body text to demonstrate how the selected font will look in your portfolio.
+                  The quick brown fox jumps over the lazy dog. This is a sample
+                  of body text to demonstrate how the selected font will look in
+                  your portfolio.
                 </p>
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Smaller text for descriptions and secondary content. The font should remain readable at all sizes.
+                  Smaller text for descriptions and secondary content. The font
+                  should remain readable at all sizes.
                 </p>
               </>
             )}
@@ -132,10 +217,10 @@ export default function FontPicker({
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a font">
               <div className="flex items-center gap-2">
-                <span 
-                  className="text-sm"
+                <span
+                  className="text-base font-medium"
                   style={{
-                    fontFamily: `var(${fontVariable}, "${selectedFont}", sans-serif)`,
+                    fontFamily: `var(${fontVariable}), ${selectedFont}, sans-serif`,
                   }}
                 >
                   {selectedFont}
@@ -148,24 +233,30 @@ export default function FontPicker({
           </SelectTrigger>
           <SelectContent className="max-h-80">
             {AVAILABLE_FONTS.map((font) => {
-              const fontVar = FONT_MAP[font.name]?.variable || `--font-${font.name.toLowerCase().replace(/\s+/g, "-")}`;
+              const fontVar =
+                FONT_MAP[font.name]?.variable ||
+                `--font-${font.name.toLowerCase().replace(/\s+/g, "-")}`;
               return (
-                <SelectItem key={font.name} value={font.name}>
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-3">
-                      <span 
-                        className="text-sm"
+                <SelectItem
+                  key={font.name}
+                  value={font.name}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center justify-between w-full gap-2">
+                    <div className="flex items-center gap-2 flex-1">
+                      <span
+                        className="text-base font-medium"
                         style={{
-                          fontFamily: `var(${fontVar}, "${font.name}", sans-serif)`,
+                          fontFamily: `var(${fontVar}), ${font.name}, sans-serif`,
                         }}
                       >
                         {font.name}
                       </span>
                       {selectedFont === font.name && (
-                        <Check className="h-4 w-4 text-primary" />
+                        <Check className="h-4 w-4 text-primary flex-shrink-0" />
                       )}
                     </div>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs flex-shrink-0">
                       {font.category}
                     </Badge>
                   </div>
@@ -178,11 +269,13 @@ export default function FontPicker({
 
       {/* Font Categories */}
       <div className="flex flex-wrap gap-1">
-        {Array.from(new Set(AVAILABLE_FONTS.map(f => f.category))).map((category) => (
-          <Badge key={category} variant="outline" className="text-xs">
-            {category}
-          </Badge>
-        ))}
+        {Array.from(new Set(AVAILABLE_FONTS.map((f) => f.category))).map(
+          (category) => (
+            <Badge key={category} variant="outline" className="text-xs">
+              {category}
+            </Badge>
+          )
+        )}
       </div>
     </div>
   );

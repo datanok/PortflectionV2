@@ -43,6 +43,8 @@ export interface StyleConfig {
   borderWidth?: string;
   shadowColor?: string;
   shadowOffset?: string;
+  cardBackgroundColor?: string;
+  successColor?: string;
 }
 
 export interface ComponentVariant {
@@ -243,11 +245,9 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           name: "JOHN_DOE",
           title: "FULL_STACK_DEVELOPER",
           profileImage: "",
-          showProfileImage: false,
           visualDisplay: "code",
           showStatus: true,
           statusText: "AVAILABLE_FOR_HIRE",
-          showCodeSnippet: true,
           tagline:
             "Building digital experiences with clean code & creative solutions",
           typingTexts: [
@@ -290,11 +290,6 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             label: "Greeting",
             description: "The greeting text displayed at the top",
             placeholder: "Enter greeting text...",
-          },
-          showProfileImage: {
-            type: "boolean",
-            label: "Show Profile Image",
-            description: "Display the profile image",
           },
           profileImage: {
             type: "text",
@@ -344,11 +339,6 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             label: "Status Text",
             description: "The status text to display",
             placeholder: "Enter status text...",
-          },
-          showCodeSnippet: {
-            type: "boolean",
-            label: "Show Code Snippet",
-            description: "Display the code snippet section",
           },
 
           typingTexts: {
@@ -770,7 +760,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           textColor: "#111827",
           primaryColor: "#000000",
           secondaryColor: "#6b7280",
-          paddingY: "120",
+          paddingY: "12",
           paddingX: "32",
           textAlign: "left",
           fontSize: "4xl",
@@ -805,38 +795,6 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             "I'm John Doe, a Full Stack Developer with 5+ years building modern web applications and digital solutions. I specialize in React, Node.js, TypeScript, and cloud technologies. I enjoy solving complex problems with clean, maintainable code and creating features that enhance user experience and system performance.",
           mission:
             "Create innovative, scalable solutions with attention to detail and user experience — while building products that make a positive impact.",
-          quote:
-            "Great software feels simple on the surface and solid underneath.",
-          quoteAuthor: "John Doe",
-          achievements: [
-            {
-              title: "Project Delivery Excellence",
-              description:
-                "Successfully delivered 50+ web applications for various clients across different industries",
-              year: "2020‑2024",
-              icon: "rocket",
-            },
-            {
-              title: "Performance Optimization",
-              description:
-                "Achieved 40% performance improvement through code optimization and modern practices",
-              year: "2023",
-              icon: "trophy",
-            },
-            {
-              title: "Client Satisfaction",
-              description:
-                "Maintained 100% client satisfaction rate across all delivered projects",
-              year: "2023",
-              icon: "shield",
-            },
-            {
-              title: "Continuous Learning",
-              description: "Active learner and contributor to open source projects",
-              year: "2020‑Present",
-              icon: "star",
-            },
-          ],
           experience: [
             {
               role: "Full Stack Developer",
@@ -866,9 +824,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
 
           showStory: true,
           showExperience: true,
-          showAchievements: true,
           showValues: true,
-          showQuote: true,
           backgroundColor: "#ffffff",
           textColor: "#111827",
           primaryColor: "#000000",
@@ -877,7 +833,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           borderColor: "#000000",
           borderRadius: "0",
           shadow: "none",
-          paddingY: "120",
+          paddingY: "12",
           paddingX: "32",
           textAlign: "left",
           fontSize: "4xl",
@@ -908,58 +864,6 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             label: "Mission",
             description: "Your mission statement",
             placeholder: "Enter your mission...",
-          },
-          quote: {
-            type: "textarea",
-            label: "Quote",
-            description: "A quote from yourself",
-            placeholder: "Enter your quote...",
-          },
-          quoteAuthor: {
-            type: "text",
-            label: "Quote Author",
-            description: "The author of the quote",
-            placeholder: "Enter quote author...",
-          },
-          achievements: {
-            type: "array",
-            label: "Achievements",
-            description: "Your key achievements and milestones",
-            itemSchema: {
-              title: {
-                type: "text",
-                label: "Achievement Title",
-                description: "Title of the achievement",
-                placeholder: "e.g., First App Published",
-              },
-              description: {
-                type: "textarea",
-                label: "Description",
-                description: "Detailed description of the achievement",
-                placeholder: "Describe what you accomplished...",
-              },
-              year: {
-                type: "text",
-                label: "Year",
-                description: "When this achievement occurred",
-                placeholder: "e.g., 2023",
-              },
-              icon: {
-                type: "select",
-                label: "Icon",
-                description: "Icon to represent this achievement",
-                options: [
-                  { value: "rocket", label: "Rocket" },
-                  { value: "trophy", label: "Trophy" },
-                  { value: "shield", label: "Shield" },
-                  { value: "star", label: "Star" },
-                  { value: "award", label: "Award" },
-                  { value: "users", label: "Users" },
-                  { value: "target", label: "Target" },
-                  { value: "heart", label: "Heart" },
-                ],
-              },
-            },
           },
           experience: {
             type: "array",
@@ -1049,20 +953,10 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
             label: "Show Experience",
             description: "Display the experience section",
           },
-          showAchievements: {
-            type: "boolean",
-            label: "Show Achievements",
-            description: "Display the achievements section",
-          },
           showValues: {
             type: "boolean",
             label: "Show Values",
             description: "Display the values section",
-          },
-          showQuote: {
-            type: "boolean",
-            label: "Show Quote",
-            description: "Display the quote section",
           },
         },
         defaultStyles: {
@@ -1074,12 +968,147 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           borderColor: "#000000",
           borderRadius: "0",
           shadow: "4px 4px 0px #000",
-          paddingY: "120",
+          paddingY: "12",
           paddingX: "32",
           textAlign: "left",
           fontSize: "4xl",
           fontWeight: "black",
           borderWidth: "4",
+        },
+      },
+      {
+        id: "minimal-about",
+        name: "Minimal About",
+        description:
+          "Clean and minimal about section with story and experience timeline in card layout",
+        component: AboutComponents.MinimalAbout,
+        thumbnail: "/thumbnails/minimal-about.jpg",
+        category: "content",
+        tags: ["about", "minimal", "clean", "timeline", "experience", "story"],
+        theme: "minimal",
+        isPopular: true,
+        defaultProps: {
+          title: "About Me",
+          subtitle: "My Journey",
+          story:
+            "I'm a passionate developer with a love for creating beautiful and functional web applications. My journey in tech started years ago, and I've been constantly learning and growing ever since.",
+          experience: [
+            {
+              role: "Full Stack Developer",
+              company: "Tech Company Inc.",
+              period: "2022 – Present",
+              description:
+                "End‑to‑end development of web applications using React, Node.js, and modern cloud technologies.",
+              highlights: [
+                "Delivered 30+ successful projects",
+                "Improved performance by 40%",
+                "Maintained 100% client satisfaction",
+                "Built scalable, maintainable solutions",
+              ],
+            },
+            {
+              role: "B.S. in Computer Science",
+              company: "University of Technology",
+              period: "2016 – 2020",
+              description:
+                "Graduated with a focus on software engineering and web technologies.",
+              highlights: [
+                "Strong fundamentals in CS and web dev",
+                "Projects in full‑stack development",
+              ],
+            },
+          ],
+          showStory: true,
+          showExperience: true,
+          cardBackgroundColor: "#ffffff",
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Section Title",
+            description: "The main title for the about section",
+            placeholder: "Enter section title...",
+          },
+          experience: {
+            type: "array",
+            label: "Experience",
+            description: "Your work and educational experience",
+            itemSchema: {
+              role: {
+                type: "text",
+                label: "Role/Title",
+                description: "Your job title or role",
+                placeholder: "e.g., Senior Developer",
+              },
+              company: {
+                type: "text",
+                label: "Company/Institution",
+                description: "Company or educational institution name",
+                placeholder: "e.g., Tech Company Inc.",
+              },
+              period: {
+                type: "text",
+                label: "Period",
+                description: "Time period of this experience",
+                placeholder: "e.g., 2022 - Present",
+              },
+              description: {
+                type: "textarea",
+                label: "Description",
+                description: "Overview of your role and responsibilities",
+                placeholder: "Describe your role and key responsibilities...",
+              },
+              highlights: {
+                type: "array",
+                label: "Key Highlights",
+                description: "List of key achievements and highlights",
+                itemSchema: {
+                  highlight: {
+                    type: "text",
+                    label: "Highlight",
+                    description: "A key achievement or highlight",
+                    placeholder: "e.g., Improved performance by 30%",
+                  },
+                },
+              },
+            },
+          },
+          subtitle: {
+            type: "text",
+            label: "Section Subtitle",
+            description: "The subtitle displayed below the main title",
+            placeholder: "Enter subtitle...",
+          },
+          story: {
+            type: "textarea",
+            label: "Your Story",
+            description: "Tell your story and background",
+            placeholder: "Tell your story...",
+          },
+          showStory: {
+            type: "boolean",
+            label: "Show Story",
+            description: "Display the story section",
+          },
+          showExperience: {
+            type: "boolean",
+            label: "Show Experience",
+            description: "Display the experience timeline",
+          },
+        },
+        defaultStyles: {
+          backgroundColor: "#ffffff",
+          textColor: "#1f2937",
+          primaryColor: "#3b82f6",
+          secondaryColor: "#6b7280",
+          cardBackgroundColor: "#f9fafb",
+          paddingY: "80",
+          paddingX: "16",
+          textAlign: "center",
+          fontSize: "base",
+          fontWeight: "normal",
+          borderRadius: "0",
+          shadow: "none",
         },
       },
     ],
@@ -1631,6 +1660,132 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           },
         },
       },
+      {
+        id: "minimal-skills",
+        name: "Minimal Skills",
+        description:
+          "Clean skills grid with progress bars, categories, and status badges",
+        component: SkillsComponents.MinimalSkills,
+        thumbnail: "/thumbnails/minimal-skills.jpg",
+        category: "content",
+        tags: [
+          "skills",
+          "minimal",
+          "clean",
+          "progress",
+          "categories",
+          "badges",
+        ],
+        theme: "minimal",
+        isPopular: true,
+        defaultProps: {
+          title: "Skills",
+          subtitle: "What I Work With",
+          description: "Technologies and tools I use to bring ideas to life",
+          skills: [
+            {
+              name: "React",
+              level: 90,
+              category: "Frontend",
+              yearsExperience: 5,
+              status: "expert",
+            },
+            {
+              name: "TypeScript",
+              level: 85,
+              category: "Languages",
+              yearsExperience: 4,
+              status: "proficient",
+            },
+            {
+              name: "Node.js",
+              level: 80,
+              category: "Backend",
+              yearsExperience: 4,
+              status: "proficient",
+            },
+            {
+              name: "Next.js",
+              level: 85,
+              category: "Frontend",
+              yearsExperience: 3,
+              status: "expert",
+            },
+            {
+              name: "Tailwind CSS",
+              level: 90,
+              category: "Styling",
+              yearsExperience: 3,
+              status: "expert",
+            },
+            {
+              name: "MongoDB",
+              level: 75,
+              category: "Database",
+              yearsExperience: 3,
+              status: "proficient",
+            },
+          ],
+          showLevelBars: true,
+          showExperience: false,
+          showStatus: false,
+          showCategories: true,
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Section Title",
+            description: "The main title for the skills section",
+            placeholder: "Enter section title...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Section Subtitle",
+            description: "The subtitle displayed below the main title",
+            placeholder: "Enter subtitle...",
+          },
+          description: {
+            type: "textarea",
+            label: "Description",
+            description: "Brief description of your skills",
+            placeholder: "Enter description...",
+          },
+          showLevelBars: {
+            type: "boolean",
+            label: "Show Level Bars",
+            description: "Display progress bars for skill levels",
+          },
+          showExperience: {
+            type: "boolean",
+            label: "Show Experience Years",
+            description: "Display years of experience for each skill",
+          },
+          showStatus: {
+            type: "boolean",
+            label: "Show Status Badges",
+            description: "Display status badges (learning/proficient/expert)",
+          },
+          showCategories: {
+            type: "boolean",
+            label: "Show Categories",
+            description: "Group skills by category",
+          },
+        },
+        defaultStyles: {
+          backgroundColor: "#ffffff",
+          textColor: "#1f2937",
+          primaryColor: "#3b82f6",
+          secondaryColor: "#6b7280",
+          cardBackgroundColor: "#f9fafb",
+          paddingY: "80",
+          paddingX: "16",
+          textAlign: "center",
+          fontSize: "base",
+          fontWeight: "normal",
+          borderRadius: "0",
+          shadow: "none",
+        },
+      },
     ],
   },
   projects: {
@@ -1763,7 +1918,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           textColor: "#111827",
           primaryColor: "#000000",
           secondaryColor: "#6b7280",
-          paddingY: "120",
+          paddingY: "12",
           paddingX: "32",
           textAlign: "left",
           fontSize: "4xl",
@@ -2110,6 +2265,216 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           },
         },
       },
+      {
+        id: "minimal-projects",
+        name: "Minimal Projects",
+        description:
+          "Beautiful bento grid layout with gradient overlays, featured projects, and dynamic sizing",
+        component: ProjectsComponents.MinimalProjects,
+        thumbnail: "/thumbnails/minimal-projects.jpg",
+        category: "content",
+        tags: [
+          "projects",
+          "minimal",
+          "bento",
+          "grid",
+          "portfolio",
+          "featured",
+          "modern",
+        ],
+        theme: "minimal",
+        isPopular: true,
+        defaultProps: {
+          title: "Projects",
+          subtitle: "My Work",
+          description: "A collection of projects I've built and contributed to",
+          projects: [
+            {
+              title: "E-Commerce Platform",
+              description:
+                "A full-stack e-commerce solution with real-time inventory management and payment processing.",
+              image:
+                "https://images.unsplash.com/photo-1557821552-17105176677c?w=800&h=600&fit=crop",
+              tags: ["React", "Node.js", "MongoDB", "Stripe"],
+              link: "https://example.com",
+              github: "https://github.com",
+              featured: true,
+              size: "large",
+            },
+            {
+              title: "Task Manager App",
+              description:
+                "Collaborative task management tool with real-time updates and team features.",
+              image:
+                "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop",
+              tags: ["Next.js", "TypeScript", "Prisma"],
+              link: "https://example.com",
+              size: "medium",
+            },
+            {
+              title: "Weather Dashboard",
+              description:
+                "Beautiful weather app with forecasts and interactive maps.",
+              image:
+                "https://images.unsplash.com/photo-1592210454359-9043f067919b?w=800&h=600&fit=crop",
+              tags: ["React", "API Integration"],
+              link: "https://example.com",
+              size: "small",
+            },
+            {
+              title: "Portfolio Builder",
+              description:
+                "SaaS platform for creating stunning portfolios without code.",
+              image:
+                "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop",
+              tags: ["Vue.js", "Firebase", "Tailwind"],
+              github: "https://github.com",
+              size: "medium",
+            },
+            {
+              title: "AI Chat Bot",
+              description:
+                "Intelligent chatbot with natural language processing capabilities.",
+              image:
+                "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?w=800&h=600&fit=crop",
+              tags: ["Python", "OpenAI", "Flask"],
+              size: "small",
+            },
+            {
+              title: "Social Media Analytics",
+              description:
+                "Comprehensive analytics dashboard for social media insights and metrics.",
+              image:
+                "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop",
+              tags: ["React", "D3.js", "Express"],
+              featured: true,
+              size: "large",
+            },
+          ],
+          showTags: true,
+          showLinks: true,
+          bentoLayout: true,
+        },
+        propsSchema: {
+          title: {
+            type: "text",
+            label: "Section Title",
+            description: "The main title for the projects section",
+            placeholder: "Enter section title...",
+          },
+          subtitle: {
+            type: "text",
+            label: "Section Subtitle",
+            description: "The subtitle displayed above the main title",
+            placeholder: "Enter subtitle...",
+          },
+          description: {
+            type: "textarea",
+            label: "Description",
+            description: "Brief description of your projects",
+            placeholder: "Enter description...",
+          },
+          projects: {
+            type: "array",
+            label: "Projects",
+            description: "Your project portfolio",
+            itemSchema: {
+              title: {
+                type: "text",
+                label: "Project Title",
+                description: "Name of the project",
+                placeholder: "e.g., E-Commerce Platform",
+              },
+              description: {
+                type: "textarea",
+                label: "Description",
+                description: "Brief description of the project",
+                placeholder: "Describe your project...",
+              },
+              image: {
+                type: "text",
+                label: "Image URL",
+                description: "Project image URL",
+                placeholder: "https://...",
+              },
+              tags: {
+                type: "array",
+                label: "Tags",
+                description: "Technologies used",
+                itemSchema: {
+                  tag: {
+                    type: "text",
+                    label: "Tag",
+                    description: "Technology or tag name",
+                    placeholder: "e.g., React",
+                  },
+                },
+              },
+              link: {
+                type: "text",
+                label: "Live Demo URL",
+                description: "Link to live project",
+                placeholder: "https://...",
+              },
+              github: {
+                type: "text",
+                label: "GitHub URL",
+                description: "Link to source code",
+                placeholder: "https://github.com/...",
+              },
+              featured: {
+                type: "boolean",
+                label: "Featured",
+                description: "Mark as featured project",
+              },
+              size: {
+                type: "select",
+                label: "Size",
+                description: "Project card size in bento layout",
+                options: [
+                  { value: "wide", label: "Wide" },
+                  { value: "tall", label: "Tall" },
+                  { value: "big", label: "Big" },
+                ],
+              },
+              color: {
+                type: "text",
+                label: "Accent Color",
+                description: "Custom accent color for this project (hex code)",
+                placeholder: "#3b82f6",
+              },
+            },
+          },
+          showTags: {
+            type: "boolean",
+            label: "Show Tags",
+            description: "Display technology tags for each project",
+          },
+          showLinks: {
+            type: "boolean",
+            label: "Show Links",
+            description: "Display links to live demo and GitHub",
+          },
+          bentoLayout: {
+            type: "boolean",
+            label: "Bento Layout",
+            description: "Use bento grid layout with dynamic sizing",
+          },
+        },
+        defaultStyles: {
+          backgroundColor: "#ffffff",
+          textColor: "#1f2937",
+          primaryColor: "#3b82f6",
+          secondaryColor: "#6b7280",
+          paddingY: "80",
+          paddingX: "16",
+          textAlign: "center",
+          fontSize: "base",
+          fontWeight: "normal",
+          borderRadius: "0",
+          shadow: "none",
+        },
+      },
     ],
   },
   experience: {
@@ -2166,9 +2531,11 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
               name: "Sarah Johnson",
               role: "Product Manager",
               company: "TechCorp",
-              content: "Working with this developer was an absolute pleasure. They delivered high-quality code on time and exceeded our expectations. Their attention to detail and problem-solving skills are exceptional.",
+              content:
+                "Working with this developer was an absolute pleasure. They delivered high-quality code on time and exceeded our expectations. Their attention to detail and problem-solving skills are exceptional.",
               rating: 5,
-              image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
+              image:
+                "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
               featured: true,
             },
             {
@@ -2176,18 +2543,22 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
               name: "Michael Chen",
               role: "CTO",
               company: "StartupXYZ",
-              content: "Incredible technical expertise and great communication skills. They helped us build a scalable solution that has been running smoothly for months. Highly recommended!",
+              content:
+                "Incredible technical expertise and great communication skills. They helped us build a scalable solution that has been running smoothly for months. Highly recommended!",
               rating: 5,
-              image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+              image:
+                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
             },
             {
               id: 3,
               name: "Emily Rodriguez",
               role: "Design Lead",
               company: "Creative Agency",
-              content: "Perfect collaboration between design and development. They understood our vision and brought it to life with pixel-perfect precision. A true professional!",
+              content:
+                "Perfect collaboration between design and development. They understood our vision and brought it to life with pixel-perfect precision. A true professional!",
               rating: 5,
-              image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+              image:
+                "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
             },
           ],
           showRatings: false,
@@ -2313,7 +2684,7 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           textColor: "#111827",
           primaryColor: "#000000",
           secondaryColor: "#6b7280",
-          paddingY: "120",
+          paddingY: "12",
           paddingX: "32",
           textAlign: "left",
           fontSize: "4xl",
@@ -2389,7 +2760,9 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           accentColor: "#ffd23f",
           borderColor: "#000000",
           shadowColor: "#000000",
-          paddingY: "120",
+          cardBackgroundColor: "#ffffff",
+          successColor: "#10b981",
+          paddingY: "12",
           paddingX: "32",
           textAlign: "left",
           fontSize: "4xl",
@@ -2422,7 +2795,8 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
         defaultProps: {
           title: "Let's Work Together",
           subtitle: "Ready to start your next project?",
-          description: "I'm always interested in new opportunities and collaborations. Whether you have a project in mind or just want to chat about technology, feel free to reach out!",
+          description:
+            "I'm always interested in new opportunities and collaborations. Whether you have a project in mind or just want to chat about technology, feel free to reach out!",
           contactMethods: [
             {
               type: "email",
@@ -2446,7 +2820,8 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           showContactForm: false,
           showQRCode: true,
           qrCodeUrl: "",
-          profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+          profileImage:
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
           resumeUrl: "/resume.pdf",
         },
         propsSchema: {
@@ -2818,6 +3193,129 @@ export const componentRegistry: Record<SectionType, ComponentSection> = {
           fontWeight: "400",
           borderRadius: "0",
           shadow: "none",
+        },
+      },
+      {
+        id: "minimal-footer",
+        name: "Minimal Footer",
+        description:
+          "Clean three-column footer with brand, quick links, contact info, and social links",
+        component: FooterComponents.MinimalFooter,
+        thumbnail: "/thumbnails/minimal-footer.jpg",
+        category: "layout",
+        tags: [
+          "footer",
+          "minimal",
+          "clean",
+          "social",
+          "contact",
+          "links",
+          "three-column",
+        ],
+        theme: "minimal",
+        isPopular: true,
+        defaultProps: {
+          brandName: "John Doe",
+          tagline: "Full Stack Developer",
+          description: "Building beautiful and functional web experiences.",
+          email: "john.doe@example.com",
+          phone: "+1 (555) 123-4567",
+          location: "San Francisco, CA",
+          socialLinks: [
+            {
+              platform: "GitHub",
+              url: "https://github.com/johndoe",
+              username: "@johndoe",
+            },
+            {
+              platform: "LinkedIn",
+              url: "https://linkedin.com/in/johndoe",
+              username: "johndoe",
+            },
+            {
+              platform: "Twitter",
+              url: "https://twitter.com/johndoe",
+              username: "@johndoe",
+            },
+          ],
+          quickLinks: [
+            { label: "About", url: "#about" },
+            { label: "Projects", url: "#projects" },
+            { label: "Skills", url: "#skills" },
+            { label: "Contact", url: "#contact" },
+          ],
+          showSocialLinks: true,
+          showQuickLinks: true,
+          showContactInfo: true,
+          copyrightText: `© ${new Date().getFullYear()} John Doe. All rights reserved.`,
+        },
+        propsSchema: {
+          brandName: {
+            type: "text",
+            label: "Brand Name",
+            description: "Your name or brand",
+            placeholder: "Enter your name...",
+          },
+          tagline: {
+            type: "text",
+            label: "Tagline",
+            description: "Your tagline or title",
+            placeholder: "Enter your tagline...",
+          },
+          description: {
+            type: "textarea",
+            label: "Description",
+            description: "Brief description about you or your brand",
+            placeholder: "Enter description...",
+          },
+          email: {
+            type: "text",
+            label: "Email",
+            description: "Your email address",
+            placeholder: "email@example.com",
+          },
+          phone: {
+            type: "text",
+            label: "Phone",
+            description: "Your phone number",
+            placeholder: "+1 (555) 123-4567",
+          },
+          location: {
+            type: "text",
+            label: "Location",
+            description: "Your location",
+            placeholder: "City, State/Country",
+          },
+          copyrightText: {
+            type: "text",
+            label: "Copyright Text",
+            description: "Copyright notice text",
+            placeholder: "© 2024 All rights reserved.",
+          },
+          showSocialLinks: {
+            type: "boolean",
+            label: "Show Social Links",
+            description: "Display social media links",
+          },
+          showQuickLinks: {
+            type: "boolean",
+            label: "Show Quick Links",
+            description: "Display quick navigation links",
+          },
+          showContactInfo: {
+            type: "boolean",
+            label: "Show Contact Info",
+            description: "Display contact information",
+          },
+        },
+        defaultStyles: {
+          backgroundColor: "#1f2937",
+          textColor: "#f9fafb",
+          primaryColor: "#3b82f6",
+          secondaryColor: "#9ca3af",
+          borderColor: "#374151",
+          paddingY: "60",
+          paddingX: "16",
         },
       },
     ],
