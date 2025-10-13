@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
 const authRoutes = ["/sign-in", "/sign-up"];
 const passwordRoutes = ["/reset-password", "/forgot-password"];
@@ -6,6 +7,7 @@ const adminRoutes = ["/admin"];
 
 export default function authMiddleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
+  const sessionCookie = getSessionCookie(request);
 
   // ✅ Allow public access to portfolio routes and root
   if (pathName === "/" || pathName.startsWith("/portfolio")) {
@@ -16,10 +18,7 @@ export default function authMiddleware(request: NextRequest) {
   const isPasswordRoute = passwordRoutes.includes(pathName);
   const isAdminRoute = adminRoutes.includes(pathName);
 
-  // Check for Better Auth session cookie
-  const sessionToken = request.cookies.get("better-auth.session_token");
-
-  if (!sessionToken) {
+  if (!sessionCookie) {
     if (isAuthRoute || isPasswordRoute) {
       return NextResponse.next();
     }
